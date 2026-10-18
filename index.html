@@ -632,8 +632,8 @@ async function checkPythonChallenge(){
    "        if exercise_setup.strip():",
    '            exec(compile(exercise_setup, "<exercise setup>", "exec"), test_namespace)',
    '        exec(compile(exercise_code, "<your code>", "exec"), test_namespace)',
-   '    test_namespace["__output__"] = student_output.getvalue()
-   test_namespace["__source__"] = exercise_code',
+   '    test_namespace["__output__"] = student_output.getvalue()',
+   '    test_namespace["__source__"] = exercise_code',
    "    for test_case in json.loads(exercise_tests_json):",
    "        try:",
    '            exec(compile(test_case["code"], "<" + test_case["name"] + ">", "exec"), test_namespace)',
