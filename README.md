@@ -2,9 +2,18 @@
 
 A browser-based study studio for moving from a commerce background into data analytics. Start from zero and learn through short explanations, worked business examples, quizzes and hands-on practice.
 
-## Open DataTrail
+## Publish the study site
 
-The site is deployed as a static web app. Once the connected Vercel deployment is ready, its production URL will be added here.
+The website files are ready on the `main` branch. To publish:
+
+1. Open **Settings → Pages** in this repository.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Open the **Actions** tab and check the **Deploy DataTrail to GitHub Pages** workflow.
+4. Once its deployment succeeds, use the URL shown in the workflow summary. For a public project site it will normally be:
+
+   `https://software-vikings.github.io/datatrail-study/`
+
+GitHub Pages is available for public repositories on GitHub Free. Publishing from a private repository requires an eligible paid plan. A Pages site is public on the internet unless it is privately published through an eligible enterprise plan.
 
 ## Learning paths
 
@@ -43,4 +52,4 @@ Then visit http://localhost:8765.
 
 ## Sample data
 
-The SQL lab contains a small synthetic customers and orders dataset. Use its Download CSV button to export the orders table. All names and amounts are fictional.
+The SQL lab contains a small synthetic customers and orders dataset. Use its Download CSV button to export the orders table. A copy is also in `orders-sample.csv`. All names and amounts are fictional.
