@@ -411,10 +411,75 @@ function load(){window.initSqlJs({locateFile:f=>"https://cdnjs.cloudflare.com/aj
 const orderCsv="order_id,customer_id,order_date,amount,status\n1001,1,2026-09-01,1200,Paid\n1002,2,2026-09-02,5400,Paid\n1003,1,2026-09-05,800,Refunded\n1004,3,2026-09-08,3200,Paid\n1005,4,2026-09-12,7200,Pending\n1006,5,2026-09-17,2100,Paid\n1007,2,2026-09-20,1800,Paid\n1008,3,2026-09-22,6100,Paid\n1009,5,2026-09-25,950,Pending\n1010,1,2026-09-28,4300,Paid";
 function downloadOrdersCsv(){let blob=new Blob([orderCsv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="datatrail-orders.csv";a.click();URL.revokeObjectURL(url)}
 let pyReady=false,pyodide=null;
+const pythonChallenges=[
+{title:"1 · Calculate profit with a function",lessonMatch:["function","return","profit"],prompt:"Write calculate_profit(revenue, cost). It must return revenue minus cost. Do not print the result inside the function.",setup:"",starter:"def calculate_profit(revenue, cost):\n    # Replace this line\n    pass",hint:"The function needs two parameters and one return statement.",solution:"def calculate_profit(revenue, cost):\n    return revenue - cost",tests:"assert calculate_profit(15000, 8400) == 6600\nassert calculate_profit(2000, 500) == 1500"},
+{title:"2 · Filter high-value orders",lessonMatch:["list","comprehension","filter"],prompt:"Given amounts, create a list called high_value containing only values greater than or equal to 5,000. Keep the original order.",setup:"amounts = [1200, 6500, 800, 7200, 5000]",starter:"amounts = [1200, 6500, 800, 7200, 5000]\nhigh_value = ",hint:"Use a list comprehension: expression first, then for amount in amounts, then an if condition.",solution:"amounts = [1200, 6500, 800, 7200, 5000]\nhigh_value = [amount for amount in amounts if amount >= 5000]",tests:"assert high_value == [6500, 7200, 5000]\nassert all(value >= 5000 for value in high_value)"},
+{title:"3 · Group sales by city",lessonMatch:["dictionary","group","city"],prompt:"Use the supplied rows to create a dictionary named sales_by_city. Add the revenue for every row belonging to the same city.",setup:"rows = [(\"Chennai\", 1200), (\"Pune\", 900), (\"Chennai\", 1500), (\"Pune\", 300)]",starter:"rows = [(\"Chennai\", 1200), (\"Pune\", 900), (\"Chennai\", 1500), (\"Pune\", 300)]\nsales_by_city = {}\n# Loop through rows and add each amount to its city",hint:"Use a for loop to unpack city and amount. Add to the current total, using .get(city, 0) for a city not seen before.",solution:"rows = [(\"Chennai\", 1200), (\"Pune\", 900), (\"Chennai\", 1500), (\"Pune\", 300)]\nsales_by_city = {}\nfor city, amount in rows:\n    sales_by_city[city] = sales_by_city.get(city, 0) + amount",tests:"assert sales_by_city[\"Chennai\"] == 2700\nassert sales_by_city[\"Pune\"] == 1200\nassert sum(sales_by_city.values()) == 3900"},
+{title:"4 · Clean customer names",lessonMatch:["string","clean","text"],prompt:"Create a function clean_names(names) that trims unwanted spaces and converts each name to title case. Return a new list.",setup:"",starter:"def clean_names(names):\n    # Return a cleaned list\n    pass",hint:"Loop or use a list comprehension. For each name, call strip() and then title().",solution:"def clean_names(names):\n    return [name.strip().title() for name in names]",tests:"assert clean_names([\"  asha\", \"RAHUL \", \" meera  \"]) == [\"Asha\", \"Rahul\", \"Meera\"]\nassert clean_names([]) == []"},
+{title:"5 · Sum only paid revenue",lessonMatch:["csv","orders","revenue","exception"],prompt:"Write paid_revenue(orders). The input is a list of dictionaries. Return the sum of amount for rows whose status is Paid.",setup:"orders = [{\"order_id\": 1, \"amount\": 1200, \"status\": \"Paid\"}, {\"order_id\": 2, \"amount\": 900, \"status\": \"Pending\"}, {\"order_id\": 3, \"amount\": 1500, \"status\": \"Paid\"}]",starter:"def paid_revenue(orders):\n    # Start a total and add only Paid rows\n    pass",hint:"Loop over each order dictionary. Check order['status'] and add order['amount'] when it is Paid.",solution:"def paid_revenue(orders):\n    total = 0\n    for order in orders:\n        if order[\"status\"] == \"Paid\":\n            total += order[\"amount\"]\n    return total",tests:"assert paid_revenue(orders) == 2700\nassert paid_revenue([]) == 0"},
+{title:"6 · Make a reusable average function",lessonMatch:["average","mean","numeric"],prompt:"Write average_order_value(amounts). Return 0 for an empty list; otherwise return the arithmetic mean.",setup:"",starter:"def average_order_value(amounts):\n    # Handle the empty case, then calculate the mean\n    pass",hint:"If not amounts, return 0. Otherwise divide sum(amounts) by len(amounts).",solution:"def average_order_value(amounts):\n    if not amounts:\n        return 0\n    return sum(amounts) / len(amounts)",tests:"assert average_order_value([100, 200, 300]) == 200\nassert average_order_value([1200, 900]) == 1050\nassert average_order_value([]) == 0"}
+];
+let pyCurrentChallenge=0;
+function pyShowChallenge(){
+ let t=pythonChallenges[pyCurrentChallenge],done=(state.pythonTaskComplete||[]).includes(pyCurrentChallenge);
+ let title=document.getElementById("pyTaskTitle"),prompt=document.getElementById("pyTaskPrompt"),hint=document.getElementById("pyTaskHint"),solution=document.getElementById("pyTaskSolution"),status=document.getElementById("pyTaskStatus");
+ if(title)title.textContent=t.title;
+ if(prompt)prompt.textContent=t.prompt;
+ if(hint){hint.textContent=t.hint;hint.hidden=true}
+ if(solution){solution.textContent=t.solution;solution.hidden=true}
+ if(status)status.textContent=done?"✓ Exercise passed":"Not completed yet";
+ let editor=document.getElementById("pyEditor");if(editor)editor.value=t.starter;
+ let feedback=document.getElementById("pyTaskFeedback");if(feedback)feedback.textContent="";
+ document.querySelectorAll("[data-pychallenge]").forEach(b=>{let n=Number(b.dataset.pychallenge);b.classList.toggle("active",n===pyCurrentChallenge);b.classList.toggle("done",(state.pythonTaskComplete||[]).includes(n))});
+ let total=document.getElementById("pyOverallProgress");if(total)total.textContent=(state.pythonTaskComplete||[]).length+" / "+pythonChallenges.length+" Python exercises passed";
+}
+async function checkPythonChallenge(){
+ let output=document.getElementById("pyOutput"),code=document.getElementById("pyEditor").value;
+ let task=pythonChallenges[pyCurrentChallenge],box=document.getElementById("pyTaskFeedback");
+ output.textContent="Starting Python and running your tests…";
+ try{
+  let py=await ensurePy();
+  py.globals.set("learner_setup",task.setup);
+  py.globals.set("learner_code",code);
+  py.globals.set("learner_tests",task.tests);
+  let harness=[
+   "import contextlib, io",
+   "capture = io.StringIO()",
+   "namespace = {}",
+   "with contextlib.redirect_stdout(capture):",
+   "    exec(learner_setup, namespace)",
+   "    exec(learner_code, namespace)",
+   "    exec(learner_tests, namespace)"
+  ].join("\n");
+  await py.runPythonAsync(harness);
+  let printed=py.runPython("capture.getvalue()");
+  output.textContent="All automated tests passed.\n"+(printed||"Your solution returned the expected results.");
+  state.pythonTaskComplete=state.pythonTaskComplete||[];
+  if(!state.pythonTaskComplete.includes(pyCurrentChallenge)){state.pythonTaskComplete.push(pyCurrentChallenge);state.xp+=20;save()}
+  if(box)box.innerHTML='<div class="feedback success">✓ Correct. Your code passed every test for this exercise.</div>';
+  let status=document.getElementById("pyTaskStatus");if(status)status.textContent="✓ Exercise passed";
+  let total=document.getElementById("pyOverallProgress");if(total)total.textContent=state.pythonTaskComplete.length+" / "+pythonChallenges.length+" Python exercises passed";
+  document.querySelector('[data-pychallenge="'+pyCurrentChallenge+'"]')?.classList.add("done");
+ }catch(e){
+  output.textContent="Test run did not pass.\n"+e.message;
+  if(box)box.innerHTML='<div class="feedback">Not there yet. Read the error, check the function name and return value, then try again. A failed test is useful feedback—not a failure.</div>';
+ }
+}
 function pythonLab(){
-let starter=state.pythonStarter||["sales = [1200, 900, 1500]","total = sum(sales)",'print("Total sales:", total)','print("Average order:", total / len(sales))'].join(String.fromCharCode(10));state.pythonStarter="";
-view.innerHTML='<div class="eyebrow">PYTHON IN YOUR BROWSER</div><h1 class="h1">Python lab</h1><p class="sub">Write Python and run it right here. Start with print, variables and arithmetic. Later you can load NumPy and pandas in this same environment.</p><div class="notice" style="margin:16px 0">Pyodide downloads a Python runtime from a public CDN the first time you run code. It may take a little while and requires internet access.</div><div class="terminal"><div class="termhead"><strong>practice.py</strong><span id="pyStatus">Runtime not loaded</span></div><textarea id="pyEditor" spellcheck="false">'+esc(starter)+'</textarea><div style="padding:0 15px 14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn lime small" id="runPy">▶ Run Python</button><button class="btn ghost small" id="loadData">Load NumPy + pandas</button><button class="btn ghost small" id="clearPy">Clear output</button></div><div class="termout" id="pyOutput">Run code to see output.</div></div><div class="grid two" style="margin-top:15px"><div class="card"><div class="eyebrow">TRY THIS NEXT</div><h3 style="font-size:14px">Calculate profit</h3><p class="tiny muted">Revenue is ₹15,000. Expenses are ₹8,400. Write code to calculate profit.</p><button class="btn small" id="profitSnippet">Load exercise</button></div><div class="card"><div class="eyebrow">COMING INTO DATA ANALYSIS</div><h3 style="font-size:14px">NumPy and pandas</h3><p class="tiny muted">Load the packages when you reach those lessons. Package loading may take another moment.</p><button class="btn small" id="pandasSnippet">Load DataFrame example</button></div></div>';
-document.getElementById("runPy").onclick=runPython;document.getElementById("loadData").onclick=loadPyData;document.getElementById("clearPy").onclick=()=>document.getElementById("pyOutput").textContent="Output cleared.";document.getElementById("profitSnippet").onclick=()=>document.getElementById("pyEditor").value="revenue = 15000\nexpenses = 8400\nprofit = revenue - expenses\nprint(\"Profit:\", profit)";document.getElementById("pandasSnippet").onclick=()=>document.getElementById("pyEditor").value="import pandas as pd\ndf = pd.DataFrame({\"city\": [\"Chennai\", \"Pune\", \"Chennai\"], \"sales\": [1200, 900, 1500]})\nprint(df)\nprint(df.groupby(\"city\")[\"sales\"].sum())"
+ let requested=state.pythonTaskTarget||"";state.pythonTaskTarget="";
+ let matchIndex=pythonChallenges.findIndex(t=>t.lessonMatch.some(k=>requested.toLowerCase().includes(k)));
+ pyCurrentChallenge=matchIndex>=0?matchIndex:0;
+ let t=pythonChallenges[pyCurrentChallenge];
+ view.innerHTML='<div class="eyebrow">PYTHON · INTERACTIVE CODING LAB</div><h1 class="h1">Write Python. Run tests. Learn from the result.</h1><p class="sub">These are executable Python exercises. A task is marked complete only when your code passes its tests—not simply because it runs without an error.</p><div class="notice" style="margin:16px 0">Python runs in your browser using Pyodide. The first run downloads the runtime and requires an internet connection. Your code and progress remain in this browser.</div><div class="python-lab-grid"><section class="python-task-list card"><div class="eyebrow">GUIDED EXERCISES</div><div id="pyChallengeList">'+pythonChallenges.map((q,i)=>'<button class="python-task-row" data-pychallenge="'+i+'"><span class="sql-task-no">'+String(i+1).padStart(2,"0")+'</span><span class="sql-task-name">'+esc(q.title.replace(/^\\d+ · /,""))+'</span><span class="sql-task-check">'+((state.pythonTaskComplete||[]).includes(i)?"✓":"›")+'</span></button>').join("")+'</div></section><section class="python-work-column"><div class="card"><div class="eyebrow">YOUR CURRENT EXERCISE</div><h2 id="pyTaskTitle" style="font-size:17px;margin:8px 0"></h2><p id="pyTaskPrompt" class="muted" style="font-size:13px;line-height:1.65"></p><div class="sql-task-actions"><button class="btn small" id="pyHintBtn">Show hint</button><button class="btn small" id="pySolutionBtn">Reveal solution</button></div><p id="pyTaskHint" class="sql-reveal" hidden></p><pre id="pyTaskSolution" class="sql-reveal sql-solution" hidden></pre><div id="pyTaskStatus" class="tiny muted" style="margin-top:10px"></div></div><div class="terminal" style="margin-top:14px"><div class="termhead"><strong>exercise.py</strong><span id="pyStatus">Runtime not loaded</span></div><textarea id="pyEditor" spellcheck="false"></textarea><div class="sql-runbar"><button class="btn lime small" id="runPy">▶ Run code</button><button class="btn primary small" id="checkPy">✓ Run tests</button><button class="btn ghost small" id="loadData">Load NumPy + pandas</button><button class="btn ghost small" id="clearPy">Clear output</button></div><div class="termout" id="pyOutput">Write your solution, then run it or check it against the exercise tests.</div></div><div class="card" style="margin-top:14px"><div id="pyTaskFeedback"></div></div></section></div><div class="sql-course-footer"><strong id="pyOverallProgress">'+(state.pythonTaskComplete||[]).length+' / '+pythonChallenges.length+' Python exercises passed</strong><button class="btn primary" id="nextPyTask">Next exercise →</button></div>';
+ pyShowChallenge();
+ view.querySelectorAll("[data-pychallenge]").forEach(b=>b.onclick=()=>{pyCurrentChallenge=Number(b.dataset.pychallenge);pyShowChallenge()});
+ document.getElementById("runPy").onclick=runPython;
+ document.getElementById("checkPy").onclick=checkPythonChallenge;
+ document.getElementById("loadData").onclick=loadPyData;
+ document.getElementById("clearPy").onclick=()=>document.getElementById("pyOutput").textContent="Output cleared.";
+ document.getElementById("pyHintBtn").onclick=()=>{let x=document.getElementById("pyTaskHint");x.hidden=!x.hidden};
+ document.getElementById("pySolutionBtn").onclick=()=>{let x=document.getElementById("pyTaskSolution");x.hidden=!x.hidden};
+ document.getElementById("nextPyTask").onclick=()=>{let next=pythonChallenges.findIndex((_,i)=>i>pyCurrentChallenge&&!(state.pythonTaskComplete||[]).includes(i));pyCurrentChallenge=next<0?0:next;pyShowChallenge()};
 }
 async function ensurePy(){let s=document.getElementById("pyStatus");if(pyReady)return pyodide;if(s)s.textContent="Downloading Python runtime…";if(!window.loadPyodide){await new Promise((resolve,reject)=>{let sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js";sc.onload=resolve;sc.onerror=()=>reject(Error("Unable to load Pyodide. Check your internet connection."));document.head.appendChild(sc)})}pyodide=await loadPyodide();pyReady=true;if(s)s.textContent="Python ready";return pyodide}
 async function runPython(){let out=document.getElementById("pyOutput");out.textContent="Starting Python…";try{let py=await ensurePy();await py.runPythonAsync("import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()");await py.runPythonAsync(document.getElementById("pyEditor").value);let stdout=py.runPython("sys.stdout.getvalue()"),stderr=py.runPython("sys.stderr.getvalue()");out.textContent=(stdout||"Code ran successfully with no printed output.")+(stderr?"\n"+stderr:"");state.xp+=2;save()}catch(e){out.textContent="Python error: "+e.message}}
