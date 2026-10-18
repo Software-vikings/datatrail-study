@@ -101,6 +101,15 @@
 .sql-course-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px;padding:14px 17px;background:#fff;border:1px solid var(--line);border-radius:14px;font-size:12px}
 @media(max-width:940px){.sql-lab-grid{grid-template-columns:1fr}}
 
+
+.python-lab-grid{display:grid;grid-template-columns:minmax(230px,.72fr) minmax(0,1.55fr);gap:15px;align-items:start}
+.python-task-list,.python-work-column{min-width:0}
+.python-task-row{width:100%;display:flex;align-items:center;gap:8px;border:0;border-bottom:1px solid var(--line);background:#fff;padding:10px 7px;text-align:left;border-radius:8px}
+.python-task-row:hover,.python-task-row.active{background:#f0f7f2}
+.python-task-row.active{box-shadow:inset 3px 0 var(--green)}
+.python-task-row.done .sql-task-no{background:#e1f2e6;color:#21744f}
+@media(max-width:940px){.python-lab-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -240,13 +249,13 @@ if(legacyVersion){
  saved.practiceNotes=remapObject(saved.practiceNotes);
  saved.teachbacks=remapObject(saved.teachbacks);
 }
-let base={done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},teachbacks:{},sqlTaskComplete:[],dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false};
+let base={done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},teachbacks:{},sqlTaskComplete:[],pythonTaskComplete:[],dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false};
 let merged=Object.assign(base,saved);
-["done","bookmarks","sqlTaskComplete"].forEach(k=>{if(!Array.isArray(merged[k]))merged[k]=[]});
+["done","bookmarks","sqlTaskComplete","pythonTaskComplete"].forEach(k=>{if(!Array.isArray(merged[k]))merged[k]=[]});
 ["answers","practiceNotes","teachbacks","projects"].forEach(k=>{if(!merged[k]||typeof merged[k]!=="object")merged[k]={}});
 if(legacyVersion)localStorage.setItem(STORE,JSON.stringify(merged));
 return merged
-}catch(e){return {done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},teachbacks:{},sqlTaskComplete:[],dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false}}
+}catch(e){return {done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},teachbacks:{},sqlTaskComplete:[],pythonTaskComplete:[],dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false}}
 }
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){toast("Browser storage is unavailable. Export a backup to keep progress.")}updateXp()}
 function updateXp(){let x=document.getElementById("xp");if(x)x.textContent=(state.xp||0)+" XP"}
@@ -309,7 +318,7 @@ view.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{let n=Number(b.da
 view.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>openLesson(t.name,b.dataset.jump));
 document.getElementById("tutorBack").onclick=()=>{if(tutorStep===0){go("paths")}else{tutorStep--;lessonPage()}};
 let nextBtn=document.getElementById("tutorNext");if(nextBtn)nextBtn.onclick=()=>{if(tutorStep===2){let val=document.getElementById("tutorAttempt").value.trim();if(val.length<3){toast("Write a small attempt first. It does not need to be perfect.");return}state.practiceNotes=state.practiceNotes||{};state.practiceNotes[l.id]=val;save()}tutorStep++;lessonPage()};
-const openLabBtn=document.getElementById("openTutorLab");if(openLabBtn)openLabBtn.onclick=()=>{if(t.name==="SQL"){let q=l.example.replace(/\\n/g,"\n").trim();state.sqlStarter="";state.sqlTaskTarget=l.title;}else if(t.name==="Python"||t.name==="NumPy"||t.name==="pandas"){let code=l.example.replace(/\\n/g,"\n");if(t.name==="NumPy")code="import numpy as np\nsales = np.array([120, 150, 90, 200])\n"+code;if(t.name==="pandas")code="import pandas as pd\ndf = pd.DataFrame({\"city\": [\"Chennai\", \"Pune\", \"Chennai\"], \"sales\": [1200, 900, 1500]})\n"+code;state.pythonStarter=code}else if(t.name==="Excel"){}save();go(labPage)};
+const openLabBtn=document.getElementById("openTutorLab");if(openLabBtn)openLabBtn.onclick=()=>{if(t.name==="SQL"){let q=l.example.replace(/\\n/g,"\n").trim();state.sqlStarter="";state.sqlTaskTarget=l.title;}else if(t.name==="Python"||t.name==="NumPy"||t.name==="pandas"){let code=l.example.replace(/\\n/g,"\n");if(t.name==="NumPy")code="import numpy as np\nsales = np.array([120, 150, 90, 200])\n"+code;if(t.name==="pandas")code="import pandas as pd\ndf = pd.DataFrame({\"city\": [\"Chennai\", \"Pune\", \"Chennai\"], \"sales\": [1200, 900, 1500]})\n"+code;state.pythonStarter="";state.pythonTaskTarget=l.title}else if(t.name==="Excel"){}save();go(labPage)};
 const hintBtn=document.getElementById("tutorHint");if(hintBtn)hintBtn.onclick=()=>{let b=document.getElementById("tutorHintBox");b.hidden=!b.hidden};
 const solutionBtn=document.getElementById("tutorSolution");if(solutionBtn)solutionBtn.onclick=()=>{let b=document.getElementById("tutorSolutionBox");b.hidden=!b.hidden};
 const saveAttemptBtn=document.getElementById("saveTutorAttempt");if(saveAttemptBtn)saveAttemptBtn.onclick=()=>{let val=document.getElementById("tutorAttempt").value.trim();if(val.length<3){toast("Try writing at least a few words or lines first.");return}state.practiceNotes=state.practiceNotes||{};state.practiceNotes[l.id]=val;save();tutorStep=3;lessonPage()};
