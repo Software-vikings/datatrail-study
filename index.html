@@ -112,7 +112,7 @@
 <script>
 (function(){
 "use strict";
-const STORE="datatrail-v2";
+const STORE="datatrail-v3";
 const icons={Excel:"▦",SQL:"▣",Python:"⌁",NumPy:"∿",pandas:"▤",Statistics:"∑","Power BI":"▥"};
 const lessonRows={
 Excel:[
@@ -203,21 +203,31 @@ const tracks=Object.keys(lessonRows).map(name=>({name,icon:icons[name],lessons:l
 let state=load();
 function load(){
 try{
-let raw=localStorage.getItem(STORE),legacy=false;
-if(!raw){raw=localStorage.getItem("datatrail-v1");legacy=!!raw}
+let raw=localStorage.getItem(STORE),legacyVersion=0;
+if(!raw){raw=localStorage.getItem("datatrail-v2");if(raw)legacyVersion=2}
+if(!raw){raw=localStorage.getItem("datatrail-v1");if(raw)legacyVersion=1}
 let saved=raw?JSON.parse(raw):{};
-if(legacy){
-const shift=id=>{let m=/^(excel|sql|python|numpy|pandas|statistics|powerbi)-(\d+)$/.exec(id||"");return m?m[1]+"-"+(Number(m[2])+4):id};
-saved.done=(saved.done||[]).map(shift);
-saved.bookmarks=(saved.bookmarks||[]).map(shift);
-if(saved.answers)saved.answers=Object.fromEntries(Object.entries(saved.answers).map(([k,v])=>[shift(k),v]));
+if(legacyVersion){
+ const shift=id=>{
+  let m=/^(excel|sql|python|numpy|pandas|statistics|powerbi)-(\\d+)$/.exec(id||"");
+  if(!m)return id;
+  let amount=legacyVersion===1?(m[1]==="sql"?18:12):(m[1]==="sql"?14:8);
+  return m[1]+"-"+(Number(m[2])+amount)
+ };
+ const remapObject=obj=>obj?Object.fromEntries(Object.entries(obj).map(([k,v])=>[shift(k),v])):{};
+ saved.done=(saved.done||[]).map(shift);
+ saved.bookmarks=(saved.bookmarks||[]).map(shift);
+ saved.answers=remapObject(saved.answers);
+ saved.practiceNotes=remapObject(saved.practiceNotes);
+ saved.teachbacks=remapObject(saved.teachbacks);
 }
-let base={done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false};
+let base={done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},teachbacks:{},sqlTaskComplete:[],dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false};
 let merged=Object.assign(base,saved);
-if(!merged.practiceNotes)merged.practiceNotes={};
-if(legacy)localStorage.setItem(STORE,JSON.stringify(merged));
+["done","bookmarks","sqlTaskComplete"].forEach(k=>{if(!Array.isArray(merged[k]))merged[k]=[]});
+["answers","practiceNotes","teachbacks","projects"].forEach(k=>{if(!merged[k]||typeof merged[k]!=="object")merged[k]={}});
+if(legacyVersion)localStorage.setItem(STORE,JSON.stringify(merged));
 return merged
-}catch(e){return {done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false}}
+}catch(e){return {done:[],xp:0,streak:0,lastDay:"",answers:{},bookmarks:[],projects:{},practiceNotes:{},teachbacks:{},sqlTaskComplete:[],dailyMinutes:0,preferences:{daily:45,goal:"Data analyst job",level:"Complete beginner"},hasOnboarded:false}}
 }
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){toast("Browser storage is unavailable. Export a backup to keep progress.")}updateXp()}
 function updateXp(){let x=document.getElementById("xp");if(x)x.textContent=(state.xp||0)+" XP"}
