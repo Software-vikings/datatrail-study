@@ -61,6 +61,32 @@ jobs:
           if (taskMap.some(i => !Number.isInteger(i) || i < 0 || i >= tasks.length)) throw new Error("Invalid Python exercise mapping");
           console.log("Validated", lessons.length, "Python lessons,", tasks.length, "exercises and", tasks.reduce((n, x) => n + x.tests.length, 0), "named tests.");
           NODE
+      - name: Verify Python exercise reference solutions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import contextlib
+          import io
+          import json
+
+          source = Path("assets/python-exercises.js").read_text(encoding="utf-8")
+          prefix = "window.DataTrailPythonExercises = "
+          if not source.startswith(prefix):
+              raise SystemExit("Python exercise bank has an unexpected format")
+          tasks = json.loads(source[len(prefix):].strip().removesuffix(";"))
+          for task_index, task in enumerate(tasks, start=1):
+              namespace = {"__name__": "__main__"}
+              captured = io.StringIO()
+              with contextlib.redirect_stdout(captured):
+                  if task["setup"].strip():
+                      exec(compile(task["setup"], "<setup>", "exec"), namespace)
+                  exec(compile(task["solution"], "<reference solution>", "exec"), namespace)
+              namespace["__output__"] = captured.getvalue()
+              for test in task["tests"]:
+                  exec(compile(test["code"], "<" + test["name"] + ">", "exec"), namespace)
+              print(f"Exercise {task_index:02d}: {task['title']} — {len(task['tests'])} tests passed")
+          print(f"Verified {len(tasks)} reference solutions and all named test cases.")
+          PY
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
