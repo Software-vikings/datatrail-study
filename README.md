@@ -1,6 +1,6 @@
 # DataTrail — Learn by doing
 
-A browser-based data analytics learning studio for beginners moving toward analyst-level work. Development is being delivered in quality-controlled phases. **Phase 1 is the rebuilt Python course: 33 sequenced lessons, 20 executable coding exercises and 53 named test cases.** SQL and the other subject tracks remain in the site; their teaching redesign is staged for later phases.
+A browser-based data analytics learning studio for beginners moving toward analyst-level work. Development is being delivered in quality-controlled phases. **Phase 1 is the rebuilt Python course: 33 sequenced lessons, 22 executable coding exercises and 60 named test cases.** SQL and the other subject tracks remain in the site; their teaching redesign is staged for later phases.
 
 ## Publish the study site
 
