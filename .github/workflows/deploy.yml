@@ -68,7 +68,12 @@ jobs:
           if ((html.match(/function openLesson\(track,id\)/g) || []).length !== 1) throw new Error("Expected exactly one openLesson handler");
           if (!html.includes('id="runWorkedExample"') || !html.includes("worked_example_stdout.getvalue()")) throw new Error("Runnable worked-example output is missing");
           if ((html.match(/data-track-open=/g) || []).length < 2 || !html.includes('querySelectorAll("[data-track-open]")')) throw new Error("Dashboard and learning-path cards must be clickable");
-          console.log("Validated", lessons.length, "Python lessons,", tasks.length, "exercises,", tasks.reduce((n, x) => n + x.tests.length, 0), "named tests, runnable examples and clickable course cards.");
+          for (const marker of ['id="tutorPythonRun"', 'id="tutorPythonCheck"', 'id="tutorPythonSolution"', 'id="tutorPythonOutput"', 'id="tutorPythonFeedback"']) {
+            if (!html.includes(marker)) throw new Error("Python lesson practice is missing " + marker);
+          }
+          if (!html.includes("esc(pythonTask.prompt)") || !html.includes("tutor_task_tests_json") || !html.includes("tutor_test_results")) throw new Error("Python lesson task is not wired to its real exercise prompt and tests");
+          if (!html.includes("Run your code and pass all the checks before continuing.")) throw new Error("Python lessons must require a passing task before continuing");
+          console.log("Validated", lessons.length, "Python lessons,", tasks.length, "exercises,", tasks.reduce((n, x) => n + x.tests.length, 0), "named tests, runnable examples, interactive lesson grading and clickable course cards.");
           NODE
       - name: Verify Python exercise reference solutions
         run: |
