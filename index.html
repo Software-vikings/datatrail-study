@@ -525,8 +525,17 @@ async function executeTutorPython(checkTests){
   const allPassed=results.length>0&&passed===results.length;
   const testRows=results.map(item=>{
    let detail=item.detail;
-   if(!item.passed&&detail==="AssertionError")detail="The code ran, but this requirement was not met. Compare the task instruction with the output above.";
-   else if(!item.passed&&detail.startsWith("AssertionError:"))detail=detail.slice("AssertionError:".length).trim()||"The result did not match the requirement. Compare the task instruction with the output above.";
+   if(!item.passed&&detail==="AssertionError"){
+    const definition=(pythonTask.tests||[]).find(test=>test.name===item.name);
+    const expectedMatch=definition&&definition.code.match(/__output__\.strip\(\)\s*==\s*(["'])(.*?)\1/);
+    if(item.name.toLowerCase().includes("exact message")&&expectedMatch){
+     detail="Expected printed output: "+JSON.stringify(expectedMatch[2])+". Your program printed: "+JSON.stringify(result.output.trim())+". Match the text, capital letters and punctuation exactly.";
+    }else{
+     detail="The code ran, but this requirement was not met. Compare the task instruction with the output above, then check the variable names and values your code creates.";
+    }
+   }else if(!item.passed&&detail.startsWith("AssertionError:")){
+    detail=detail.slice("AssertionError:".length).trim()||"The result did not match the requirement. Compare the task instruction with the output above.";
+   }
    return '<div class="tutor-python-test '+(item.passed?"passed":"failed")+'"><span>'+(item.passed?"✓":"×")+'</span><div><strong>'+esc(item.name)+'</strong><small>'+esc(detail)+'</small></div></div>'
   }).join("");
   if(feedback)feedback.innerHTML='<div class="tutor-feedback '+(allPassed?"success":"retry")+'"><strong>'+(allPassed?"Correct — all "+passed+" checks passed.":"Not correct yet — "+passed+" of "+results.length+" checks passed.")+'</strong><p>'+(allPassed?"Your code meets the exercise requirements. You can continue to the knowledge check.":(result.error?"Python stopped before completing the tests. Read the error above, correct the code and check again.":"Your code executed, but one or more expected results were not produced. Read the failed checks, compare the output with the task, and try again. You can reveal the model answer when you are ready."))+'</p></div>'+testRows;
