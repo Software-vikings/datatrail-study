@@ -82,6 +82,25 @@
 .tutor-live-lab strong{font-size:12px;color:#234b3a}
 .tutor-live-lab p{font-size:11px;color:#64776c;line-height:1.5;margin:4px 0 0}
 
+
+.sql-lab-grid{display:grid;grid-template-columns:minmax(230px,.72fr) minmax(0,1.55fr);gap:15px;align-items:start}
+.sql-task-column,.sql-work-column{min-width:0}
+.sql-instruction h2{font-size:17px;margin:8px 0}
+.sql-instruction p{font-size:13px;line-height:1.65;color:#53635b}
+.sql-task-actions,.sql-runbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.sql-reveal{white-space:pre-wrap;background:#f1f7f2;border:1px solid #dceadf;color:#315244;border-radius:10px;padding:12px;font-size:12px;line-height:1.6;margin:10px 0}
+.sql-solution{background:#122421;color:#e2f1e6;border-color:#233e34;font-family:ui-monospace,monospace}
+.sql-task-row{width:100%;display:flex;align-items:center;gap:8px;border:0;border-bottom:1px solid var(--line);background:#fff;padding:10px 7px;text-align:left;border-radius:8px}
+.sql-task-row:hover,.sql-task-row.active{background:#f0f7f2}
+.sql-task-row.active{box-shadow:inset 3px 0 var(--green)}
+.sql-task-row.done .sql-task-no{background:#e1f2e6;color:#21744f}
+.sql-task-no{width:28px;height:28px;border-radius:8px;background:#f0f3ee;display:grid;place-items:center;font-size:10px;font-weight:850;flex:0 0 auto}
+.sql-task-name{font-size:11px;line-height:1.4;flex:1}
+.sql-task-check{color:#279064;font-weight:900}
+.sql-passed{color:#25794f;font-weight:800}
+.sql-course-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px;padding:14px 17px;background:#fff;border:1px solid var(--line);border-radius:14px;font-size:12px}
+@media(max-width:940px){.sql-lab-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -209,7 +228,7 @@ if(!raw){raw=localStorage.getItem("datatrail-v1");if(raw)legacyVersion=1}
 let saved=raw?JSON.parse(raw):{};
 if(legacyVersion){
  const shift=id=>{
-  let m=/^(excel|sql|python|numpy|pandas|statistics|powerbi)-(\\d+)$/.exec(id||"");
+  let m=/^(excel|sql|python|numpy|pandas|statistics|powerbi)-(\d+)$/.exec(id||"");
   if(!m)return id;
   let amount=legacyVersion===1?(m[1]==="sql"?18:12):(m[1]==="sql"?14:8);
   return m[1]+"-"+(Number(m[2])+amount)
@@ -290,7 +309,7 @@ view.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{let n=Number(b.da
 view.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>openLesson(t.name,b.dataset.jump));
 document.getElementById("tutorBack").onclick=()=>{if(tutorStep===0){go("paths")}else{tutorStep--;lessonPage()}};
 let nextBtn=document.getElementById("tutorNext");if(nextBtn)nextBtn.onclick=()=>{if(tutorStep===2){let val=document.getElementById("tutorAttempt").value.trim();if(val.length<3){toast("Write a small attempt first. It does not need to be perfect.");return}state.practiceNotes=state.practiceNotes||{};state.practiceNotes[l.id]=val;save()}tutorStep++;lessonPage()};
-const openLabBtn=document.getElementById("openTutorLab");if(openLabBtn)openLabBtn.onclick=()=>{if(t.name==="SQL"){let q=l.example.replace(/\\n/g,"\n").trim();state.sqlStarter=(q.toUpperCase().startsWith("SELECT ")||q.toUpperCase().startsWith("WITH "))?q:"SELECT * FROM customers;"}else if(t.name==="Python"||t.name==="NumPy"||t.name==="pandas"){let code=l.example.replace(/\\n/g,"\n");if(t.name==="NumPy")code="import numpy as np\nsales = np.array([120, 150, 90, 200])\n"+code;if(t.name==="pandas")code="import pandas as pd\ndf = pd.DataFrame({\"city\": [\"Chennai\", \"Pune\", \"Chennai\"], \"sales\": [1200, 900, 1500]})\n"+code;state.pythonStarter=code}else if(t.name==="Excel"){}save();go(labPage)};
+const openLabBtn=document.getElementById("openTutorLab");if(openLabBtn)openLabBtn.onclick=()=>{if(t.name==="SQL"){let q=l.example.replace(/\\n/g,"\n").trim();state.sqlStarter="";state.sqlTaskTarget=l.title;}else if(t.name==="Python"||t.name==="NumPy"||t.name==="pandas"){let code=l.example.replace(/\\n/g,"\n");if(t.name==="NumPy")code="import numpy as np\nsales = np.array([120, 150, 90, 200])\n"+code;if(t.name==="pandas")code="import pandas as pd\ndf = pd.DataFrame({\"city\": [\"Chennai\", \"Pune\", \"Chennai\"], \"sales\": [1200, 900, 1500]})\n"+code;state.pythonStarter=code}else if(t.name==="Excel"){}save();go(labPage)};
 const hintBtn=document.getElementById("tutorHint");if(hintBtn)hintBtn.onclick=()=>{let b=document.getElementById("tutorHintBox");b.hidden=!b.hidden};
 const solutionBtn=document.getElementById("tutorSolution");if(solutionBtn)solutionBtn.onclick=()=>{let b=document.getElementById("tutorSolutionBox");b.hidden=!b.hidden};
 const saveAttemptBtn=document.getElementById("saveTutorAttempt");if(saveAttemptBtn)saveAttemptBtn.onclick=()=>{let val=document.getElementById("tutorAttempt").value.trim();if(val.length<3){toast("Try writing at least a few words or lines first.");return}state.practiceNotes=state.practiceNotes||{};state.practiceNotes[l.id]=val;save();tutorStep=3;lessonPage()};
@@ -306,14 +325,82 @@ view.querySelectorAll("[data-practice]").forEach(b=>b.onclick=()=>{let ok=Number
 document.getElementById("newChallenge").onclick=practice;document.getElementById("openPracticeLesson").onclick=()=>openLesson(item.track,item.id)
 }
 let sqlReady=false,sqlDb=null;
+const sqlChallenges=[
+{title:"1 · Select the columns you need",lessonMatch:["select and from","first select","your first select","read the shape"],prompt:"Return the name and city of every customer. Do not return other columns.",starter:"SELECT \nFROM customers;",hint:"SELECT is followed by a comma-separated list of column names. Then use FROM customers.",solution:"SELECT name, city FROM customers;",check:r=>["name","city"].every(c=>r.columns.map(x=>x.toLowerCase()).includes(c))&&r.values.length===6},
+{title:"2 · Filter rows with WHERE",lessonMatch:["where","comparison operator","and, or","in, between"],prompt:"Return every order with an amount greater than ₹2,000. Include order_id and amount.",starter:"SELECT order_id, amount\nFROM orders\nWHERE ;",hint:"Use the amount column and the > comparison operator. Six orders meet the condition.",solution:"SELECT order_id, amount FROM orders WHERE amount > 2000;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("order_id")||!c.includes("amount")||r.values.length!==6)return false;return r.values.every(x=>Number(x[c.indexOf("amount")])>2000)}},
+{title:"3 · Sort and limit results",lessonMatch:["order by","limit","sort by"],prompt:"Return the three highest-value orders. Show order_id and amount, highest amount first.",starter:"SELECT order_id, amount\nFROM orders\nORDER BY \nLIMIT ;",hint:"Sort amount in descending order, then limit the result to three rows.",solution:"SELECT order_id, amount FROM orders ORDER BY amount DESC LIMIT 3;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("order_id")||!c.includes("amount")||r.values.length!==3)return false;return r.values.map(x=>Number(x[c.indexOf("order_id")])).join(",")==="1005,1008,1002"}},
+{title:"4 · Count orders by status",lessonMatch:["count, sum","aggregate","group by","having","conditional aggregation"],prompt:"Return one row per order status and count how many orders are in each status.",starter:"SELECT status, COUNT(*) AS order_count\nFROM orders\nGROUP BY ;",hint:"Group by status. Give COUNT(*) the alias order_count.",solution:"SELECT status, COUNT(*) AS order_count FROM orders GROUP BY status;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("status")||!c.includes("order_count")||r.values.length!==3)return false;let m=Object.fromEntries(r.values.map(x=>[x[c.indexOf("status")],Number(x[c.indexOf("order_count")])]));return m.Paid===7&&m.Pending===2&&m.Refunded===1}},
+{title:"5 · Join customers and orders",lessonMatch:["join","grain","revenue by city"],prompt:"Calculate total order revenue for each city. Return city and revenue, sorted from highest to lowest.",starter:"SELECT c.city, SUM(o.amount) AS revenue\nFROM orders o\nJOIN customers c ON \nGROUP BY \nORDER BY ;",hint:"Join on customer_id, group by c.city, and order by the revenue alias descending.",solution:"SELECT c.city, SUM(o.amount) AS revenue FROM orders o JOIN customers c ON c.customer_id=o.customer_id GROUP BY c.city ORDER BY revenue DESC;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("city")||!c.includes("revenue")||r.values.length!==4)return false;let m=Object.fromEntries(r.values.map(x=>[x[c.indexOf("city")],Number(x[c.indexOf("revenue")])]));return m.Chennai===13500&&m.Pune===7200&&m.Bengaluru===9300&&m.Hyderabad===3050}},
+{title:"6 · LEFT JOIN and find unmatched customers",lessonMatch:["left join","null"],prompt:"Find customers who have never placed an order. Return customer_id and name.",starter:"SELECT c.customer_id, c.name\nFROM customers c\nLEFT JOIN orders o ON \nWHERE ;",hint:"A LEFT JOIN keeps every customer. The order_id in the unmatched right-side row will be NULL.",solution:"SELECT c.customer_id, c.name FROM customers c LEFT JOIN orders o ON o.customer_id=c.customer_id WHERE o.order_id IS NULL;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());return c.includes("customer_id")&&c.includes("name")&&r.values.length===1&&r.values[0][c.indexOf("name")]==="Priya"}},
+{title:"7 · Create a business category with CASE",lessonMatch:["case"],prompt:"Return every order and add a column called order_band. Amounts of ₹5,000 or more are Large; all others are Regular.",starter:"SELECT order_id, amount,\nCASE \nEND AS order_band\nFROM orders;",hint:"Use CASE WHEN amount >= 5000 THEN 'Large' ELSE 'Regular' END.",solution:"SELECT order_id, amount, CASE WHEN amount >= 5000 THEN 'Large' ELSE 'Regular' END AS order_band FROM orders;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("order_band")||!c.includes("order_id")||r.values.length!==10)return false;let m=Object.fromEntries(r.values.map(x=>[Number(x[c.indexOf("order_id")]),x[c.indexOf("order_band")]]));return m[1005]==="Large"&&m[1001]==="Regular"&&m[1008]==="Large"}},
+{title:"8 · Use a CTE for a multi-step query",lessonMatch:["cte","common table"],prompt:"Use a CTE called customer_spend to calculate total spend per customer. Return customers whose total spend exceeds ₹5,000.",starter:"WITH customer_spend AS (\n  SELECT customer_id, \n  FROM orders\n  GROUP BY customer_id\n)\nSELECT * FROM customer_spend\nWHERE ;",hint:"In the CTE, use SUM(amount) AS total_spend. In the outer query, filter total_spend > 5000.",solution:"WITH customer_spend AS (SELECT customer_id, SUM(amount) AS total_spend FROM orders GROUP BY customer_id) SELECT * FROM customer_spend WHERE total_spend > 5000;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("customer_id")||!c.includes("total_spend")||r.values.length!==4)return false;return r.values.every(x=>Number(x[c.indexOf("total_spend")])>5000)}},
+{title:"9 · Find customers with EXISTS",lessonMatch:["subquery","exists"],prompt:"Return customers who have at least one order above ₹5,000. Use EXISTS.",starter:"SELECT c.customer_id, c.name\nFROM customers c\nWHERE EXISTS (\n  SELECT 1 FROM orders o\n  WHERE \n);",hint:"Correlate the subquery with o.customer_id = c.customer_id and add o.amount > 5000.",solution:"SELECT c.customer_id, c.name FROM customers c WHERE EXISTS (SELECT 1 FROM orders o WHERE o.customer_id=c.customer_id AND o.amount>5000);",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("customer_id")||!c.includes("name")||r.values.length!==3)return false;return r.values.map(x=>Number(x[c.indexOf("customer_id")])).sort().join(",")==="2,3,4"}},
+{title:"10 · Rank orders with a window function",lessonMatch:["window function","rank"],prompt:"Return every order and its rank by amount from highest to lowest. Keep every order row.",starter:"SELECT order_id, amount,\n       RANK() OVER(ORDER BY ) AS value_rank\nFROM orders;",hint:"Put amount DESC inside the window's ORDER BY. Use RANK() OVER(...).",solution:"SELECT order_id, amount, RANK() OVER(ORDER BY amount DESC) AS value_rank FROM orders;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("order_id")||!c.includes("value_rank")||r.values.length!==10)return false;let top=r.values.find(x=>Number(x[c.indexOf("order_id")])===1005);return !!top&&Number(top[c.indexOf("value_rank")])===1}},
+{title:"11 · Build a running total",lessonMatch:["window frame","running total","lag"],prompt:"For customer 1, return order_date, amount and cumulative spend ordered by date. Name the cumulative column running_spend.",starter:"SELECT order_date, amount,\n       SUM(amount) OVER(\n         PARTITION BY customer_id\n         ORDER BY order_date\n         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n       ) AS running_spend\nFROM orders\nWHERE customer_id = 1\nORDER BY order_date;",hint:"The starter query is complete. Run it and inspect the cumulative values. The last running total should be 6,300.",solution:"SELECT order_date, amount, SUM(amount) OVER(PARTITION BY customer_id ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_spend FROM orders WHERE customer_id=1 ORDER BY order_date;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());if(!c.includes("running_spend")||r.values.length!==3)return false;return Number(r.values[r.values.length-1][c.indexOf("running_spend")])===6300}},
+{title:"12 · Detect customers with no orders",lessonMatch:["missing","no order","unmatched"],prompt:"Return the name of every customer who has no corresponding order. This is a data-quality / coverage check.",starter:"SELECT c.name\nFROM customers c\nLEFT JOIN orders o ON o.customer_id=c.customer_id\nWHERE o.order_id IS NULL;",hint:"The starter is complete. Run it and confirm which customer is not present in the orders table.",solution:"SELECT c.name FROM customers c LEFT JOIN orders o ON o.customer_id=c.customer_id WHERE o.order_id IS NULL;",check:r=>{let c=r.columns.map(x=>x.toLowerCase());return c.includes("name")&&r.values.length===1&&r.values[0][c.indexOf("name")]==="Priya"}}
+];
+let sqlCurrentTask=0,sqlLastResult=null;
+function sqlShowTask(){
+ let t=sqlChallenges[sqlCurrentTask],done=(state.sqlTaskComplete||[]).includes(sqlCurrentTask);
+ let title=document.getElementById("sqlTaskTitle"),brief=document.getElementById("sqlTaskBrief"),hint=document.getElementById("sqlTaskHint"),solution=document.getElementById("sqlTaskSolution"),status=document.getElementById("sqlTaskStatus");
+ if(title)title.textContent=t.title;
+ if(brief)brief.textContent=t.prompt;
+ if(hint){hint.textContent=t.hint;hint.hidden=true}
+ if(solution){solution.textContent=t.solution;solution.hidden=true}
+ if(status)status.innerHTML=done?'<span class="sql-passed">✓ Challenge passed</span>':'<span class="muted">Not completed yet</span>';
+ let ed=document.getElementById("sqlEditor");if(ed)ed.value=t.starter;
+ let feedback=document.getElementById("sqlTaskFeedback");if(feedback)feedback.innerHTML="";
+ document.querySelectorAll("[data-sqltask]").forEach(b=>{let n=Number(b.dataset.sqltask);b.classList.toggle("active",n===sqlCurrentTask);b.classList.toggle("done",(state.sqlTaskComplete||[]).includes(n))});
+ let overall=document.getElementById("sqlOverallProgress");if(overall)overall.textContent=(state.sqlTaskComplete||[]).length+" / "+sqlChallenges.length+" SQL challenges passed";
+}
+function sqlRenderResult(r){
+ let count=document.getElementById("sqlOutput"),table=document.getElementById("sqlTable");
+ if(!r){if(count)count.textContent="Query ran, but did not return a result table.";if(table)table.textContent="No result set.";return}
+ if(count)count.textContent=r.values.length+" row(s) returned.";
+ if(table)table.innerHTML='<div class="tablewrap"><table><thead><tr>'+r.columns.map(c=>'<th>'+esc(c)+'</th>').join("")+'</tr></thead><tbody>'+r.values.map(row=>'<tr>'+row.map(v=>'<td>'+esc(v==null?"NULL":v)+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>';
+}
+function runSqlQuery(){
+ let q=document.getElementById("sqlEditor").value.trim();
+ if(!sqlDb){document.getElementById("sqlOutput").textContent="SQLite is not ready yet.";return null}
+ if(!/^(SELECT|WITH)\b/i.test(q)){document.getElementById("sqlOutput").textContent="For this learning sandbox, start with a SELECT or WITH query. The sample database is read-only for exercises.";return null}
+ try{
+  let results=sqlDb.exec(q);
+  if(!results.length){sqlLastResult=null;sqlRenderResult(null);return null}
+  sqlLastResult=results[0];sqlRenderResult(sqlLastResult);return sqlLastResult
+ }catch(e){document.getElementById("sqlOutput").textContent="SQL error: "+e.message;document.getElementById("sqlTable").textContent="Read the error, adjust the query and run it again.";return null}
+}
+function checkSqlTask(){
+ let r=runSqlQuery();if(!r)return;
+ let t=sqlChallenges[sqlCurrentTask],ok=false;
+ try{ok=!!t.check(r)}catch(e){ok=false}
+ let box=document.getElementById("sqlTaskFeedback");
+ if(ok){
+  state.sqlTaskComplete=state.sqlTaskComplete||[];
+  if(!state.sqlTaskComplete.includes(sqlCurrentTask)){state.sqlTaskComplete.push(sqlCurrentTask);state.xp+=15;save()}
+  if(box)box.innerHTML='<div class="feedback success">✓ That result matches the task. '+(state.sqlTaskComplete.length)+' of '+sqlChallenges.length+' SQL challenges passed. Move to the next challenge when ready.</div>';
+  let status=document.getElementById("sqlTaskStatus");if(status)status.innerHTML='<span class="sql-passed">✓ Challenge passed</span>';
+  let btn=document.querySelector('[data-sqltask="'+sqlCurrentTask+'"]');if(btn)btn.classList.add("done");
+  let overall=document.getElementById("sqlOverallProgress");if(overall)overall.textContent=state.sqlTaskComplete.length+" / "+sqlChallenges.length+" SQL challenges passed";
+ }else{
+  if(box)box.innerHTML='<div class="feedback">The query runs, but the result does not match the task yet. Compare the requested columns, rows and sorting. Try the hint before revealing the solution.</div>';
+ }
+}
 function sqlLab(){
-let sqlStarter=state.sqlStarter||"SELECT * FROM customers;";state.sqlStarter="";
-view.innerHTML='<div class="eyebrow">REAL SQL PRACTICE</div><h1 class="h1">SQL playground</h1><p class="sub">Run real SQL against a small fictional shop database. Start by exploring customers and orders, then build toward joins and analysis.</p><div class="notice" style="margin:16px 0">The SQL engine loads from a public CDN on first use. An internet connection is required. Your queries run in this browser; no database account is needed.</div><div class="labgrid"><div><div class="card"><div class="eyebrow">TABLE EXPLORER</div><div id="sqlSchema" class="tiny muted" style="line-height:1.9;margin-top:10px">Loading SQLite…</div></div><div class="card" style="margin-top:14px"><div class="eyebrow">GUIDED CHALLENGES</div><div id="sqlTasks"></div></div></div><div><div class="terminal"><div class="termhead"><strong>query.sql</strong><span id="sqlStatus">Initializing engine…</span></div><textarea id="sqlEditor" spellcheck="false">'+esc(sqlStarter)+'</textarea><div style="padding:0 15px 14px;display:flex;gap:8px"><button class="btn lime small" id="runSql">▶ Run query</button><button class="btn ghost small" id="resetSql">Reset database</button><button class="btn ghost small" id="downloadCsv">Download CSV</button></div><div class="termout" id="sqlOutput">Your query results will appear here.</div></div><div class="card" style="margin-top:14px"><div class="eyebrow">RESULT SET</div><div id="sqlTable" class="tiny muted" style="margin-top:9px">Run a query to see its result table.</div></div></div></div>';
-const qs=[["Show all customers","SELECT * FROM customers;"],["Find orders above ₹2,000","SELECT * FROM orders WHERE amount > 2000;"],["Show the 3 largest orders","SELECT * FROM orders ORDER BY amount DESC LIMIT 3;"],["Count orders by status","SELECT status, COUNT(*) AS order_count FROM orders GROUP BY status;"],["Revenue by city","SELECT c.city, SUM(o.amount) AS revenue FROM orders o JOIN customers c ON o.customer_id=c.customer_id GROUP BY c.city ORDER BY revenue DESC;"],["List customers with their orders","SELECT c.name, o.order_id, o.amount FROM customers c LEFT JOIN orders o ON c.customer_id=o.customer_id;"],["Classify large orders","SELECT order_id, amount, CASE WHEN amount>=5000 THEN 'Large' ELSE 'Regular' END AS order_band FROM orders;"],["Rank orders by value","SELECT order_id, amount, RANK() OVER(ORDER BY amount DESC) AS value_rank FROM orders;"]];
-document.getElementById("sqlTasks").innerHTML=qs.map((q,i)=>'<div class="lessonrow" data-sqltask="'+i+'"><div class="number">'+(i+1)+'</div><div><h4>'+esc(q[0])+'</h4><p>Click to load query</p></div></div>').join("");
-view.querySelectorAll("[data-sqltask]").forEach(b=>b.onclick=()=>{document.getElementById("sqlEditor").value=qs[Number(b.dataset.sqltask)][1]});
-document.getElementById("runSql").onclick=runSqlQuery;document.getElementById("resetSql").onclick=()=>{sqlReady=false;sqlDb=null;initSql(true)};document.getElementById("downloadCsv").onclick=downloadOrdersCsv;
-initSql(false)
+ let requested=state.sqlTaskTarget||"";state.sqlTaskTarget="";
+ let matchIndex=sqlChallenges.findIndex(t=>t.lessonMatch.some(k=>requested.toLowerCase().includes(k)));
+ sqlCurrentTask=matchIndex>=0?matchIndex:0;
+ let sqlStarter=state.sqlStarter||sqlChallenges[sqlCurrentTask].starter;state.sqlStarter="";
+ view.innerHTML='<div class="eyebrow">SQL · INTERACTIVE COURSE LAB</div><h1 class="h1">Learn SQL by querying data.</h1><p class="sub">These exercises use a real SQLite engine in your browser. Write a query, run it, inspect the rows and ask DataTrail to check your result. Passing a challenge earns credit; simply running a query does not.</p><div class="notice" style="margin:16px 0">Safe practice database: fictional customer and order records. Queries in this lab are read-only SELECT or WITH statements. First load needs an internet connection for SQLite WebAssembly.</div><div class="sql-lab-grid"><section class="sql-task-column"><div class="card"><div class="eyebrow">DATABASE SCHEMA</div><div id="sqlSchema" class="tiny muted" style="line-height:1.9;margin-top:10px">Loading SQLite…</div></div><div class="card" style="margin-top:14px"><div class="eyebrow">12 GUIDED CHALLENGES</div><div id="sqlTasks">'+sqlChallenges.map((q,i)=>'<button class="sql-task-row" data-sqltask="'+i+'"><span class="sql-task-no">'+String(i+1).padStart(2,"0")+'</span><span class="sql-task-name">'+esc(q.title.replace(/^\\d+ · /,""))+'</span><span class="sql-task-check">'+((state.sqlTaskComplete||[]).includes(i)?"✓":"›")+'</span></button>').join("")+'</div></div></section><section class="sql-work-column"><div class="card sql-instruction"><div class="eyebrow">YOUR CURRENT TASK</div><h2 id="sqlTaskTitle"></h2><p id="sqlTaskBrief"></p><div class="sql-task-actions"><button class="btn small" id="sqlHintBtn">Show hint</button><button class="btn small" id="sqlSolutionBtn">Reveal solution</button></div><p id="sqlTaskHint" class="sql-reveal" hidden></p><pre id="sqlTaskSolution" class="sql-reveal sql-solution" hidden></pre><div id="sqlTaskStatus" class="tiny muted" style="margin-top:10px"></div></div><div class="terminal" style="margin-top:14px"><div class="termhead"><strong>query.sql</strong><span id="sqlStatus">Initializing SQLite…</span></div><textarea id="sqlEditor" spellcheck="false">'+esc(sqlStarter)+'</textarea><div class="sql-runbar"><button class="btn lime small" id="runSql">▶ Run query</button><button class="btn primary small" id="checkSql">✓ Check my answer</button><button class="btn ghost small" id="resetSql">Reset database</button><button class="btn ghost small" id="downloadCsv">Download CSV</button></div><div class="termout" id="sqlOutput">Your query results will appear here.</div></div><div class="card" style="margin-top:14px"><div class="eyebrow">QUERY RESULT</div><div id="sqlTable" class="tiny muted" style="margin-top:9px">Run a query to inspect the result.</div><div id="sqlTaskFeedback"></div></div></section></div><div class="sql-course-footer"><strong id="sqlOverallProgress">'+(state.sqlTaskComplete||[]).length+' / '+sqlChallenges.length+' SQL challenges passed</strong><button class="btn primary" id="nextSqlTask">Next challenge →</button></div>';
+ sqlShowTask();
+ view.querySelectorAll("[data-sqltask]").forEach(b=>b.onclick=()=>{sqlCurrentTask=Number(b.dataset.sqltask);sqlShowTask()});
+ document.getElementById("runSql").onclick=runSqlQuery;
+ document.getElementById("checkSql").onclick=checkSqlTask;
+ document.getElementById("resetSql").onclick=()=>{sqlReady=false;sqlDb=null;initSql(true)};
+ document.getElementById("downloadCsv").onclick=downloadOrdersCsv;
+ document.getElementById("sqlHintBtn").onclick=()=>{let x=document.getElementById("sqlTaskHint");x.hidden=!x.hidden};
+ document.getElementById("sqlSolutionBtn").onclick=()=>{let x=document.getElementById("sqlTaskSolution");x.hidden=!x.hidden};
+ document.getElementById("nextSqlTask").onclick=()=>{let next=sqlChallenges.findIndex((_,i)=>i>sqlCurrentTask&&!(state.sqlTaskComplete||[]).includes(i));sqlCurrentTask=next<0?0:next;sqlShowTask()};
+ initSql(false)
 }
 function initSql(reset){
 if(sqlReady&&!reset)return;
@@ -321,7 +408,6 @@ let status=document.getElementById("sqlStatus"),schema=document.getElementById("
 if(!window.initSqlJs){let s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js";s.onload=load; s.onerror=()=>{if(status)status.textContent="Could not load";if(schema)schema.textContent="SQLite could not load. Check your connection and refresh.";};document.head.appendChild(s)}else load();
 function load(){window.initSqlJs({locateFile:f=>"https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/"+f}).then(SQL=>{sqlDb=new SQL.Database();sqlDb.run("CREATE TABLE customers(customer_id INTEGER PRIMARY KEY,name TEXT,city TEXT); CREATE TABLE orders(order_id INTEGER PRIMARY KEY,customer_id INTEGER,order_date TEXT,amount REAL,status TEXT);");sqlDb.run("INSERT INTO customers VALUES (1,'Asha','Chennai'),(2,'Rahul','Pune'),(3,'Meera','Bengaluru'),(4,'Imran','Chennai'),(5,'Kavya','Hyderabad'); INSERT INTO orders VALUES (1001,1,'2026-09-01',1200,'Paid'),(1002,2,'2026-09-02',5400,'Paid'),(1003,1,'2026-09-05',800,'Refunded'),(1004,3,'2026-09-08',3200,'Paid'),(1005,4,'2026-09-12',7200,'Pending'),(1006,5,'2026-09-17',2100,'Paid'),(1007,2,'2026-09-20',1800,'Paid'),(1008,3,'2026-09-22',6100,'Paid'),(1009,5,'2026-09-25',950,'Pending'),(1010,1,'2026-09-28',4300,'Paid');");sqlReady=true;if(status)status.textContent="SQLite ready";if(schema)schema.innerHTML='<strong>customers</strong><br>customer_id · name · city<br><br><strong>orders</strong><br>order_id · customer_id · order_date · amount · status';if(reset)toast("Sample database reset.")}).catch(e=>{if(status)status.textContent="SQLite error";if(schema)schema.textContent=e.message})}
 }
-function runSqlQuery(){let q=document.getElementById("sqlEditor").value;if(!sqlDb){document.getElementById("sqlOutput").textContent="SQLite is not ready yet.";return}try{let results=sqlDb.exec(q);if(!results.length){document.getElementById("sqlOutput").textContent="Query ran successfully. No rows returned.";document.getElementById("sqlTable").textContent="No rows.";return}let r=results[0];document.getElementById("sqlOutput").textContent=r.values.length+" row(s) returned.";document.getElementById("sqlTable").innerHTML='<div class="tablewrap"><table><thead><tr>'+r.columns.map(c=>'<th>'+esc(c)+'</th>').join("")+'</tr></thead><tbody>'+r.values.map(row=>'<tr>'+row.map(v=>'<td>'+esc(v==null?"NULL":v)+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>';state.xp+=1;save()}catch(e){document.getElementById("sqlOutput").textContent="SQL error: "+e.message;document.getElementById("sqlTable").textContent="Fix the query and run it again."}}
 const orderCsv="order_id,customer_id,order_date,amount,status\n1001,1,2026-09-01,1200,Paid\n1002,2,2026-09-02,5400,Paid\n1003,1,2026-09-05,800,Refunded\n1004,3,2026-09-08,3200,Paid\n1005,4,2026-09-12,7200,Pending\n1006,5,2026-09-17,2100,Paid\n1007,2,2026-09-20,1800,Paid\n1008,3,2026-09-22,6100,Paid\n1009,5,2026-09-25,950,Pending\n1010,1,2026-09-28,4300,Paid";
 function downloadOrdersCsv(){let blob=new Blob([orderCsv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="datatrail-orders.csv";a.click();URL.revokeObjectURL(url)}
 let pyReady=false,pyodide=null;
