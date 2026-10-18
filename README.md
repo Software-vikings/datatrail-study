@@ -1,6 +1,6 @@
 # DataTrail — Learn by doing
 
-A browser-based data analytics learning studio with **84 guided lessons** across Excel, SQL, Python, NumPy, pandas, statistics and Power BI. Start from zero and move forward through small explanations, worked examples, practice, instant knowledge checks and business-focused projects.
+A browser-based data analytics learning studio with **112 guided lessons** across Excel, SQL, Python, NumPy, pandas, statistics and Power BI. Start from zero and move forward through small explanations, worked examples, practice, instant knowledge checks and business-focused projects.
 
 ## Publish the study site
 
@@ -25,7 +25,7 @@ Every lesson follows the same five-stage learning loop:
 4. **Check yourself** — answer an auto-marked question and retry when needed.
 5. **Lock it in** — review the key takeaway and complete the lesson.
 
-The lesson map begins with foundation modules. Advanced topics appear only after the introductory sequence for that subject. DataFox, the DataTrail mascot, appears in the learning interface.
+The lesson map begins with four added foundation lessons per subject, then builds through core and intermediate material. Each track ends with four dedicated advanced analyst modules; earlier survey-level items are not labelled advanced. Advanced work includes Power Query and dynamic arrays, SQL subqueries and query plans, Python dependency control and profiling, NumPy memory and indexing, pandas join validation and time-series workflows, statistical test selection and regression, and DAX context and row-level security. DataFox, the DataTrail mascot, appears in the learning interface.
 
 ## Learning paths
 
