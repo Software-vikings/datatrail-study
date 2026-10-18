@@ -64,7 +64,7 @@ jobs:
           }, {});
           if (levelCounts.Basic !== 22 || levelCounts.Intermediate !== 40 || levelCounts.Advanced !== 22) throw new Error("Python stage lesson counts are incorrect: " + JSON.stringify(levelCounts));
           const moduleStart = html.indexOf("const pythonModules=") + "const pythonModules=".length;
-          const moduleEnd = html.indexOf(";\\nconst pythonLessonTaskMap=", moduleStart);
+          const moduleEnd = html.indexOf(";\nconst pythonLessonTaskMap=", moduleStart);
           if (moduleStart < 0 || moduleEnd < 0) throw new Error("Python stage metadata is missing");
           const modules = JSON.parse(html.slice(moduleStart, moduleEnd));
           if (JSON.stringify(modules.map(x => [x.start, x.end])) !== JSON.stringify([[0,22],[22,62],[62,84]])) throw new Error("Python stage boundaries are incorrect");
