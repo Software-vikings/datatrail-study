@@ -571,7 +571,6 @@ function pyShowChallenge(){
   pyCurrentChallenge=firstUnlockedPythonChallenge()
  }
  let task=pythonChallenges[pyCurrentChallenge],done=(state.pythonTaskComplete||[]).includes(pyCurrentChallenge);
- if(document.getElementById("pyEditor"))savePythonDraft();
  let title=document.getElementById("pyTaskTitle"),prompt=document.getElementById("pyTaskPrompt");
  let hint=document.getElementById("pyTaskHint"),solution=document.getElementById("pyTaskSolution");
  let status=document.getElementById("pyTaskStatus");
