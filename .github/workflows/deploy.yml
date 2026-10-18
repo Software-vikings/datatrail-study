@@ -40,7 +40,7 @@ jobs:
           global.window = {};
           require("./assets/python-exercises.js");
           const tasks = global.window.DataTrailPythonExercises;
-          if (!Array.isArray(tasks) || tasks.length !== 20) throw new Error("Expected 20 Python exercises");
+          if (!Array.isArray(tasks) || tasks.length !== 22) throw new Error("Expected 22 Python exercises");
           for (const [index, task] of tasks.entries()) {
             if (!task.title || !task.prompt || !task.starter || !task.solution || !Array.isArray(task.tests) || task.tests.length < 2) {
               throw new Error("Incomplete Python exercise at index " + index);
