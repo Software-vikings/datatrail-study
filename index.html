@@ -110,7 +110,45 @@
 .python-task-row.done .sql-task-no{background:#e1f2e6;color:#21744f}
 @media(max-width:940px){.python-lab-grid{grid-template-columns:1fr}}
 
+
+.python-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.python-lab-grid{display:grid;grid-template-columns:minmax(230px,.72fr) minmax(0,1.55fr);gap:15px;align-items:start}
+.python-task-list,.python-work-column{min-width:0}
+.python-task-row{width:100%;display:flex;align-items:center;gap:9px;border:0;border-bottom:1px solid var(--line);background:#fff;padding:10px 7px;text-align:left;border-radius:8px}
+.python-task-row:hover,.python-task-row.active{background:#f0f7f2}
+.python-task-row.active{box-shadow:inset 3px 0 var(--green)}
+.python-task-row.done .sql-task-no{background:#e1f2e6;color:#21744f}
+.python-task-row.locked{opacity:.5;cursor:not-allowed}
+.python-task-meta{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.python-task-meta strong{font-size:11px;line-height:1.35}
+.python-task-meta small{font-size:9px;color:var(--muted)}
+.python-editor-card{background:#10121b;border:1px solid #2b3040;border-radius:14px;overflow:hidden}
+.python-editor-card .termhead{background:#202333;border-bottom:1px solid #34394a;color:#eef0f8;padding:11px 14px}
+.python-editor-card .CodeMirror{font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;min-height:280px}
+.python-editor-card textarea#pyEditor{width:100%;min-height:300px;border:0;border-radius:0;background:#161925;color:#f0f0f6;padding:16px;font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical;outline:none}
+.python-runbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 13px;background:#202333;border-top:1px solid #34394a}
+.python-shortcut{font-size:10px;color:#aeb4c7;margin-left:auto}
+.python-editor-card .termout{border-top:1px solid #34394a;min-height:56px;white-space:pre-wrap}
+.python-task-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.python-feedback-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px;margin-top:12px}
+.python-test-summary{display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:10px;margin-bottom:8px}
+.python-test-summary.success{background:#e9f6ed;color:#236245}
+.python-test-summary.needs-work{background:#fff3e8;color:#79542d}
+.python-test-summary strong{font-size:13px}
+.python-test-summary span{font-size:11px}
+.python-test-row{display:flex;gap:9px;padding:9px 5px;border-bottom:1px solid var(--line);font-size:11px}
+.python-test-row>span{font-weight:900;width:16px;flex:0 0 auto}
+.python-test-row.passed>span{color:#218257}
+.python-test-row.failed>span{color:#ba603b}
+.python-test-row strong{display:block;font-size:11px}
+.python-test-row small{display:block;color:var(--muted);margin-top:3px}
+@media(max-width:940px){.python-lab-grid{grid-template-columns:1fr}.python-title-row{display:block}}
+
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 </head>
 <body>
 <div class="layout">
@@ -137,6 +175,7 @@
 <div class="content" id="view"></div>
 </main></div>
 <div class="toast" id="toast"></div><div id="modalRoot"></div>
+<script src="assets/python-exercises.js"></script>
 <script>
 (function(){
 "use strict";
@@ -436,79 +475,234 @@ function load(){window.initSqlJs({locateFile:f=>"https://cdnjs.cloudflare.com/aj
 const orderCsv="order_id,customer_id,order_date,amount,status\n1001,1,2026-09-01,1200,Paid\n1002,2,2026-09-02,5400,Paid\n1003,1,2026-09-05,800,Refunded\n1004,3,2026-09-08,3200,Paid\n1005,4,2026-09-12,7200,Pending\n1006,5,2026-09-17,2100,Paid\n1007,2,2026-09-20,1800,Paid\n1008,3,2026-09-22,6100,Paid\n1009,5,2026-09-25,950,Pending\n1010,1,2026-09-28,4300,Paid";
 function downloadOrdersCsv(){let blob=new Blob([orderCsv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="datatrail-orders.csv";a.click();URL.revokeObjectURL(url)}
 let pyReady=false,pyodide=null;
-const pythonChallenges=[
-{title:"1 · Calculate profit with a function",lessonMatch:["function","return","profit"],prompt:"Write calculate_profit(revenue, cost). It must return revenue minus cost. Do not print the result inside the function.",setup:"",starter:"def calculate_profit(revenue, cost):\n    # Replace this line\n    pass",hint:"The function needs two parameters and one return statement.",solution:"def calculate_profit(revenue, cost):\n    return revenue - cost",tests:"assert calculate_profit(15000, 8400) == 6600\nassert calculate_profit(2000, 500) == 1500"},
-{title:"2 · Filter high-value orders",lessonMatch:["list","comprehension","filter"],prompt:"Given amounts, create a list called high_value containing only values greater than or equal to 5,000. Keep the original order.",setup:"amounts = [1200, 6500, 800, 7200, 5000]",starter:"amounts = [1200, 6500, 800, 7200, 5000]\nhigh_value = ",hint:"Use a list comprehension: expression first, then for amount in amounts, then an if condition.",solution:"amounts = [1200, 6500, 800, 7200, 5000]\nhigh_value = [amount for amount in amounts if amount >= 5000]",tests:"assert high_value == [6500, 7200, 5000]\nassert all(value >= 5000 for value in high_value)"},
-{title:"3 · Group sales by city",lessonMatch:["dictionary","group","city"],prompt:"Use the supplied rows to create a dictionary named sales_by_city. Add the revenue for every row belonging to the same city.",setup:"rows = [(\"Chennai\", 1200), (\"Pune\", 900), (\"Chennai\", 1500), (\"Pune\", 300)]",starter:"rows = [(\"Chennai\", 1200), (\"Pune\", 900), (\"Chennai\", 1500), (\"Pune\", 300)]\nsales_by_city = {}\n# Loop through rows and add each amount to its city",hint:"Use a for loop to unpack city and amount. Add to the current total, using .get(city, 0) for a city not seen before.",solution:"rows = [(\"Chennai\", 1200), (\"Pune\", 900), (\"Chennai\", 1500), (\"Pune\", 300)]\nsales_by_city = {}\nfor city, amount in rows:\n    sales_by_city[city] = sales_by_city.get(city, 0) + amount",tests:"assert sales_by_city[\"Chennai\"] == 2700\nassert sales_by_city[\"Pune\"] == 1200\nassert sum(sales_by_city.values()) == 3900"},
-{title:"4 · Clean customer names",lessonMatch:["string","clean","text"],prompt:"Create a function clean_names(names) that trims unwanted spaces and converts each name to title case. Return a new list.",setup:"",starter:"def clean_names(names):\n    # Return a cleaned list\n    pass",hint:"Loop or use a list comprehension. For each name, call strip() and then title().",solution:"def clean_names(names):\n    return [name.strip().title() for name in names]",tests:"assert clean_names([\"  asha\", \"RAHUL \", \" meera  \"]) == [\"Asha\", \"Rahul\", \"Meera\"]\nassert clean_names([]) == []"},
-{title:"5 · Sum only paid revenue",lessonMatch:["csv","orders","revenue","exception","files","file"],prompt:"Write paid_revenue(orders). The input is a list of dictionaries. Return the sum of amount for rows whose status is Paid.",setup:"orders = [{\"order_id\": 1, \"amount\": 1200, \"status\": \"Paid\"}, {\"order_id\": 2, \"amount\": 900, \"status\": \"Pending\"}, {\"order_id\": 3, \"amount\": 1500, \"status\": \"Paid\"}]",starter:"def paid_revenue(orders):\n    # Start a total and add only Paid rows\n    pass",hint:"Loop over each order dictionary. Check order['status'] and add order['amount'] when it is Paid.",solution:"def paid_revenue(orders):\n    total = 0\n    for order in orders:\n        if order[\"status\"] == \"Paid\":\n            total += order[\"amount\"]\n    return total",tests:"assert paid_revenue(orders) == 2700\nassert paid_revenue([]) == 0"},
-{title:"6 · Make a reusable average function",lessonMatch:["average","mean","numeric"],prompt:"Write average_order_value(amounts). Return 0 for an empty list; otherwise return the arithmetic mean.",setup:"",starter:"def average_order_value(amounts):\n    # Handle the empty case, then calculate the mean\n    pass",hint:"If not amounts, return 0. Otherwise divide sum(amounts) by len(amounts).",solution:"def average_order_value(amounts):\n    if not amounts:\n        return 0\n    return sum(amounts) / len(amounts)",tests:"assert average_order_value([100, 200, 300]) == 200\nassert average_order_value([1200, 900]) == 1050\nassert average_order_value([]) == 0"}
-];
-let pyCurrentChallenge=0;
+const pythonChallenges=window.DataTrailPythonExercises||[];
+let pyCurrentChallenge=0,pythonCodeEditor=null;
+function getPythonEditorValue(){let el=document.getElementById("pyEditor");return pythonCodeEditor?pythonCodeEditor.getValue():(el?el.value:"")}
+function setPythonEditorValue(value){let el=document.getElementById("pyEditor");if(pythonCodeEditor){pythonCodeEditor.setValue(value);pythonCodeEditor.refresh()}else if(el)el.value=value}
+function savePythonDraft(){
+ state.pythonDrafts=state.pythonDrafts||{};
+ state.pythonDrafts[pyCurrentChallenge]=getPythonEditorValue();
+ try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){}
+}
+function pythonChallengeUnlocked(i){return i===0||(state.pythonTaskComplete||[]).includes(i-1)}
+function firstUnlockedPythonChallenge(){
+ for(let i=0;i<pythonChallenges.length;i++){
+  if(pythonChallengeUnlocked(i)&&!(state.pythonTaskComplete||[]).includes(i))return i
+ }
+ return pythonChallenges.length-1
+}
+function initPythonEditor(){
+ const area=document.getElementById("pyEditor");if(!area)return;
+ if(window.CodeMirror){
+  pythonCodeEditor=CodeMirror.fromTextArea(area,{
+   mode:"python",theme:"dracula",lineNumbers:true,indentUnit:4,tabSize:4,
+   indentWithTabs:false,lineWrapping:true,viewportMargin:Infinity,
+   extraKeys:{"Ctrl-Enter":()=>runPython(),"Cmd-Enter":()=>runPython()}
+  });
+  pythonCodeEditor.setSize("100%","320px");
+  pythonCodeEditor.on("change",()=>savePythonDraft());
+  pythonCodeEditor.refresh();
+ }else{
+  pythonCodeEditor=null;
+  area.addEventListener("input",savePythonDraft);
+  area.addEventListener("keydown",event=>{
+   if(event.key==="Tab"){
+    event.preventDefault();
+    const a=area.selectionStart,b=area.selectionEnd;
+    area.value=area.value.slice(0,a)+"    "+area.value.slice(b);
+    area.selectionStart=area.selectionEnd=a+4;
+    savePythonDraft();
+   }
+   if((event.ctrlKey||event.metaKey)&&event.key==="Enter"){event.preventDefault();runPython()}
+  });
+ }
+}
 function pyShowChallenge(){
- let t=pythonChallenges[pyCurrentChallenge],done=(state.pythonTaskComplete||[]).includes(pyCurrentChallenge);
- let title=document.getElementById("pyTaskTitle"),prompt=document.getElementById("pyTaskPrompt"),hint=document.getElementById("pyTaskHint"),solution=document.getElementById("pyTaskSolution"),status=document.getElementById("pyTaskStatus");
- if(title)title.textContent=t.title;
- if(prompt)prompt.textContent=t.prompt;
- if(hint){hint.textContent=t.hint;hint.hidden=true}
- if(solution){solution.textContent=t.solution;solution.hidden=true}
+ if(!pythonChallengeUnlocked(pyCurrentChallenge)){
+  toast("Pass the previous exercise to unlock this one.");
+  pyCurrentChallenge=firstUnlockedPythonChallenge()
+ }
+ let task=pythonChallenges[pyCurrentChallenge],done=(state.pythonTaskComplete||[]).includes(pyCurrentChallenge);
+ if(document.getElementById("pyEditor"))savePythonDraft();
+ let title=document.getElementById("pyTaskTitle"),prompt=document.getElementById("pyTaskPrompt");
+ let hint=document.getElementById("pyTaskHint"),solution=document.getElementById("pyTaskSolution");
+ let status=document.getElementById("pyTaskStatus");
+ if(title)title.textContent=task.title;
+ if(prompt)prompt.textContent=task.prompt;
+ if(hint){hint.textContent=task.hint;hint.hidden=true}
+ if(solution){solution.textContent=task.solution;solution.hidden=true}
  if(status)status.textContent=done?"✓ Exercise passed":"Not completed yet";
- let editor=document.getElementById("pyEditor");if(editor)editor.value=t.starter;
- let feedback=document.getElementById("pyTaskFeedback");if(feedback)feedback.textContent="";
- document.querySelectorAll("[data-pychallenge]").forEach(b=>{let n=Number(b.dataset.pychallenge);b.classList.toggle("active",n===pyCurrentChallenge);b.classList.toggle("done",(state.pythonTaskComplete||[]).includes(n))});
- let total=document.getElementById("pyOverallProgress");if(total)total.textContent=(state.pythonTaskComplete||[]).length+" / "+pythonChallenges.length+" Python exercises passed";
+ let drafts=state.pythonDrafts||{};
+ let code=drafts[pyCurrentChallenge]!==undefined?drafts[pyCurrentChallenge]:task.starter;
+ setPythonEditorValue(code);
+ let feedback=document.getElementById("pyTaskFeedback");if(feedback)feedback.innerHTML="";
+ document.querySelectorAll("[data-pychallenge]").forEach(button=>{
+  let n=Number(button.dataset.pychallenge),unlocked=pythonChallengeUnlocked(n);
+  button.disabled=!unlocked;
+  button.classList.toggle("active",n===pyCurrentChallenge);
+  button.classList.toggle("done",(state.pythonTaskComplete||[]).includes(n));
+  button.classList.toggle("locked",!unlocked)
+ });
+ let total=document.getElementById("pyOverallProgress");
+ if(total)total.textContent=(state.pythonTaskComplete||[]).length+" / "+pythonChallenges.length+" exercises passed"
+}
+function renderPythonTestResults(results){
+ const passed=results.filter(x=>x.passed).length,total=results.length;
+ return '<div class="python-test-summary '+(passed===total?"success":"needs-work")+'"><strong>'+passed+' / '+total+' tests passed</strong><span>'+(passed===total?"All checks passed. This exercise is complete.":"Read each failed check, change your code and run the tests again.")+'</span></div>'+
+ results.map(item=>'<div class="python-test-row '+(item.passed?"passed":"failed")+'"><span>'+(item.passed?"✓":"×")+'</span><div><strong>'+esc(item.name)+'</strong><small>'+esc(item.detail)+'</small></div></div>').join("")
+}
+async function runPython(){
+ const output=document.getElementById("pyOutput"),task=pythonChallenges[pyCurrentChallenge],code=getPythonEditorValue();
+ if(output)output.textContent="Starting Python…";
+ savePythonDraft();
+ try{
+  const py=await ensurePy();
+  py.globals.set("exercise_setup",task.setup);
+  py.globals.set("exercise_code",code);
+  await py.runPythonAsync("import io, contextlib");
+  const source=[
+   'student_namespace = {"__name__": "__main__"}',
+   "student_output = io.StringIO()",
+   'student_error = ""',
+   "try:",
+   "    with contextlib.redirect_stdout(student_output):",
+   "        if exercise_setup.strip():",
+   '            exec(compile(exercise_setup, "<exercise setup>", "exec"), student_namespace)',
+   '        exec(compile(exercise_code, "<your code>", "exec"), student_namespace)',
+   "except Exception as exc:",
+   '    student_error = type(exc).__name__ + (": " + str(exc) if str(exc) else "")'
+  ].join("\n");
+  await py.runPythonAsync(source);
+  const stdout=py.runPython("student_output.getvalue()");
+  const error=py.runPython("student_error");
+  if(output)output.textContent=error?("Python error: "+error):(stdout||"Your code ran successfully. No output was printed.")
+ }catch(error){if(output)output.textContent="Python runtime error: "+error.message}
 }
 async function checkPythonChallenge(){
- let output=document.getElementById("pyOutput"),code=document.getElementById("pyEditor").value;
- let task=pythonChallenges[pyCurrentChallenge],box=document.getElementById("pyTaskFeedback");
- output.textContent="Starting Python and running your tests…";
+ const output=document.getElementById("pyOutput"),code=getPythonEditorValue();
+ const task=pythonChallenges[pyCurrentChallenge],box=document.getElementById("pyTaskFeedback");
+ if(output)output.textContent="Starting Python and running the test suite…";
+ savePythonDraft();
  try{
-  let py=await ensurePy();
-  py.globals.set("learner_setup",task.setup);
-  py.globals.set("learner_code",code);
-  py.globals.set("learner_tests",task.tests);
-  let harness=[
-   "import contextlib, io",
-   "capture = io.StringIO()",
-   "namespace = {}",
-   "with contextlib.redirect_stdout(capture):",
-   "    exec(learner_setup, namespace)",
-   "    exec(learner_code, namespace)",
-   "    exec(learner_tests, namespace)"
+  const py=await ensurePy();
+  py.globals.set("exercise_setup",task.setup);
+  py.globals.set("exercise_code",code);
+  py.globals.set("exercise_tests_json",JSON.stringify(task.tests));
+  const harness=[
+   "import json, contextlib, io",
+   "test_results = []",
+   'test_namespace = {"__name__": "__main__"}',
+   "try:",
+   "    student_output = io.StringIO()",
+   "    with contextlib.redirect_stdout(student_output):",
+   "        if exercise_setup.strip():",
+   '            exec(compile(exercise_setup, "<exercise setup>", "exec"), test_namespace)',
+   '        exec(compile(exercise_code, "<your code>", "exec"), test_namespace)',
+   '    test_namespace["__output__"] = student_output.getvalue()',
+   "    for test_case in json.loads(exercise_tests_json):",
+   "        try:",
+   '            exec(compile(test_case["code"], "<" + test_case["name"] + ">", "exec"), test_namespace)',
+   '            test_results.append({"name": test_case["name"], "passed": True, "detail": "Passed"})',
+   "        except Exception as exc:",
+   '            detail = type(exc).__name__ + (": " + str(exc) if str(exc) else "")',
+   '            test_results.append({"name": test_case["name"], "passed": False, "detail": detail})',
+   "except Exception as exc:",
+   '    detail = type(exc).__name__ + (": " + str(exc) if str(exc) else "")',
+   '    test_results = [{"name": "Your code runs", "passed": False, "detail": detail}]',
+   "test_results_json = json.dumps(test_results)"
   ].join("\n");
   await py.runPythonAsync(harness);
-  let printed=py.runPython("capture.getvalue()");
-  output.textContent="All automated tests passed.\n"+(printed||"Your solution returned the expected results.");
-  state.pythonTaskComplete=state.pythonTaskComplete||[];
-  if(!state.pythonTaskComplete.includes(pyCurrentChallenge)){state.pythonTaskComplete.push(pyCurrentChallenge);state.xp+=20;save()}
-  if(box)box.innerHTML='<div class="feedback success">✓ Correct. Your code passed every test for this exercise.</div>';
-  let status=document.getElementById("pyTaskStatus");if(status)status.textContent="✓ Exercise passed";
-  let total=document.getElementById("pyOverallProgress");if(total)total.textContent=state.pythonTaskComplete.length+" / "+pythonChallenges.length+" Python exercises passed";
-  document.querySelector('[data-pychallenge="'+pyCurrentChallenge+'"]')?.classList.add("done");
- }catch(e){
-  output.textContent="Test run did not pass.\n"+e.message;
-  if(box)box.innerHTML='<div class="feedback">Not there yet. Read the error, check the function name and return value, then try again. A failed test is useful feedback—not a failure.</div>';
+  const results=JSON.parse(py.runPython("test_results_json"));
+  const allPassed=results.length>0&&results.every(item=>item.passed);
+  if(output)output.innerHTML=renderPythonTestResults(results);
+  if(allPassed){
+   state.pythonTaskComplete=state.pythonTaskComplete||[];
+   if(!state.pythonTaskComplete.includes(pyCurrentChallenge)){state.pythonTaskComplete.push(pyCurrentChallenge);state.xp+=20;save()}
+   if(box)box.innerHTML='<div class="feedback success">Every test passed. The next exercise is now unlocked.</div>';
+   let status=document.getElementById("pyTaskStatus");if(status)status.textContent="✓ Exercise passed";
+   view.querySelectorAll("[data-pychallenge]").forEach(button=>{
+    const n=Number(button.dataset.pychallenge);
+    if(pythonChallengeUnlocked(n))button.disabled=false;
+    button.classList.toggle("done",(state.pythonTaskComplete||[]).includes(n))
+   });
+   let total=document.getElementById("pyOverallProgress");
+   if(total)total.textContent=state.pythonTaskComplete.length+" / "+pythonChallenges.length+" exercises passed"
+  }else if(box){
+   box.innerHTML='<div class="feedback">Some checks did not pass. Read the exact failed test and its error, then change one part of your solution and try again.</div>'
+  }
+ }catch(error){
+  if(output)output.textContent="The test runner could not complete: "+error.message;
+  if(box)box.innerHTML='<div class="feedback">The Python runtime or test runner returned an error. Check your connection and try again.</div>'
  }
 }
 function pythonLab(){
- let requested=state.pythonTaskTarget||"";state.pythonTaskTarget="";
- let matchIndex=pythonChallenges.findIndex(t=>t.lessonMatch.some(k=>requested.toLowerCase().includes(k)));
- pyCurrentChallenge=matchIndex>=0?matchIndex:0;
- let t=pythonChallenges[pyCurrentChallenge];
- view.innerHTML='<div class="eyebrow">PYTHON · INTERACTIVE CODING LAB</div><h1 class="h1">Write Python. Run tests. Learn from the result.</h1><p class="sub">These are executable Python exercises. A task is marked complete only when your code passes its tests—not simply because it runs without an error.</p><div class="notice" style="margin:16px 0">Python runs in your browser using Pyodide. The first run downloads the runtime and requires an internet connection. Your code and progress remain in this browser.</div><div class="python-lab-grid"><section class="python-task-list card"><div class="eyebrow">GUIDED EXERCISES</div><div id="pyChallengeList">'+pythonChallenges.map((q,i)=>'<button class="python-task-row" data-pychallenge="'+i+'"><span class="sql-task-no">'+String(i+1).padStart(2,"0")+'</span><span class="sql-task-name">'+esc(q.title.replace(/^\\d+ · /,""))+'</span><span class="sql-task-check">'+((state.pythonTaskComplete||[]).includes(i)?"✓":"›")+'</span></button>').join("")+'</div></section><section class="python-work-column"><div class="card"><div class="eyebrow">YOUR CURRENT EXERCISE</div><h2 id="pyTaskTitle" style="font-size:17px;margin:8px 0"></h2><p id="pyTaskPrompt" class="muted" style="font-size:13px;line-height:1.65"></p><div class="sql-task-actions"><button class="btn small" id="pyHintBtn">Show hint</button><button class="btn small" id="pySolutionBtn">Reveal solution</button></div><p id="pyTaskHint" class="sql-reveal" hidden></p><pre id="pyTaskSolution" class="sql-reveal sql-solution" hidden></pre><div id="pyTaskStatus" class="tiny muted" style="margin-top:10px"></div></div><div class="terminal" style="margin-top:14px"><div class="termhead"><strong>exercise.py</strong><span id="pyStatus">Runtime not loaded</span></div><textarea id="pyEditor" spellcheck="false"></textarea><div class="sql-runbar"><button class="btn lime small" id="runPy">▶ Run code</button><button class="btn primary small" id="checkPy">✓ Run tests</button><button class="btn ghost small" id="loadData">Load NumPy + pandas</button><button class="btn ghost small" id="clearPy">Clear output</button></div><div class="termout" id="pyOutput">Write your solution, then run it or check it against the exercise tests.</div></div><div class="card" style="margin-top:14px"><div id="pyTaskFeedback"></div></div></section></div><div class="sql-course-footer"><strong id="pyOverallProgress">'+(state.pythonTaskComplete||[]).length+' / '+pythonChallenges.length+' Python exercises passed</strong><button class="btn primary" id="nextPyTask">Next exercise →</button></div>';
+ let requested=Number.isInteger(state.pythonTaskTargetIndex)?state.pythonTaskTargetIndex:firstUnlockedPythonChallenge();
+ state.pythonTaskTargetIndex=null;
+ if(requested<0||requested>=pythonChallenges.length)requested=firstUnlockedPythonChallenge();
+ pyCurrentChallenge=requested;
+ if(!pythonChallengeUnlocked(pyCurrentChallenge)){toast("Complete the earlier Python exercise first.");pyCurrentChallenge=firstUnlockedPythonChallenge()}
+ const returnButton=state.pythonReturnLessonId?'<button class="btn small" id="returnPythonLesson">← Return to lesson</button>':"";
+ view.innerHTML='<div class="eyebrow">PYTHON · PHASE 1 CODING STUDIO</div><div class="python-title-row"><div><h1 class="h1">Write Python. Run it. Pass the tests.</h1><p class="sub">One focused exercise at a time. Run your code to inspect the output, then run the named tests to prove your solution works.</p></div>'+returnButton+'</div><div class="notice" style="margin:16px 0">Python runs in your browser with Pyodide. The first run downloads the runtime and requires an internet connection. Your drafts and progress are saved in this browser.</div><div class="python-lab-grid"><section class="python-task-list card"><div class="eyebrow">EXERCISE PATH · 20 TASKS</div><div id="pyChallengeList">'+pythonChallenges.map((task,i)=>'<button class="python-task-row" data-pychallenge="'+i+'"><span class="sql-task-no">'+String(i+1).padStart(2,"0")+'</span><span class="python-task-meta"><strong>'+esc(task.title.replace(/^\\d+ · /,""))+'</strong><small>'+esc(task.unit)+'</small></span><span class="sql-task-check">'+((state.pythonTaskComplete||[]).includes(i)?"✓":pythonChallengeUnlocked(i)?"›":"🔒")+'</span></button>').join("")+'</div></section><section class="python-work-column"><div class="card"><div class="eyebrow">YOUR CURRENT EXERCISE</div><h2 id="pyTaskTitle" style="font-size:18px;margin:8px 0"></h2><p id="pyTaskPrompt" class="muted" style="font-size:13px;line-height:1.7"></p><div class="python-task-actions"><button class="btn small" id="pyHintBtn">Show a hint</button><button class="btn small" id="pySolutionBtn">Reveal worked solution</button><button class="btn small" id="pyResetBtn">Reset code</button></div><p id="pyTaskHint" class="sql-reveal" hidden></p><pre id="pyTaskSolution" class="sql-reveal sql-solution" hidden></pre><div id="pyTaskStatus" class="tiny muted" style="margin-top:10px"></div></div><div class="python-editor-card" style="margin-top:14px"><div class="termhead"><strong>exercise.py</strong><span id="pyStatus">Runtime not loaded</span></div><textarea id="pyEditor" spellcheck="false" aria-label="Python code editor"></textarea><div class="python-runbar"><button class="btn lime small" id="runPy">▶ Run code</button><button class="btn primary small" id="checkPy">✓ Run tests</button><span class="python-shortcut">Ctrl / ⌘ + Enter to run</span></div><div class="termout" id="pyOutput">Your program output and test results will appear here.</div></div><div id="pyTaskFeedback" class="python-feedback-card"></div></section></div><div class="sql-course-footer"><strong id="pyOverallProgress">'+(state.pythonTaskComplete||[]).length+' / '+pythonChallenges.length+' exercises passed</strong><button class="btn primary" id="nextPyTask">Next exercise →</button></div>';
+ pythonCodeEditor=null;
  pyShowChallenge();
- view.querySelectorAll("[data-pychallenge]").forEach(b=>b.onclick=()=>{pyCurrentChallenge=Number(b.dataset.pychallenge);pyShowChallenge()});
+ initPythonEditor();
+ view.querySelectorAll("[data-pychallenge]").forEach(button=>button.onclick=()=>{
+  const next=Number(button.dataset.pychallenge);
+  if(!pythonChallengeUnlocked(next)){toast("Finish the previous exercise to unlock this one.");return}
+  pyCurrentChallenge=next;pyShowChallenge()
+ });
  document.getElementById("runPy").onclick=runPython;
  document.getElementById("checkPy").onclick=checkPythonChallenge;
- document.getElementById("loadData").onclick=loadPyData;
- document.getElementById("clearPy").onclick=()=>document.getElementById("pyOutput").textContent="Output cleared.";
- document.getElementById("pyHintBtn").onclick=()=>{let x=document.getElementById("pyTaskHint");x.hidden=!x.hidden};
- document.getElementById("pySolutionBtn").onclick=()=>{let x=document.getElementById("pyTaskSolution");x.hidden=!x.hidden};
- document.getElementById("nextPyTask").onclick=()=>{let next=pythonChallenges.findIndex((_,i)=>i>pyCurrentChallenge&&!(state.pythonTaskComplete||[]).includes(i));pyCurrentChallenge=next<0?0:next;pyShowChallenge()};
+ document.getElementById("pyHintBtn").onclick=()=>{let el=document.getElementById("pyTaskHint");el.hidden=!el.hidden};
+ document.getElementById("pySolutionBtn").onclick=()=>{let el=document.getElementById("pyTaskSolution");el.hidden=!el.hidden};
+ document.getElementById("pyResetBtn").onclick=()=>{setPythonEditorValue(pythonChallenges[pyCurrentChallenge].starter);savePythonDraft();document.getElementById("pyOutput").textContent="Starter code restored."};
+ document.getElementById("nextPyTask").onclick=()=>{
+  if(!(state.pythonTaskComplete||[]).includes(pyCurrentChallenge)){toast("Pass the tests before moving to the next exercise.");return}
+  const next=pyCurrentChallenge+1;
+  if(next<pythonChallenges.length){pyCurrentChallenge=next;pyShowChallenge()}else toast("You have completed all Python Phase 1 exercises. Brilliant work.")
+ };
+ if(document.getElementById("returnPythonLesson"))document.getElementById("returnPythonLesson").onclick=()=>{
+  const lessonId=state.pythonReturnLessonId;
+  const course=tracks.find(track=>track.name==="Python");
+  const lessonIndex=course?course.lessons.findIndex(lesson=>lesson.id===lessonId):-1;
+  state.pythonReturnLessonId=null;save();
+  if(lessonIndex>=0){
+   activeTrack="Python";activeLesson=lessonId;page="lesson";
+   const taskIndex=pythonLessonTaskMap[lessonIndex];
+   tutorStep=(state.pythonTaskComplete||[]).includes(taskIndex)?3:2;
+   tutorQuizCorrect=state.answers[lessonId]==="correct";
+   document.querySelectorAll("#mainNav button").forEach(b=>b.classList.toggle("active",b.dataset.page==="paths"));
+   document.getElementById("crumb").textContent="Python lesson";render()
+  }else go("paths")
+ }
 }
-async function ensurePy(){let s=document.getElementById("pyStatus");if(pyReady)return pyodide;if(s)s.textContent="Downloading Python runtime…";if(!window.loadPyodide){await new Promise((resolve,reject)=>{let sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js";sc.onload=resolve;sc.onerror=()=>reject(Error("Unable to load Pyodide. Check your internet connection."));document.head.appendChild(sc)})}pyodide=await loadPyodide();pyReady=true;if(s)s.textContent="Python ready";return pyodide}
-async function runPython(){let out=document.getElementById("pyOutput");out.textContent="Starting Python…";try{let py=await ensurePy();await py.runPythonAsync("import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()");await py.runPythonAsync(document.getElementById("pyEditor").value);let stdout=py.runPython("sys.stdout.getvalue()"),stderr=py.runPython("sys.stderr.getvalue()");out.textContent=(stdout||"Code ran successfully with no printed output.")+(stderr?"\n"+stderr:"");state.xp+=2;save()}catch(e){out.textContent="Python error: "+e.message}}
-async function loadPyData(){let out=document.getElementById("pyOutput");out.textContent="Loading NumPy and pandas…";try{let py=await ensurePy();await py.loadPackage(["numpy","pandas"]);document.getElementById("pyStatus").textContent="Python + NumPy + pandas ready";out.textContent="Packages loaded. You can now import numpy as np and pandas as pd."}catch(e){out.textContent="Package load failed: "+e.message}}
+async function ensurePy(){
+ let status=document.getElementById("pyStatus");
+ if(pyReady)return pyodide;
+ if(status)status.textContent="Downloading Python runtime…";
+ if(!window.loadPyodide){
+  await new Promise((resolve,reject)=>{
+   let script=document.createElement("script");
+   script.src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js";
+   script.onload=resolve;script.onerror=()=>reject(Error("Unable to load the Python runtime. Check your internet connection."));
+   document.head.appendChild(script)
+  })
+ }
+ pyodide=await loadPyodide();pyReady=true;
+ const version=pyodide.runPython("import sys; sys.version.split()[0]");
+ if(status)status.textContent="Python "+version+" ready";
+ return pyodide
+}
+async function loadPyData(){
+ let out=document.getElementById("pyOutput");
+ if(out)out.textContent="Loading NumPy and pandas…";
+ try{
+  let py=await ensurePy();
+  await py.loadPackage(["numpy","pandas"]);
+  let status=document.getElementById("pyStatus");if(status)status.textContent="Python + NumPy + pandas ready";
+  if(out)out.textContent="Packages loaded. You can now import numpy as np and pandas as pd."
+ }catch(error){if(out)out.textContent="Package load failed: "+error.message}
+}
 function excelLab(){
 view.innerHTML='<div class="eyebrow">SPREADSHEET PRACTICE</div><h1 class="h1">Excel formula trainer</h1><p class="sub">Practice business spreadsheet thinking with a tiny sales register. This is a guided formula trainer, not Microsoft Excel.</p><div class="grid two" style="margin-top:20px"><div class="card"><div class="eyebrow">SAMPLE SALES REGISTER</div><div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Invoice</th><th>City</th><th>Revenue</th><th>Status</th></tr></thead><tbody><tr><td>INV-101</td><td>Chennai</td><td>1200</td><td>Paid</td></tr><tr><td>INV-102</td><td>Pune</td><td>5400</td><td>Paid</td></tr><tr><td>INV-103</td><td>Chennai</td><td>800</td><td>Refunded</td></tr><tr><td>INV-104</td><td>Bengaluru</td><td>3200</td><td>Paid</td></tr><tr><td>INV-105</td><td>Hyderabad</td><td>2100</td><td>Paid</td></tr></tbody></table></div><p class="tiny muted">Revenue values are in INR. Imagine Revenue is in C2:C6 and City in B2:B6.</p></div><div class="card"><div class="eyebrow">YOUR FORMULA CHALLENGE</div><div id="excelPrompt" style="font-size:14px;font-weight:750;margin:12px 0">Calculate total revenue using SUM.</div><div class="tag" id="excelTag">SUM</div><input class="field" id="excelAnswer" style="margin:14px 0" placeholder="Type a formula, e.g. =SUM(C2:C6)"><button class="btn primary" id="checkExcel">Check formula</button><div id="excelFeedback"></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn small" id="prevExcel">← Previous</button><button class="btn small" id="nextExcel">Next task →</button></div></div></div><div class="card" style="margin-top:15px"><div class="eyebrow">FORMULA REFERENCE</div><div class="grid three" style="margin-top:12px"><div><strong class="tiny">SUM</strong><p class="tiny muted">Adds values: =SUM(C2:C6)</p></div><div><strong class="tiny">AVERAGE</strong><p class="tiny muted">Finds mean: =AVERAGE(C2:C6)</p></div><div><strong class="tiny">IF</strong><p class="tiny muted">Makes a decision: =IF(C2>5000,\"High\",\"Regular\")</p></div><div><strong class="tiny">SUMIFS</strong><p class="tiny muted">Adds with conditions.</p></div><div><strong class="tiny">COUNTIFS</strong><p class="tiny muted">Counts with conditions.</p></div><div><strong class="tiny">XLOOKUP</strong><p class="tiny muted">Finds a matching value.</p></div></div></div>';
 let drills=[["Total all revenue","SUM","=SUM(C2:C6)",12700],["Average invoice revenue","AVERAGE","=AVERAGE(C2:C6)",2540],["Count invoices","COUNTA","=COUNTA(A2:A6)",5],["Total Chennai revenue","SUMIF","=SUMIF(B2:B6,\"Chennai\",C2:C6)",2000],["Count paid invoices","COUNTIF","=COUNTIF(D2:D6,\"Paid\")",4],["Label invoice as high value when above 5000","IF","=IF(C3>5000,\"High\",\"Regular\")","High"]];
