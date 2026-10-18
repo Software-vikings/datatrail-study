@@ -1,6 +1,6 @@
 # DataTrail — Learn by doing
 
-A browser-based data analytics learning studio with **112 guided lessons** across Excel, SQL, Python, NumPy, pandas, statistics and Power BI. Start from zero and move forward through small explanations, worked examples, practice, instant knowledge checks and business-focused projects.
+A browser-based data analytics learning studio for beginners moving toward analyst-level work. Development is being delivered in quality-controlled phases. **Phase 1 is the rebuilt Python course: 33 sequenced lessons, 20 executable coding exercises and 53 named test cases.** SQL and the other subject tracks remain in the site; their teaching redesign is staged for later phases.
 
 ## Publish the study site
 
@@ -25,30 +25,37 @@ Every lesson follows the same five-stage learning loop:
 4. **Check yourself** — answer an auto-marked question and retry when needed.
 5. **Lock it in** — review the key takeaway and complete the lesson.
 
-The lesson map begins with four added foundation lessons per subject, then builds through core and intermediate material. Each track ends with four dedicated advanced analyst modules; earlier survey-level items are not labelled advanced. Advanced work includes Power Query and dynamic arrays, SQL subqueries and query plans, Python dependency control and profiling, NumPy memory and indexing, pandas join validation and time-series workflows, statistical test selection and regression, and DAX context and row-level security. DataFox, the DataTrail mascot, appears in the learning interface.
+Python Phase 1 follows six units: getting started; logic and repetition; Python collections; reusable programs; working with files and data; and analyst practice. Lessons are ordered so that each concept is introduced before it is needed in a later exercise. The next lesson stays locked until the learner completes the current lesson and its matching coding exercise. DataFox, the DataTrail mascot, appears in the learning interface.
 
 ## Learning paths
 
 - Excel: datasets, clean table structure, cell references, sorting and filtering, formulas, conditional logic, SUMIFS, lookups and PivotTables.
 - SQL: relational tables, rows and keys, query structure, SELECT, filtering, sorting, aggregation, joins, CASE, CTEs and window functions.
-- Python: what programs do, print(), data types, variables, collections, conditions, loops, functions, exceptions and comprehensions.
+- Python Phase 1: 33 lessons covering execution, output, expressions, variables, types, strings, conversion, Boolean logic, decisions, loops, lists, tuples, dictionaries, sets, functions, scope, modules, errors, exceptions, file handling, CSV, JSON, dates, comprehensions, sorting and a sales-summary project.
 - NumPy: arrays and axes, importing libraries, indexing, vectorisation, broadcasting, aggregation and boolean masks.
 - pandas: DataFrames, creating and inspecting tables, reading files, selecting, filtering, sorting, missing values, groupby, merge and pivot tables.
 - Statistics: what statistical thinking is, variable types, counts and percentages, averages, spread, sampling, bias, probability, confidence intervals and hypothesis testing.
 - Power BI: BI fundamentals, data-model/report concepts, chart selection, KPIs, data preparation, relationships, star schema, measures, DAX and dashboard design.
 - Career toolkit: projects, practice arena, and interview preparation.
 
-## Labs
+## Python Phase 1 coding studio
+
+- The Python exercise editor uses CodeMirror with Python syntax highlighting and line numbers. A plain-text editor fallback remains available if the editor CDN cannot load.
+- Python code executes locally in the browser using Pyodide 314.0.7. No local Python installation or account is required; first use downloads the runtime and needs an internet connection.
+- Each coding exercise has a starter, a hint, a worked solution and named test cases. Learners can run code separately from running tests. Progress unlocks sequentially and code drafts are saved in the browser.
+- Continuous integration syntax-checks the application and exercise bank, verifies the lesson-to-exercise mapping and executes every reference solution against its test suite.
+
+## Other labs
 
 - SQL uses SQLite compiled to WebAssembly through sql.js. First use requires internet access to load the runtime.
-- Python uses Pyodide in the browser. First use and optional NumPy/pandas package loading require internet access.
+- NumPy and pandas are still separate learning tracks, with package loading available in the browser Python runtime.
 - Excel is a guided formula trainer, not Microsoft Excel.
 - Power BI is a guided model/DAX/report simulator, not Power BI Desktop.
 - Statistics provides small descriptive calculators and interpretation practice.
 
 ## Progress and privacy
 
-Progress is stored in this browser using localStorage. It is not synced to a server. Use **My progress → Export progress JSON** to create a backup before switching browsers or devices.
+Progress is stored in this browser using localStorage. It is not synced to a server. Use **My progress → Export progress JSON** to create a backup before switching browsers or devices. Because the Python syllabus has been rebuilt from the ground up, old Python lesson completion marks are reset on the first load of this release; progress in the other subject tracks is preserved.
 
 No sign-in, paid API key or backend is required.
 
