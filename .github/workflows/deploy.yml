@@ -65,7 +65,7 @@ jobs:
           if (trackOrderStart < 0 || trackOrderEnd < 0) throw new Error("Track order declaration missing");
           const trackOrder = JSON.parse(html.slice(trackOrderStart, trackOrderEnd));
           if (trackOrder[0] !== "Python" || !html.includes("const tracks=trackOrder.map")) throw new Error("Python must be the first learning track");
-          if ((html.match(/function openLesson\\(track,id\\)/g) || []).length !== 1) throw new Error("Expected exactly one openLesson handler");
+          if ((html.match(/function openLesson\(track,id\)/g) || []).length !== 1) throw new Error("Expected exactly one openLesson handler");
           if (!html.includes('id="runWorkedExample"') || !html.includes("worked_example_stdout.getvalue()")) throw new Error("Runnable worked-example output is missing");
           if ((html.match(/data-track-open=/g) || []).length < 2 || !html.includes('querySelectorAll("[data-track-open]")')) throw new Error("Dashboard and learning-path cards must be clickable");
           console.log("Validated", lessons.length, "Python lessons,", tasks.length, "exercises,", tasks.reduce((n, x) => n + x.tests.length, 0), "named tests, runnable examples and clickable course cards.");
