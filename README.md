@@ -53,3 +53,9 @@ Then visit http://localhost:8765.
 ## Sample data
 
 The SQL lab contains a small synthetic customers and orders dataset. Use its Download CSV button to export the orders table. A copy is also in `orders-sample.csv`. All names and amounts are fictional.
+
+## Licence
+
+**Proprietary — All Rights Reserved.** Copyright (c) 2026 Software Vikings. No general permission is granted to copy, modify, redistribute, or commercially exploit DataTrail without prior written permission. See the [LICENSE](./LICENSE) file for the full notice.
+
+Because this repository may be made public, GitHub's Terms of Service still allow users to view and fork it within GitHub while it is public. This notice does not prevent viewing or platform-level forking. Third-party components remain subject to their own licences.
