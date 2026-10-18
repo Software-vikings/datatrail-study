@@ -60,7 +60,7 @@
 .tutor-feedback{background:#eef5ef;border:1px solid #d9e9dc;border-radius:11px;padding:12px 14px;margin-top:12px;font-size:12px;line-height:1.6;color:#385246}
 .tutor-feedback p{margin:5px 0 0}
 .tutor-feedback.success{background:#eaf6ed;border-color:#cbe5d2;color:#205d42}
-.tutor-feedback.retry{background:#fff4e9;border-color:#f3ddbd;color:#7a5627}
+.tutor-feedback.retry{background:#fff4e9;border-color:#f3ddbd;color:#7a5627}.tutor-python-result{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}.tutor-python-test{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-top:7px;background:#fff}.tutor-python-test>span{font-weight:900}.tutor-python-test.passed>span{color:#27845c}.tutor-python-test.failed>span{color:#b45b37}.tutor-python-test strong{font-size:12px;display:block}.tutor-python-test small{font-size:11px;color:var(--muted);display:block;line-height:1.5;margin-top:3px}.tutor-python-solution{white-space:pre-wrap}
 .tutor-small{font-size:11px;color:var(--muted);line-height:1.6;margin-top:12px}
 .tutor-question h2{font-size:19px;line-height:1.45;margin:12px 0 16px}
 .tutor-option{width:100%;display:flex;align-items:center;gap:12px;padding:13px 14px;background:#fff;border:1px solid var(--line);border-radius:11px;margin:8px 0;text-align:left;font-size:13px;color:var(--ink)}
@@ -381,6 +381,7 @@ function lessonPage(){
 let t=tracks.find(x=>x.name===activeTrack)||tracks[0],l=t.lessons.find(x=>x.id===activeLesson)||t.lessons[0],idx=t.lessons.indexOf(l),isDone=state.done.includes(l.id);
 let pythonExerciseIndex=t.name==="Python"?pythonLessonTaskMap[idx]:-1;
 let pythonExercisePassed=t.name!=="Python"||pythonExerciseIndex<0||(state.pythonTaskComplete||[]).includes(pythonExerciseIndex);
+let pythonTask=t.name==="Python"&&pythonExerciseIndex>=0?pythonChallenges[pythonExerciseIndex]:null;
 const names=["Understand","See an example","Your turn","Check yourself","Lock it in"];
 const icons=["01","02","03","04","05"];
 const pctStep=Math.round((tutorStep+1)/names.length*100);
@@ -407,14 +408,20 @@ inner='<div class="tutor-kicker">STEP 1 OF 5 · START WITH THE IDEA</div><h1>'+e
 }else if(tutorStep===1){
 inner='<div class="tutor-kicker">STEP 2 OF 5 · WATCH THE IDEA WORK</div><h1>One example, slowly.</h1><p class="tutor-lead">Read the example from top to bottom. Notice what each part contributes before trying it yourself.</p><div class="tutor-example"><div class="tutor-label">WORKED EXAMPLE</div><pre class="tutor-code">'+esc(l.example.replace(/\\n/g,"\n"))+'</pre>'+(t.name==="Python"?'<div class="tutor-example-runbar"><button class="btn primary small" id="runWorkedExample">▶ Run this example</button><span class="tiny muted">See the actual result from Python</span></div><div class="tutor-label" style="margin-top:14px">OUTPUT</div><pre class="tutor-example-output" id="workedExampleOutput" aria-live="polite">Press “Run this example” to see what Python produces.</pre>':'<div class="tutor-example-output tutor-example-note">Example shown above. The lesson task below lets you apply the same idea.</div>')+'<div class="tutor-label" style="margin-top:18px">THE PROFESSIONAL EXPLANATION</div><p>'+esc(l.definition)+'</p></div><div class="fox-tip"><img src="assets/datatrail-mascot.webp" alt=""><div><strong>Learning tip</strong><p>Do not rush to memorise the syntax. First understand what problem the example solves.</p></div></div>';
 }else if(tutorStep===2){
-inner='<div class="tutor-kicker">STEP 3 OF 5 · YOUR TURN</div><h1>Try a small task.</h1><p class="tutor-lead">'+esc(l.task)+'</p><div class="tutor-workspace"><div class="tutor-label">YOUR WORKING AREA</div><textarea id="tutorAttempt" class="tutor-editor" placeholder="Write your formula, query, code or explanation here...">'+esc(savedAttempt)+'</textarea><div class="tutor-actions"><button class="btn" id="tutorHint">Show me a hint</button><button class="btn" id="tutorSolution">Reveal worked solution</button><button class="btn primary" id="saveTutorAttempt">I have tried it →</button></div><div id="tutorHintBox" class="tutor-feedback" hidden><strong>Hint</strong><p>'+esc(l.hint)+'</p></div><div id="tutorSolutionBox" class="tutor-feedback" hidden><strong>One possible solution</strong><p>'+esc(l.solution)+'</p></div></div>'+practiceStudio+'<p class="tutor-small">This practice note is saved only in this browser. The next step checks your understanding with an auto-marked question.</p>';
+if(t.name==="Python"&&pythonTask){
+ const savedPythonDraft=(state.pythonDrafts||{})[pythonExerciseIndex];
+ const starterCode=savedPythonDraft!==undefined?savedPythonDraft:pythonTask.starter;
+ inner='<div class="tutor-kicker">STEP 3 OF 5 · YOUR TURN</div><h1>Write and run Python.</h1><p class="tutor-lead">'+esc(pythonTask.prompt)+'</p><div class="tutor-workspace"><div class="tutor-label">YOUR PYTHON EDITOR · '+esc(pythonTask.title)+'</div><textarea id="tutorPythonEditor" class="tutor-editor" spellcheck="false" aria-label="Write Python code">'+esc(starterCode)+'</textarea><div class="tutor-actions"><button class="btn" id="tutorPythonRun">▶ Run my code</button><button class="btn primary" id="tutorPythonCheck">✓ Check my answer</button><button class="btn" id="tutorPythonHint">Show me a hint</button><button class="btn" id="tutorPythonSolution">Show correct answer</button></div><div id="tutorPythonHintBox" class="tutor-feedback" hidden><strong>Hint</strong><p>'+esc(pythonTask.hint)+'</p></div><div id="tutorPythonSolutionBox" class="tutor-feedback" hidden><strong>Model answer</strong><pre class="tutor-code">'+esc(pythonTask.solution)+'</pre></div><div class="tutor-python-result"><div class="tutor-label">YOUR PROGRAM OUTPUT</div><pre id="tutorPythonOutput" class="tutor-example-output" aria-live="polite">Run your code to see what Python produces. Checking your answer will also run the tests.</pre><div id="tutorPythonFeedback" aria-live="polite"></div></div><p class="tutor-small" id="tutorPythonStatus">'+(pythonExercisePassed?"✓ This exercise has already passed. You can practise again.":"Your code is saved in this browser. Run it first, then check it against the exercise requirements.")+'</p></div><p class="tutor-small">A successful run means the code executes. Passing the checks means it also does what the task asks.</p>';
+}else{
+ inner='<div class="tutor-kicker">STEP 3 OF 5 · YOUR TURN</div><h1>Try a small task.</h1><p class="tutor-lead">'+esc(l.task)+'</p><div class="tutor-workspace"><div class="tutor-label">YOUR WORKING AREA</div><textarea id="tutorAttempt" class="tutor-editor" placeholder="Write your formula, query, code or explanation here...">'+esc(savedAttempt)+'</textarea><div class="tutor-actions"><button class="btn" id="tutorHint">Show me a hint</button><button class="btn" id="tutorSolution">Reveal worked solution</button><button class="btn primary" id="saveTutorAttempt">I have tried it →</button></div><div id="tutorHintBox" class="tutor-feedback" hidden><strong>Hint</strong><p>'+esc(l.hint)+'</p></div><div id="tutorSolutionBox" class="tutor-feedback" hidden><strong>One possible solution</strong><p>'+esc(l.solution)+'</p></div></div>'+practiceStudio+'<p class="tutor-small">This practice note is saved only in this browser. The next step checks your understanding with an auto-marked question.</p>';
+}
 }else if(tutorStep===3){
 inner='<div class="tutor-kicker">STEP 4 OF 5 · QUICK KNOWLEDGE CHECK</div><h1>Can you spot the right answer?</h1><p class="tutor-lead">Choose one answer. You will get feedback straight away, and you can retry if you miss it.</p><div class="tutor-question"><div class="tutor-label">QUESTION</div><h2>'+esc(l.question)+'</h2>'+l.options.map((o,i)=>'<button class="tutor-option '+(state.answers[l.id]==="correct"&&i===l.answer?"correct":"")+'" data-option="'+i+'"><span>'+String.fromCharCode(65+i)+'</span>'+esc(o)+'</button>').join("")+'<div id="quizFeedback">'+(state.answers[l.id]==="correct"?'<div class="tutor-feedback success">Correct. '+esc(l.why)+'</div>':"")+'</div></div>';
 }else{
 inner='<div class="tutor-kicker">STEP 5 OF 5 · MAKE IT STICK</div><h1>Explain it back in your own words.</h1><p class="tutor-lead">The best test of learning is whether you can explain the idea without looking at the notes.</p><div class="tutor-recap"><div class="tutor-label">THE KEY TAKEAWAY</div><p>'+esc(l.why)+'</p><div class="tutor-label">THE FORMAL DEFINITION</div><p>'+esc(l.definition)+'</p></div><label class="tutor-label" for="tutorTeachback">YOUR ONE-SENTENCE EXPLANATION (OPTIONAL)</label><textarea id="tutorTeachback" class="tutor-editor short" placeholder="I would explain this concept like this...">'+esc((state.teachbacks&&state.teachbacks[l.id])||"")+'</textarea><div class="tutor-complete">'+(tutorQuizCorrect?'<span class="tutor-ready">✓ Knowledge check passed</span>':'<span class="tutor-wait">Complete the knowledge check to finish this lesson.</span>')+'</div>';
 }
 const lessonList=t.lessons.map((x,i)=>'<button class="tutor-course-item '+(x.id===l.id?"active ":"")+(state.done.includes(x.id)?"done":"")+'" data-jump="'+x.id+'"><span class="tutor-course-num">'+(state.done.includes(x.id)?"✓":String(i+1).padStart(2,"0"))+'</span><span><strong>'+esc(x.title)+'</strong><small>'+x.level+' · '+x.mins+' min</small></span></button>').join("");
-view.innerHTML='<div class="tutor-heading"><div><div class="eyebrow">'+esc(t.name)+' · LESSON '+(idx+1)+' OF '+t.lessons.length+'</div><h1 class="h1">'+esc(l.title)+'</h1><p class="sub">A guided lesson. One small step at a time. You do not need to know anything that has not been taught yet.</p></div><div class="tutor-lesson-progress"><strong>'+pctStep+'%</strong><span>lesson steps</span><div class="progress"><span style="width:'+pctStep+'%"></span></div></div></div><div class="tutor-layout"><aside class="tutor-sidebar"><div class="tutor-side-title">THIS LESSON</div>'+names.map((n,i)=>'<button class="tutor-step-link '+(i===tutorStep?"active ":"")+(i<tutorStep?"passed":"")+'" data-step="'+i+'" '+(i>tutorStep?"disabled":"")+'><span>'+icons[i]+'</span>'+n+(i<tutorStep?" ✓":"")+'</button>').join("")+'<div class="tutor-course-divider"></div><div class="tutor-side-title">COURSE MAP · '+t.name.toUpperCase()+'</div><div class="tutor-course-list">'+lessonList+'</div></aside><main class="tutor-main"><div class="tutor-stage">'+inner+'</div><div class="tutor-footer"><button class="btn" id="tutorBack" '+(tutorStep===0?"disabled":"")+'>'+ (tutorStep===0?"← Course map":"← Previous step")+'</button><div class="tutor-footer-right">'+(tutorStep<4?'<button class="btn primary" id="tutorNext" '+(tutorStep===2&& !savedAttempt.trim()?"disabled":"")+'>'+(tutorStep===2?"Continue to knowledge check →":"Continue →")+'</button>':(isDone?'<button class="btn primary" id="nextCourseLesson">Next lesson →</button>':'<button class="btn primary" id="completeTutorLesson" '+(!tutorQuizCorrect||!pythonExercisePassed?"disabled":"")+'>Complete lesson ✓</button>'))+'</div></div></main></div>';
+view.innerHTML='<div class="tutor-heading"><div><div class="eyebrow">'+esc(t.name)+' · LESSON '+(idx+1)+' OF '+t.lessons.length+'</div><h1 class="h1">'+esc(l.title)+'</h1><p class="sub">A guided lesson. One small step at a time. You do not need to know anything that has not been taught yet.</p></div><div class="tutor-lesson-progress"><strong>'+pctStep+'%</strong><span>lesson steps</span><div class="progress"><span style="width:'+pctStep+'%"></span></div></div></div><div class="tutor-layout"><aside class="tutor-sidebar"><div class="tutor-side-title">THIS LESSON</div>'+names.map((n,i)=>'<button class="tutor-step-link '+(i===tutorStep?"active ":"")+(i<tutorStep?"passed":"")+'" data-step="'+i+'" '+(i>tutorStep?"disabled":"")+'><span>'+icons[i]+'</span>'+n+(i<tutorStep?" ✓":"")+'</button>').join("")+'<div class="tutor-course-divider"></div><div class="tutor-side-title">COURSE MAP · '+t.name.toUpperCase()+'</div><div class="tutor-course-list">'+lessonList+'</div></aside><main class="tutor-main"><div class="tutor-stage">'+inner+'</div><div class="tutor-footer"><button class="btn" id="tutorBack" '+(tutorStep===0?"disabled":"")+'>'+ (tutorStep===0?"← Course map":"← Previous step")+'</button><div class="tutor-footer-right">'+(tutorStep<4?'<button class="btn primary" id="tutorNext" '+(tutorStep===2&&(t.name==="Python"?!pythonExercisePassed:!savedAttempt.trim())?"disabled":"")+'>'+(tutorStep===2?"Continue to knowledge check →":"Continue →")+'</button>':(isDone?'<button class="btn primary" id="nextCourseLesson">Next lesson →</button>':'<button class="btn primary" id="completeTutorLesson" '+(!tutorQuizCorrect||!pythonExercisePassed?"disabled":"")+'>Complete lesson ✓</button>'))+'</div></div></main></div>';
 view.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{let n=Number(b.dataset.step);if(n<=tutorStep){tutorStep=n;lessonPage()}});
 view.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>openLesson(t.name,b.dataset.jump));
 const runExampleBtn=document.getElementById("runWorkedExample");
@@ -433,7 +440,138 @@ if(runExampleBtn)runExampleBtn.onclick=async()=>{
  finally{runExampleBtn.disabled=false;runExampleBtn.textContent="▶ Run this example"}
 };
 document.getElementById("tutorBack").onclick=()=>{if(tutorStep===0){go("paths")}else{tutorStep--;lessonPage()}};
-let nextBtn=document.getElementById("tutorNext");if(nextBtn)nextBtn.onclick=()=>{if(tutorStep===2){let val=document.getElementById("tutorAttempt").value.trim();if(val.length<3){toast("Write a small attempt first. It does not need to be perfect.");return}state.practiceNotes=state.practiceNotes||{};state.practiceNotes[l.id]=val;save()}tutorStep++;lessonPage()};
+const tutorPythonEditor=document.getElementById("tutorPythonEditor");
+if(tutorPythonEditor){
+ tutorPythonEditor.addEventListener("input",()=>{
+  state.pythonDrafts=state.pythonDrafts||{};
+  state.pythonDrafts[pythonExerciseIndex]=tutorPythonEditor.value;
+  save();
+ });
+ tutorPythonEditor.addEventListener("keydown",event=>{
+  if(event.key==="Tab"){
+   event.preventDefault();
+   const start=tutorPythonEditor.selectionStart,end=tutorPythonEditor.selectionEnd;
+   tutorPythonEditor.setRangeText("    ",start,end,"end");
+   tutorPythonEditor.dispatchEvent(new Event("input",{bubbles:true}));
+  }
+  if((event.ctrlKey||event.metaKey)&&event.key==="Enter"){
+   event.preventDefault();
+   document.getElementById("tutorPythonRun").click();
+  }
+ });
+}
+async function executeTutorPython(checkTests){
+ const runButton=document.getElementById("tutorPythonRun");
+ const checkButton=document.getElementById("tutorPythonCheck");
+ const output=document.getElementById("tutorPythonOutput");
+ const feedback=document.getElementById("tutorPythonFeedback");
+ const status=document.getElementById("tutorPythonStatus");
+ const code=tutorPythonEditor?tutorPythonEditor.value:"";
+ if(!code.trim()){
+  if(feedback)feedback.innerHTML='<div class="tutor-feedback retry"><strong>No code to run yet.</strong><p>Type your Python instruction in the editor, then try again.</p></div>';
+  return;
+ }
+ state.pythonDrafts=state.pythonDrafts||{};
+ state.pythonDrafts[pythonExerciseIndex]=code;
+ save();
+ if(runButton)runButton.disabled=true;
+ if(checkButton)checkButton.disabled=true;
+ if(status)status.textContent=checkTests?"Running Python and checking your answer…":"Running your Python code…";
+ if(output)output.textContent="Starting Python…";
+ if(feedback)feedback.innerHTML="";
+ try{
+  const py=await ensurePy();
+  py.globals.set("tutor_task_setup",pythonTask.setup||"");
+  py.globals.set("tutor_task_code",code);
+  py.globals.set("tutor_task_tests_json",JSON.stringify(pythonTask.tests||[]));
+  py.globals.set("tutor_task_should_check",!!checkTests);
+  const harness=[
+   "import io, contextlib, json",
+   'tutor_namespace = {"__name__": "__main__"}',
+   "tutor_stdout = io.StringIO()",
+   'tutor_execution_error = ""',
+   "try:",
+   "    with contextlib.redirect_stdout(tutor_stdout):",
+   "        if tutor_task_setup.strip():",
+   '            exec(compile(tutor_task_setup, "<exercise setup>", "exec"), tutor_namespace)',
+   '        exec(compile(tutor_task_code, "<your code>", "exec"), tutor_namespace)',
+   "except Exception as exc:",
+   '    tutor_execution_error = type(exc).__name__ + (": " + str(exc) if str(exc) else "")',
+   "tutor_test_results = []",
+   "if tutor_task_should_check:",
+   "    if tutor_execution_error:",
+   '        tutor_test_results = [{"name": "Your code runs", "passed": False, "detail": tutor_execution_error}]',
+   "    else:",
+   '        tutor_namespace["__output__"] = tutor_stdout.getvalue()',
+   '        tutor_namespace["__source__"] = tutor_task_code',
+   "        for tutor_test in json.loads(tutor_task_tests_json):",
+   "            try:",
+   '                exec(compile(tutor_test["code"], "<" + tutor_test["name"] + ">", "exec"), tutor_namespace)',
+   '                tutor_test_results.append({"name": tutor_test["name"], "passed": True, "detail": "Passed"})',
+   "            except Exception as exc:",
+   '                detail = type(exc).__name__ + (": " + str(exc) if str(exc) else "")',
+   '                tutor_test_results.append({"name": tutor_test["name"], "passed": False, "detail": detail})',
+   'tutor_result_json = json.dumps({"output": tutor_stdout.getvalue(), "error": tutor_execution_error, "tests": tutor_test_results})'
+  ].join("\n");
+  await py.runPythonAsync(harness);
+  const result=JSON.parse(py.runPython("tutor_result_json"));
+  if(output)output.textContent=result.error?("Python error: "+result.error):(result.output||"Your code ran successfully, but it did not print anything. Assignments store values silently; use print(variable) when you want to display a value.");
+  if(!checkTests){
+   if(status)status.textContent=result.error?"Code needs fixing. Read the error above.":"Code ran. Now choose “Check my answer” to test whether it meets the task.";
+   return;
+  }
+  const results=result.tests||[];
+  const passed=results.filter(item=>item.passed).length;
+  const allPassed=results.length>0&&passed===results.length;
+  const testRows=results.map(item=>{
+   let detail=item.detail;
+   if(!item.passed&&detail==="AssertionError")detail="The code ran, but this requirement was not met. Compare the task instruction with the output above.";
+   else if(!item.passed&&detail.startsWith("AssertionError:"))detail=detail.slice("AssertionError:".length).trim()||"The result did not match the requirement. Compare the task instruction with the output above.";
+   return '<div class="tutor-python-test '+(item.passed?"passed":"failed")+'"><span>'+(item.passed?"✓":"×")+'</span><div><strong>'+esc(item.name)+'</strong><small>'+esc(detail)+'</small></div></div>'
+  }).join("");
+  if(feedback)feedback.innerHTML='<div class="tutor-feedback '+(allPassed?"success":"retry")+'"><strong>'+(allPassed?"Correct — all "+passed+" checks passed.":"Not correct yet — "+passed+" of "+results.length+" checks passed.")+'</strong><p>'+(allPassed?"Your code meets the exercise requirements. You can continue to the knowledge check.":(result.error?"Python stopped before completing the tests. Read the error above, correct the code and check again.":"Your code executed, but one or more expected results were not produced. Read the failed checks, compare the output with the task, and try again. You can reveal the model answer when you are ready."))+'</p></div>'+testRows;
+  if(allPassed){
+   state.pythonTaskComplete=state.pythonTaskComplete||[];
+   if(!state.pythonTaskComplete.includes(pythonExerciseIndex)){
+    state.pythonTaskComplete.push(pythonExerciseIndex);
+    state.xp+=20;
+   }
+   save();
+   if(status)status.textContent="✓ Exercise passed. Your next lesson step is unlocked.";
+   const nextButton=document.getElementById("tutorNext");
+   if(nextButton)nextButton.disabled=false;
+  }else if(status)status.textContent="Not passed yet. Edit your code and check again.";
+ }catch(error){
+  if(output)output.textContent="Python could not run: "+error.message;
+  if(feedback)feedback.innerHTML='<div class="tutor-feedback retry"><strong>The Python runner could not complete.</strong><p>Check your internet connection and try again. Your code is still saved.</p></div>';
+  if(status)status.textContent="Runner issue — your draft has been saved.";
+ }finally{
+  if(runButton)runButton.disabled=false;
+  if(checkButton)checkButton.disabled=false;
+ }
+}
+const tutorPythonRunButton=document.getElementById("tutorPythonRun");
+if(tutorPythonRunButton)tutorPythonRunButton.onclick=()=>executeTutorPython(false);
+const tutorPythonCheckButton=document.getElementById("tutorPythonCheck");
+if(tutorPythonCheckButton)tutorPythonCheckButton.onclick=()=>executeTutorPython(true);
+const tutorPythonHintButton=document.getElementById("tutorPythonHint");
+if(tutorPythonHintButton)tutorPythonHintButton.onclick=()=>{const box=document.getElementById("tutorPythonHintBox");box.hidden=!box.hidden};
+const tutorPythonSolutionButton=document.getElementById("tutorPythonSolution");
+if(tutorPythonSolutionButton)tutorPythonSolutionButton.onclick=()=>{const box=document.getElementById("tutorPythonSolutionBox");box.hidden=!box.hidden};
+let nextBtn=document.getElementById("tutorNext");if(nextBtn)nextBtn.onclick=()=>{
+ if(tutorStep===2){
+  if(t.name==="Python"){
+   if(!(state.pythonTaskComplete||[]).includes(pythonExerciseIndex)){
+    toast("Run your code and pass all the checks before continuing.");return
+   }
+  }else{
+   let val=document.getElementById("tutorAttempt").value.trim();
+   if(val.length<3){toast("Write a small attempt first. It does not need to be perfect.");return}
+   state.practiceNotes=state.practiceNotes||{};state.practiceNotes[l.id]=val;save()
+  }
+ }
+ tutorStep++;lessonPage()
+};
 const openLabBtn=document.getElementById("openTutorLab");if(openLabBtn)openLabBtn.onclick=()=>{if(t.name==="SQL"){state.sqlStarter="";state.sqlTaskTarget=l.title;}else if(t.name==="Python"){state.pythonTaskTargetIndex=pythonExerciseIndex;state.pythonReturnLessonId=l.id;}else if(t.name==="NumPy"||t.name==="pandas"){state.pythonStarter=l.example.replace(/\\n/g,"\n");}else if(t.name==="Excel"){}save();go(labPage)};
 const hintBtn=document.getElementById("tutorHint");if(hintBtn)hintBtn.onclick=()=>{let b=document.getElementById("tutorHintBox");b.hidden=!b.hidden};
 const solutionBtn=document.getElementById("tutorSolution");if(solutionBtn)solutionBtn.onclick=()=>{let b=document.getElementById("tutorSolutionBox");b.hidden=!b.hidden};
