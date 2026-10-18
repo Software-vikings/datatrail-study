@@ -1,6 +1,6 @@
 # DataTrail — Learn by doing
 
-A browser-based study studio for moving from a commerce background into data analytics. Start from zero and learn through short explanations, worked business examples, quizzes and hands-on practice.
+A browser-based data analytics learning studio with **84 guided lessons** across Excel, SQL, Python, NumPy, pandas, statistics and Power BI. Start from zero and move forward through small explanations, worked examples, practice, instant knowledge checks and business-focused projects.
 
 ## Publish the study site
 
@@ -15,15 +15,27 @@ The website files are ready on the `main` branch. To publish:
 
 GitHub Pages is available for public repositories on GitHub Free. Publishing from a private repository requires an eligible paid plan. A Pages site is public on the internet unless it is privately published through an eligible enterprise plan.
 
+## How DataTrail teaches
+
+Every lesson follows the same five-stage learning loop:
+
+1. **Understand** — meet one idea in plain language before technical terminology.
+2. **See an example** — follow a worked example and its professional meaning.
+3. **Your turn** — attempt a small task, with a hint and a revealable worked solution.
+4. **Check yourself** — answer an auto-marked question and retry when needed.
+5. **Lock it in** — review the key takeaway and complete the lesson.
+
+The lesson map begins with foundation modules. Advanced topics appear only after the introductory sequence for that subject. DataFox, the DataTrail mascot, appears in the learning interface.
+
 ## Learning paths
 
-- Excel: spreadsheet foundations, formulas, references, conditional logic, SUMIFS, lookups and PivotTables.
-- SQL: databases, SELECT, WHERE, sorting, aggregation, joins, CASE, CTEs and window functions.
-- Python: variables, data types, collections, conditions, loops, functions, exceptions and comprehensions.
-- NumPy: arrays, shapes, indexing, vectorisation, broadcasting and aggregation.
-- pandas: DataFrames, inspection, filtering, missing values, groupby, merge and pivot tables.
-- Statistics: descriptive statistics, sampling, bias, probability, confidence intervals and hypothesis testing.
-- Power BI: data preparation, relationships, star schema, measures, DAX and dashboard design.
+- Excel: datasets, clean table structure, cell references, sorting and filtering, formulas, conditional logic, SUMIFS, lookups and PivotTables.
+- SQL: relational tables, rows and keys, query structure, SELECT, filtering, sorting, aggregation, joins, CASE, CTEs and window functions.
+- Python: what programs do, print(), data types, variables, collections, conditions, loops, functions, exceptions and comprehensions.
+- NumPy: arrays and axes, importing libraries, indexing, vectorisation, broadcasting, aggregation and boolean masks.
+- pandas: DataFrames, creating and inspecting tables, reading files, selecting, filtering, sorting, missing values, groupby, merge and pivot tables.
+- Statistics: what statistical thinking is, variable types, counts and percentages, averages, spread, sampling, bias, probability, confidence intervals and hypothesis testing.
+- Power BI: BI fundamentals, data-model/report concepts, chart selection, KPIs, data preparation, relationships, star schema, measures, DAX and dashboard design.
 - Career toolkit: projects, practice arena, and interview preparation.
 
 ## Labs
