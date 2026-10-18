@@ -82,6 +82,7 @@ jobs:
                       exec(compile(task["setup"], "<setup>", "exec"), namespace)
                   exec(compile(task["solution"], "<reference solution>", "exec"), namespace)
               namespace["__output__"] = captured.getvalue()
+              namespace["__source__"] = task["solution"]
               for test in task["tests"]:
                   exec(compile(test["code"], "<" + test["name"] + ">", "exec"), namespace)
               print(f"Exercise {task_index:02d}: {task['title']} — {len(task['tests'])} tests passed")
