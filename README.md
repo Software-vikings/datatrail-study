@@ -1,6 +1,6 @@
 # DataTrail — Learn by doing
 
-A browser-based data analytics learning studio for beginners moving toward analyst-level work. Development is being delivered in quality-controlled phases. **Phase 1 is the rebuilt Python course: 33 sequenced lessons, 33 executable coding exercises and 96 named test cases.** SQL and the other subject tracks remain in the site; their teaching redesign is staged for later phases.
+A browser-based data analytics learning studio for beginners progressing toward analyst-level work. The Python curriculum is now a staged 84-lesson programme with 84 executable coding exercises and 205 named test cases. It has explicit Basic, Intermediate and Advanced boundaries, followed by a dedicated Python interview gym with 51 questions across Lowball, Core, Highball and Trap sets. SQL and the other subject tracks remain in the site; their teaching redesign is staged separately.
 
 ## Publish the study site
 
@@ -25,25 +25,26 @@ Every lesson follows the same five-stage learning loop:
 4. **Check yourself** — answer an auto-marked question and retry when needed.
 5. **Lock it in** — review the key takeaway and complete the lesson.
 
-Python Phase 1 follows six units: getting started; logic and repetition; Python collections; reusable programs; working with files and data; and analyst practice. Lessons are ordered so that each concept is introduced before it is needed in a later exercise. The next lesson stays locked until the learner completes the current lesson and its matching coding exercise. DataFox, the DataTrail mascot, appears in the learning interface.
+Python is divided into three explicitly marked stages. **Basic (22 lessons)** covers execution, syntax, types, decisions, loops, collections, functions, files, errors, tests and a sales-report checkpoint. **Intermediate (40 lessons)** begins with OOP and covers classes, constructors, instance/class attributes, classmethod/staticmethod, properties, inheritance, super(), overriding, polymorphism, duck typing, composition, dunder methods, dataclasses, ABCs, Protocols, iterators, generators, closures, decorators, recursion, context managers, typing, testing/mocking, packages, virtual environments, logging and CLI design. **Advanced (22 lessons)** covers descriptors, metaclasses, multiple inheritance/MRO, object identity, copy semantics, garbage collection, weak references, algorithmic complexity, advanced data structures, profiling, caching, async/asyncio, cancellation, concurrency, the GIL, locks/queues, streaming ETL, idempotency, security, generics and dependency injection. Each lesson maps to its own executable coding exercise. The next lesson stays locked until the current lesson and matching exercise pass. DataFox appears in the learning interface.
 
 ## Learning paths
 
 - Excel: datasets, clean table structure, cell references, sorting and filtering, formulas, conditional logic, SUMIFS, lookups and PivotTables.
 - SQL: relational tables, rows and keys, query structure, SELECT, filtering, sorting, aggregation, joins, CASE, CTEs and window functions.
-- Python Phase 1: 33 lessons covering execution, output, expressions, variables, types, strings, conversion, Boolean logic, decisions, loops, lists, tuples, dictionaries, sets, functions, scope, modules, errors, exceptions, file handling, CSV, JSON, dates, comprehensions, sorting and a sales-summary project.
+- Python: 84 lessons across Basic (22), Intermediate (40) and Advanced (22), including full OOP, descriptors, metaclasses, generators, decorators, testing, concurrency and production-oriented design.
 - NumPy: arrays and axes, importing libraries, indexing, vectorisation, broadcasting, aggregation and boolean masks.
 - pandas: DataFrames, creating and inspecting tables, reading files, selecting, filtering, sorting, missing values, groupby, merge and pivot tables.
 - Statistics: what statistical thinking is, variable types, counts and percentages, averages, spread, sampling, bias, probability, confidence intervals and hypothesis testing.
 - Power BI: BI fundamentals, data-model/report concepts, chart selection, KPIs, data preparation, relationships, star schema, measures, DAX and dashboard design.
 - Career toolkit: projects, practice arena, and interview preparation.
 
-## Python Phase 1 coding studio
+## Python coding studio and stage progression
 
 - The Python exercise editor uses CodeMirror with Python syntax highlighting and line numbers. A plain-text editor fallback remains available if the editor CDN cannot load.
 - Python code executes locally in the browser using Pyodide 314.0.7. No local Python installation or account is required; first use downloads the runtime and needs an internet connection.
-- Each coding exercise has a starter, a hint, a worked solution and named test cases. Learners can run code separately from running tests. Progress unlocks sequentially and code drafts are saved in the browser.
-- Continuous integration syntax-checks the application and exercise bank, verifies the lesson-to-exercise mapping and executes every reference solution against its test suite.
+- Each of the 84 coding exercises has a starter, a hint, a model solution and named test cases. Learners can run code separately from checking correctness. The lesson practice step also displays output, failed checks and explanations. Progress unlocks sequentially and drafts are saved in the browser.
+- The Python interview gym contains 51 questions: Lowball screening, Core practical questions, Highball deep dives and Trap/gotcha questions. Each includes a model answer, interviewer rationale and a follow-up prompt.
+- Continuous integration syntax-checks the application and exercise bank, verifies stage boundaries and the lesson-to-exercise mapping, and executes every reference solution against its named tests.
 
 ## Other labs
 
