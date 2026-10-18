@@ -35,6 +35,30 @@ jobs:
           Path("/tmp/datatrail-app.js").write_text(scripts[-1], encoding="utf-8")
           PY
           node --check /tmp/datatrail-app.js
+          node --check assets/python-exercises.js
+          node - <<'NODE'
+          global.window = {};
+          require("./assets/python-exercises.js");
+          const tasks = global.window.DataTrailPythonExercises;
+          if (!Array.isArray(tasks) || tasks.length !== 20) throw new Error("Expected 20 Python exercises");
+          for (const [index, task] of tasks.entries()) {
+            if (!task.title || !task.prompt || !task.starter || !task.solution || !Array.isArray(task.tests) || task.tests.length < 2) {
+              throw new Error("Incomplete Python exercise at index " + index);
+            }
+            for (const test of task.tests) {
+              if (!test.name || !test.code) throw new Error("Unnamed or empty test in exercise " + index);
+            }
+          }
+          const html = require("fs").readFileSync("index.html", "utf8");
+          const lessonsMatch = html.match(/const pythonCourse=(\\[[\\s\\S]*\\]);\\nlessonRows\\.Python=/);
+          const mapMatch = html.match(/const pythonLessonTaskMap=(\\[[^;]+\\]);/);
+          if (!lessonsMatch || !mapMatch) throw new Error("Python lesson syllabus or exercise map missing");
+          const lessons = JSON.parse(lessonsMatch[1]);
+          const taskMap = JSON.parse(mapMatch[1]);
+          if (lessons.length !== 33 || taskMap.length !== lessons.length) throw new Error("Python lesson-to-exercise map is out of sync");
+          if (taskMap.some(i => !Number.isInteger(i) || i < 0 || i >= tasks.length)) throw new Error("Invalid Python exercise mapping");
+          console.log("Validated", lessons.length, "Python lessons,", tasks.length, "exercises and", tasks.reduce((n, x) => n + x.tests.length, 0), "named tests.");
+          NODE
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
