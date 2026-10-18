@@ -278,6 +278,7 @@ const pythonCourse=[["Meet Python: give the computer one instruction","Beginner"
 lessonRows.Python=pythonCourse;
 const pythonModules=[{"title":"01 · Getting started","subtitle":"Run code, read output and understand values.","start":0,"end":8},{"title":"02 · Logic and repetition","subtitle":"Compare values, make decisions and repeat work.","start":8,"end":14},{"title":"03 · Python collections","subtitle":"Store, select, transform and organise information.","start":14,"end":20},{"title":"04 · Reusable programs","subtitle":"Write functions, import tools and handle errors.","start":20,"end":26},{"title":"05 · Working with files and data","subtitle":"Read CSV and JSON, and handle dates safely.","start":26,"end":30},{"title":"06 · Analyst practice","subtitle":"Use concise transformations and complete a business-data project.","start":30,"end":33}];
 const pythonLessonTaskMap=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32];
+const trackOrder=["Python","SQL","Excel","NumPy","pandas","Statistics","Power BI"];
 const tracks=trackOrder.map(name=>({name,icon:icons[name],lessons:lessonRows[name].map((r,i)=>({id:name.toLowerCase().replace(/[^a-z]/g,"")+"-"+(i+1),title:r[0],level:r[1],mins:r[2],plain:r[3],definition:r[4],analogy:r[5],example:r[6],question:r[7],options:r[8],answer:r[9],why:r[10],task:r[11],hint:r[12],solution:r[13]}))}));
 let state=load();
 function load(){
