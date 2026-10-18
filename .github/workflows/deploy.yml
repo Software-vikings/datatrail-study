@@ -59,6 +59,12 @@ jobs:
           const taskMap = JSON.parse(html.slice(mapStart, mapEnd));
           if (lessons.length !== 33 || taskMap.length !== lessons.length) throw new Error("Python lesson-to-exercise map is out of sync");
           if (taskMap.some(i => !Number.isInteger(i) || i < 0 || i >= tasks.length)) throw new Error("Invalid Python exercise mapping");
+          if (taskMap.some((taskIndex, lessonIndex) => taskIndex !== lessonIndex)) throw new Error("Every Python lesson must map to its own exercise");
+          const trackOrderStart = html.indexOf("const trackOrder=") + "const trackOrder=".length;
+          const trackOrderEnd = html.indexOf(";", trackOrderStart);
+          if (trackOrderStart < 0 || trackOrderEnd < 0) throw new Error("Track order declaration missing");
+          const trackOrder = JSON.parse(html.slice(trackOrderStart, trackOrderEnd));
+          if (trackOrder[0] !== "Python" || !html.includes("const tracks=trackOrder.map")) throw new Error("Python must be the first learning track");
           console.log("Validated", lessons.length, "Python lessons,", tasks.length, "exercises and", tasks.reduce((n, x) => n + x.tests.length, 0), "named tests.");
           NODE
       - name: Verify Python exercise reference solutions
