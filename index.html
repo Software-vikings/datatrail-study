@@ -152,6 +152,10 @@
 .lessonrow.locked{opacity:.58}
 .lessonrow.locked:hover{background:#fff}
 
+
+.tutor-live-lab.later-phase{background:#f5f6f3;border-color:#dce3dd}
+.tutor-live-lab.later-phase strong{color:#52645a}
+
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
@@ -356,7 +360,7 @@ function renderTrackLessons(track){
  return markup
 }
 function paths(){
- view.innerHTML='<div class="eyebrow">THE LEARNING ROADMAP</div><h1 class="h1">Build skills in the right order.</h1><p class="sub">Python Phase 1 is now taught as a sequence of short lessons and tested coding exercises. Complete each Python lesson and its matching exercise to unlock the next. Other tracks remain available separately.</p><div class="grid two" style="margin-top:22px">'+tracks.map((t,ti)=>'<div class="card"><div class="trackcard"><div class="trackicon">'+t.icon+'</div><div style="flex:1"><div class="eyebrow">TRACK '+String(ti+1).padStart(2,"0")+'</div><h3>'+t.name+'</h3><p>'+t.lessons.length+' lessons · '+t.lessons.reduce((a,l)=>a+l.mins,0)+' min of guided learning</p><div class="progress"><span style="width:'+Math.round(t.lessons.filter(l=>state.done.includes(l.id)).length/t.lessons.length*100)+'%"></span></div></div></div><div style="margin-top:14px;border-top:1px solid var(--line)">'+renderTrackLessons(t)+'</div></div>').join("")+'</div>';
+ view.innerHTML='<div class="eyebrow">THE LEARNING ROADMAP</div><h1 class="h1">Build skills in the right order.</h1><p class="sub">Python Phase 1 is now taught as a sequence of short lessons and tested coding exercises. Complete each Python lesson and its matching exercise to unlock the next. Other tracks remain available separately.</p><div class="grid two" style="margin-top:22px">'+tracks.map((t,ti)=>'<div class="card"><div class="trackcard"><div class="trackicon">'+t.icon+'</div><div style="flex:1"><div class="eyebrow">TRACK '+String(ti+1).padStart(2,"0")+' · '+(t.name==="Python"?"PHASE 1 · CURRENT":t.name==="SQL"?"PHASE 2 · NEXT":"LATER PHASE")+'</div><h3>'+t.name+'</h3><p>'+t.lessons.length+' lessons · '+t.lessons.reduce((a,l)=>a+l.mins,0)+' min of guided learning</p><div class="progress"><span style="width:'+Math.round(t.lessons.filter(l=>state.done.includes(l.id)).length/t.lessons.length*100)+'%"></span></div></div></div><div style="margin-top:14px;border-top:1px solid var(--line)">'+renderTrackLessons(t)+'</div></div>').join("")+'</div>';
  view.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openLesson(b.dataset.track,b.dataset.open))
 }
 function openLesson(track,id){
@@ -389,7 +393,16 @@ else if(t.name==="Python"||t.name==="NumPy"||t.name==="pandas"){labPage="python"
 else if(t.name==="Excel"){labPage="excel";labLabel="Open the Excel formula trainer";}
 else if(t.name==="Statistics"){labPage="stats";labLabel="Open the statistics lab";}
 else if(t.name==="Power BI"){labPage="powerbi";labLabel="Open the Power BI studio";}
-let practiceStudio=t.name==="Python"?'<div class="tutor-live-lab"><div><strong>Now write and test Python</strong><p>This lesson has a matching coding exercise with named test cases. Your draft is saved as you work.</p></div><button class="btn primary small" id="openTutorLab">Open this Python exercise →</button></div>':'<div class="tutor-live-lab"><div><strong>Want to practise with the real tool?</strong><p>Open the matching practice area. Your lesson example will be loaded when supported.</p></div><button class="btn small" id="openTutorLab">'+labLabel+' ↗</button></div>';
+let practiceStudio;
+if(t.name==="Python"){
+ practiceStudio='<div class="tutor-live-lab"><div><strong>Now write and test Python</strong><p>This lesson has its own coding exercise with named test cases. Your draft is saved as you work.</p></div><button class="btn primary small" id="openTutorLab">Open this Python exercise →</button></div>';
+}else if(t.name==="NumPy"||t.name==="pandas"){
+ practiceStudio='<div class="tutor-live-lab later-phase"><div><strong>Scheduled after Python foundations</strong><p>The NumPy and pandas tracks will receive their own interactive coding lessons in a later phase. Finish the core Python sequence first.</p></div></div>';
+}else if(t.name==="SQL"){
+ practiceStudio='<div class="tutor-live-lab later-phase"><div><strong>Phase 2 · SQL course rebuild</strong><p>The existing SQL playground is still available, but its guided lesson sequence will be rebuilt after Python Phase 1.</p><button class="btn small" id="openTutorLab">Open the existing SQL playground ↗</button></div></div>';
+}else{
+ practiceStudio='<div class="tutor-live-lab"><div><strong>Practice area</strong><p>Use the corresponding practice area for this subject.</p></div><button class="btn small" id="openTutorLab">'+labLabel+' ↗</button></div>';
+}
 let inner="";
 if(tutorStep===0){
 inner='<div class="tutor-kicker">STEP 1 OF 5 · START WITH THE IDEA</div><h1>'+esc(l.title)+'</h1><p class="tutor-lead">'+esc(l.plain)+'</p><div class="tutor-example"><div class="fox-tip"><img src="assets/datatrail-mascot.webp" alt=""><div><strong>DataFox says</strong><p>We will understand the idea first. No memorising difficult words yet.</p></div></div><div class="tutor-label">PICTURE IT IN EVERYDAY LIFE</div><p>'+esc(l.analogy)+'</p></div><div class="tutor-goal"><span>BY THE END OF THIS LESSON</span><strong>You should be able to explain this idea and recognise when to use it.</strong></div>';
