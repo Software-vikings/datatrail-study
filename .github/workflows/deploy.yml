@@ -53,7 +53,7 @@ jobs:
           const lessonStart = html.indexOf("const pythonCourse=") + "const pythonCourse=".length;
           const lessonEnd = html.indexOf(";\nlessonRows.Python=", lessonStart);
           const mapStart = html.indexOf("const pythonLessonTaskMap=") + "const pythonLessonTaskMap=".length;
-          const mapEnd = html.indexOf(";\nconst tracks=", mapStart);
+          const mapEnd = html.indexOf(";\nconst trackOrder=", mapStart);
           if (lessonStart < 0 || lessonEnd < 0 || mapStart < 0 || mapEnd < 0) throw new Error("Python lesson syllabus or exercise map missing");
           const lessons = JSON.parse(html.slice(lessonStart, lessonEnd));
           const taskMap = JSON.parse(html.slice(mapStart, mapEnd));
