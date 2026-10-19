@@ -296,11 +296,25 @@ def verify_project_4(base: Path) -> None:
         {"order_id": "HUGE-102", "month": "2026-04", "customer_id": "C-H2", "status": "paid", "amount": 1e308},
     ]}), encoding="utf-8")
     try:
-        module.run_pipeline(overflow_fixture, empty_monthly, base / "project-4-aggregate-overflow")
+        module.run_pipeline(overflow_fixture, empty_monthly, base / "project-4")
     except ValueError as exc:
-        assert "aggregation overflowed" in str(exc)
+        assert "previous report outputs were preserved" in str(exc)
     else:
         raise AssertionError("Project 4 must reject a non-finite paid revenue summary")
+    preserved_after_overflow = sqlite3.connect(result["db_path"])
+    try:
+        rows_after_overflow = preserved_after_overflow.execute(
+            "SELECT order_id, amount FROM orders ORDER BY order_id"
+        ).fetchall()
+        assert rows_after_overflow == original_rows
+    finally:
+        preserved_after_overflow.close()
+    preserved_workbook = load_workbook(result["report_path"], data_only=False)
+    try:
+        assert preserved_workbook.sheetnames == ["Summary", "Details"]
+        assert preserved_workbook["Summary"]["C5"].value == "=SUM(C2:C4)"
+    finally:
+        preserved_workbook.close()
     empty_workbook = load_workbook(pending_result["report_path"], data_only=False)
     try:
         assert empty_workbook["Summary"]["B2"].value == "=0"
