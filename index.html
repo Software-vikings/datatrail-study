@@ -1084,16 +1084,6 @@ const projectData=[
 ["Power BI executive dashboard","Design a report for a sales director.",["Load fact and dimension tables","Create a star-schema model","Build revenue and order-count measures","Add a monthly trend and region comparison","Write 3 business insights"],"A Power BI report with an executive summary page."],
 ["End-to-end analyst case","Take a retail question from raw data to recommendation.",["Define the business question","Clean and validate the data","Analyse with SQL or pandas","Present insights in Power BI","Write an evidence-based recommendation"],"A GitHub portfolio project with code, report and README."]
 ];
-function loadP1ProjectProgress(){
-try{
-const saved=JSON.parse(localStorage.getItem("datatrail-p1-project-progress")||"{}");
-return saved&&typeof saved==="object"?saved:{};
-}catch(e){return {}}
-}
-let p1ProjectProgress=loadP1ProjectProgress();
-function saveP1ProjectProgress(){
-try{localStorage.setItem("datatrail-p1-project-progress",JSON.stringify(p1ProjectProgress))}catch(e){toast("Project progress could not be saved in this browser.")}
-}
 function projects(){
 const portfolio=(window.DataTrailProgramme1Readiness&&window.DataTrailProgramme1Readiness.projects)||[];
 const portfolioCards=portfolio.map((p,i)=>{
