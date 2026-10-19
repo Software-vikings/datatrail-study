@@ -19,9 +19,16 @@ if (JSON.stringify(tierCounts) !== JSON.stringify({Lowball:20,Core:35,Highball:2
 if (!html.includes('src="assets/programme1-readiness.js"')) throw new Error("Programme 1 readiness asset is not loaded");
 if (!html.includes("programme1ProjectProgress:p1ProjectProgress") || !html.includes("p1ProjectProgress=normalizeP1ProjectProgress(importedProjectProgress)") || !html.includes("localStorage.removeItem(P1_PROJECT_PROGRESS_KEY)")) throw new Error("Programme 1 project progress must be included in progress backup import/export and reset.");
 const normalizerStart = html.indexOf("function normalizeP1ProjectProgress(value){");
-const normalizerEnd = html.indexOf(String.fromCharCode(10) + "}", normalizerStart);
-if (normalizerStart < 0 || normalizerEnd < 0) throw new Error("Programme 1 project progress sanitizer is missing.");
-const normalizerSource = html.slice(normalizerStart, normalizerEnd + 2);
+const normalizerBodyStart = html.indexOf("{", normalizerStart);
+let normalizerDepth = 0;
+let normalizerEnd = -1;
+for (let position = normalizerBodyStart; position < html.length; position += 1) {
+  if (html[position] === "{") normalizerDepth += 1;
+  if (html[position] === "}") normalizerDepth -= 1;
+  if (normalizerDepth === 0) { normalizerEnd = position + 1; break; }
+}
+if (normalizerStart < 0 || normalizerBodyStart < 0 || normalizerEnd < 0) throw new Error("Programme 1 project progress sanitizer is missing.");
+const normalizerSource = html.slice(normalizerStart, normalizerEnd);
 const normalizeP1ProjectProgress = vm.runInNewContext(normalizerSource + "; normalizeP1ProjectProgress", { window: { DataTrailProgramme1Readiness: readiness } });
 const firstProject = readiness.projects[0];
 const progressFixture = normalizeP1ProjectProgress({ [firstProject.id]: [0, 0, -1, 1.5, 999, "1"], unknown_project: [0], [readiness.projects[1].id]: "invalid" });
