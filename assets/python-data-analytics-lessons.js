@@ -1669,12 +1669,12 @@ window.DataTrailPythonAnalyticsLessons = [
         },
         {
           "name": "Exports the interactive Plotly figure as HTML",
-          "code": "assert 'plotly-graph-div' in plotly_html and 'Monthly revenue' in plotly_html",
+          "code": "assert 'plotly-graph-div' in plotly_html and 'Interactive monthly revenue trend' in plotly_html",
           "expected": [
             "plotly-graph-div",
             "Monthly revenue"
           ],
-          "actual": "['plotly-graph-div' in plotly_html, 'Monthly revenue' in plotly_html]",
+          "actual": "['plotly-graph-div' in plotly_html, 'Interactive monthly revenue trend' in plotly_html]",
           "failureMessage": "to_html should produce a reusable HTML representation of the interactive chart."
         },
         {
