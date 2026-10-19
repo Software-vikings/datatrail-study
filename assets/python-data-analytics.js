@@ -1,7 +1,7 @@
 window.DataTrailPythonAnalytics = {
   "id": "python-data-analytics",
   "title": "Python for Data Analytics",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "status": "in-progress",
   "description": "A mastery-based programme from absolute beginner Python through independent business-data workflows and data analyst interview readiness.",
   "learningContract": {
@@ -148,7 +148,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -180,7 +180,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -212,7 +212,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -245,7 +245,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -278,7 +278,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -311,7 +311,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -344,7 +344,7 @@ window.DataTrailPythonAnalytics = {
         "python-tutorial",
         "python-library"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -1023,9 +1023,16 @@ window.DataTrailPythonAnalytics = {
   "release": {
     "availableChapters": [
       "P1-C00",
-      "P1-C01"
+      "P1-C01",
+      "P1-C02",
+      "P1-C03",
+      "P1-C04",
+      "P1-C05",
+      "P1-C06",
+      "P1-C07",
+      "P1-C08"
     ],
-    "plannedChapterCount": 19,
-    "notes": "The curriculum is released chapter by chapter. Only chapters with complete lesson packages and passing verification are available."
+    "plannedChapterCount": 12,
+    "notes": "Chapters P1-C00 through P1-C08 are implemented, integrated and verified. Chapters P1-C09 through P1-C20 remain planned for later releases."
   }
 };

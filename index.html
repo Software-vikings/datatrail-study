@@ -559,7 +559,7 @@ async function executeTutorPython(checkTests){
    '                tutor_test_results.append({"name": tutor_test["name"], "passed": True, "detail": "Passed"})',
    "            except Exception as exc:",
    '                detail = type(exc).__name__ + (": " + str(exc) if str(exc) else "")',
-   '                if tutor_test.get("expected") is not None and tutor_test.get("actual"):',
+   '                if "expected" in tutor_test and tutor_test.get("actual"):',
    '                    try:',
    '                        actual_value = eval(tutor_test["actual"], tutor_namespace)',
    '                        detail = "Expected " + repr(tutor_test["expected"]) + "; received " + repr(actual_value) + "."',
