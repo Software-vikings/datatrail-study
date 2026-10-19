@@ -7,6 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 REQUIRED_COLUMNS = {
@@ -21,6 +22,8 @@ def run(input_csv: Path, output_dir: Path) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     source = pd.read_csv(input_csv, dtype={"transaction_id": "string", "customer_id": "string", "city": "string", "product": "string"})
+    if source.empty:
+        raise ValueError("Input file contains no sales records")
     missing_columns = REQUIRED_COLUMNS - set(source.columns)
     if missing_columns:
         raise ValueError(f"Missing required columns: {sorted(missing_columns)}")
@@ -49,10 +52,10 @@ def run(input_csv: Path, output_dir: Path) -> dict:
         if pd.isna(frame.loc[index, "product"]) or not str(frame.loc[index, "product"]).strip():
             reason_map[index].append("missing_product")
         quantity = frame.loc[index, "quantity"]
-        if pd.isna(quantity) or quantity <= 0:
+        if pd.isna(quantity) or not np.isfinite(quantity) or quantity <= 0:
             reason_map[index].append("invalid_quantity")
         price = frame.loc[index, "unit_price"]
-        if pd.isna(price) or price < 0:
+        if pd.isna(price) or not np.isfinite(price) or price < 0:
             reason_map[index].append("invalid_unit_price")
         if pd.isna(frame.loc[index, "transaction_id"]) or not str(frame.loc[index, "transaction_id"]).strip():
             reason_map[index].append("missing_transaction_id")
@@ -88,8 +91,8 @@ def run(input_csv: Path, output_dir: Path) -> dict:
         "missing_customer_ids": int(frame["customer_id"].isna().sum() + frame["customer_id"].eq("").sum()),
         "missing_cities": int(frame["city"].isna().sum() + frame["city"].eq("").sum()),
         "missing_products": int(frame["product"].isna().sum() + frame["product"].eq("").sum()),
-        "invalid_quantities": int((frame["quantity"].isna() | (frame["quantity"] <= 0)).sum()),
-        "invalid_unit_prices": int((frame["unit_price"].isna() | (frame["unit_price"] < 0)).sum()),
+        "invalid_quantities": int((frame["quantity"].isna() | ~np.isfinite(frame["quantity"].fillna(0)) | (frame["quantity"] <= 0)).sum()),
+        "invalid_unit_prices": int((frame["unit_price"].isna() | ~np.isfinite(frame["unit_price"].fillna(0)) | (frame["unit_price"] < 0)).sum()),
         "accepted_revenue": round(float(accepted["revenue"].sum()), 2),
         "reconciliation_passed": int(len(frame)) == int(len(accepted) + len(rejected)),
     }
