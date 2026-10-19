@@ -103,6 +103,7 @@ def verify_project_2(base: Path) -> None:
     else:
         raise AssertionError("Project 2 must reject blank customer identifiers")
     nonfinite_retail = pd.read_csv(folder / "data" / "retail_orders.csv")
+    nonfinite_retail["unit_price"] = nonfinite_retail["unit_price"].astype(float)
     nonfinite_retail.loc[0, "unit_price"] = float("inf")
     nonfinite_path = base / "project-2-infinite-price.csv"
     nonfinite_retail.to_csv(nonfinite_path, index=False)
@@ -113,6 +114,8 @@ def verify_project_2(base: Path) -> None:
     else:
         raise AssertionError("Project 2 must reject non-finite monetary values")
     overflow_retail = pd.read_csv(folder / "data" / "retail_orders.csv")
+    overflow_retail["quantity"] = overflow_retail["quantity"].astype(float)
+    overflow_retail["unit_price"] = overflow_retail["unit_price"].astype(float)
     overflow_retail.loc[0, "quantity"] = 1e308
     overflow_retail.loc[0, "unit_price"] = 1e308
     overflow_path = base / "project-2-overflow.csv"
