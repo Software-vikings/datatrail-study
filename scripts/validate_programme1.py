@@ -94,7 +94,7 @@ def validate_manifest(programme: dict[str, Any]) -> None:
 
     interview_plan = programme.get("interviewPlan", [])
     counts = {item.get("id"): item.get("targetQuestions") for item in interview_plan}
-    expected_counts = {"Lowball": 20, "Core": 35, "Highball": 25, "Traps": 20}
+    expected_counts = {"Lowball": 20, "Core": 35, "Highball": 25, "Trap": 20}
     require(counts == expected_counts, f"Unexpected interview allocation: {counts}")
     require(sum(counts.values()) == 100, "Interview question targets must total 100")
 
