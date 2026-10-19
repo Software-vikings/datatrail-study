@@ -2,20 +2,20 @@
 
 A browser-based data analytics learning studio for beginners progressing toward analyst-level work. The existing Python course contains 84 lessons, 84 executable coding exercises and 205 named test cases, with explicit Basic, Intermediate and Advanced boundaries and a dedicated Python interview gym with 51 questions. Programme 1, Python for Data Analytics, is the new beginner-to-analyst curriculum being released separately in verified chapters. SQL and the other subject tracks remain in the site; their teaching redesign is staged separately.
 
-Programme 1 — **Python for Data Analytics** — is a separate 21-chapter beginner-to-analyst curriculum defined in `assets/python-data-analytics.js`. Its Phase 6 feature branch releases 20 interactive chapters (P1-C00–P1-C19) with 143 named coding checks. The sequence covers core Python, NumPy/pandas, statistics/visualisation, deterministic API collection, SQLite/pandas database integration and openpyxl workbook automation. Only P1-C20 — Analyst projects and interview readiness — remains planned for Phase 7. The separate 84-lesson Python course remains available, with its 205 named checks preserved.
+Programme 1 — **Python for Data Analytics** — is a separate 21-chapter beginner-to-analyst curriculum defined in `assets/python-data-analytics.js`. Its Phase 7 feature branch releases all 21 interactive chapters (P1-C00–P1-C20) with 162 named coding checks. The sequence covers core Python, NumPy/pandas, statistics/visualisation, deterministic API collection, SQLite/pandas database integration, openpyxl workbook automation and four end-to-end analyst portfolio projects. Its 100-question interview bank is divided into Lowball (20), Core (35), Highball (25) and Trap (20). The separate 84-lesson Python course remains available, with its 205 named checks preserved.
 
 ## Publish the study site
 
-The website files are ready on the `main` branch. To publish:
+The GitHub Pages deployment workflow publishes from `main` (or by an authorised manual dispatch). **Programme 1's 21-chapter implementation is currently held in the stacked feature pull requests #1–#7, not yet merged into `main`.** The production site therefore must not be assumed to contain this new curriculum yet.
 
-1. Open **Settings → Pages** in this repository.
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-3. Open the **Actions** tab and check the **Deploy DataTrail to GitHub Pages** workflow.
-4. Once its deployment succeeds, use the URL shown in the workflow summary. For a public project site it will normally be:
+After the full PR chain has been reviewed and merged in order (#1 → #2 → #3 → #4 → #5 → #6 → #7), and the repository owner has authorised publication:
 
-   `https://software-vikings.github.io/datatrail-study/`
+1. Open **Settings → Pages** and confirm **Source** is set to **GitHub Actions**.
+2. Open the **Actions** tab and select **Deploy DataTrail to GitHub Pages**.
+3. Run the workflow only after the final merged `main` branch passes the release gate.
+4. Confirm the deployment workflow succeeds, then use the site URL shown in its workflow summary.
 
-GitHub Pages is available for public repositories on GitHub Free. Publishing from a private repository requires an eligible paid plan. A Pages site is public on the internet unless it is privately published through an eligible enterprise plan.
+The expected project-site URL is `https://software-vikings.github.io/datatrail-study/`, but a URL existing does not prove that the latest feature stack has been deployed. Verify the deployment run before treating it as live.
 
 ## How DataTrail teaches
 
@@ -33,7 +33,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 - Excel: datasets, clean table structure, cell references, sorting and filtering, formulas, conditional logic, SUMIFS, lookups and PivotTables.
 - SQL: relational tables, rows and keys, query structure, SELECT, filtering, sorting, aggregation, joins, CASE, CTEs and window functions.
-- Python for Data Analytics (Programme 1): a 21-chapter path from beginner Python to analyst workflows. Chapters 00–19 are released with beginner-first teaching, runnable examples, expected output, prediction prompts, coding exercises, hints, reference solutions and mastery checks. The available sequence includes NumPy, pandas, statistics, Matplotlib/Seaborn/Plotly visualisation, offline API collection, SQLite/pandas integration and automated Excel reporting with openpyxl. P1-C20 is the only planned chapter.
+- Python for Data Analytics (Programme 1): all 21 chapters (P1-C00–P1-C20) are released with beginner-first teaching, runnable examples, expected output, prediction prompts, coding exercises, hints, reference solutions and mastery checks. The sequence includes NumPy, pandas, statistics, Matplotlib/Seaborn/Plotly visualisation, offline API collection, SQLite/pandas integration, automated Excel reporting, four executable portfolio projects and a 100-question analyst interview bank.
 - Python (separate course): 84 lessons across Basic (22), Intermediate (40) and Advanced (22), including OOP, descriptors, metaclasses, generators, decorators, testing, concurrency and production-oriented design.
 - NumPy: arrays and axes, importing libraries, indexing, vectorisation, broadcasting, aggregation and boolean masks.
 - pandas: DataFrames, creating and inspecting tables, reading files, selecting, filtering, sorting, missing values, groupby, merge and pivot tables.
@@ -45,7 +45,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 - The Python exercise editor uses CodeMirror with Python syntax highlighting and line numbers. A plain-text editor fallback remains available if the editor CDN cannot load.
 - Python code executes locally in the browser using Pyodide 314.0.7. No local Python installation or account is required; first use downloads the runtime and needs an internet connection.
-- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 currently has 20 interactive lessons with 143 named exercise checks; each uses its own lesson package and beginner-oriented exercise. NumPy, pandas, SciPy and Matplotlib are loaded automatically for the relevant lessons; Seaborn and Plotly are installed when their visualisation lesson is opened. Matplotlib and Plotly outputs receive chart previews in the coding workspace. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
+- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 currently has 21 interactive lessons with 162 named exercise checks; each uses its own lesson package and beginner-oriented exercise. NumPy, pandas, SciPy and Matplotlib are loaded automatically for the relevant lessons; Seaborn and Plotly are installed when their visualisation lesson is opened. Matplotlib and Plotly outputs receive chart previews in the coding workspace. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
 - The Python interview gym contains 51 questions: Lowball screening, Core practical questions, Highball deep dives and Trap/gotcha questions. Each includes a model answer, interviewer rationale and a follow-up prompt.
 - Continuous integration syntax-checks the application and exercise bank, verifies stage boundaries and the lesson-to-exercise mapping, and executes every reference solution against its named tests.
 
@@ -59,7 +59,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 ## Progress and privacy
 
-Progress is stored in this browser using localStorage and is not synced to a server. Use **My progress → Export progress JSON** to create a backup before switching browsers or devices. Programme 1 uses its own chapter completion and draft keys, separate from the existing 84-lesson Python track, so the new chapters do not overwrite that track’s saved work. The one-time migration behaviour for older DataTrail releases remains unchanged.
+Progress is stored in this browser using localStorage and is not synced to a server. Use **My progress → Export progress JSON** to create a backup before switching browsers or devices; the export includes the Programme 1 project-studio milestones as well as lesson, legacy project and other progress. Import restores the separate Programme 1 project milestone data when it is present and remains compatible with older backups that predate the project studio. **Reset progress** clears both the main progress store and the separate Programme 1 project-progress store after confirmation. Programme 1 uses its own chapter completion and draft keys, separate from the existing 84-lesson Python track, so the new chapters do not overwrite that track’s saved work. The one-time migration behaviour for older DataTrail releases remains unchanged.
 
 No sign-in, paid API key or backend is required.
 
@@ -67,8 +67,9 @@ No sign-in, paid API key or backend is required.
 
 - [Programme 1 development log](docs/PROGRAMME_1_DEVELOPMENT_LOG.md) — delivered phases, current availability and verification commands.
 - [Programme 1 lesson authoring standard](docs/PROGRAMME_1_LESSON_AUTHORING.md) — required lesson structure, teaching rules, test model and release checklist.
-- [Programme 1 engineering handoff](docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md) — full curriculum status, technical architecture, branch/PR chain, CI requirements and exact next implementation scope.
-- [New-chat continuation prompt](docs/CHATGPT_NEW_CHAT_PROMPT.md) — ready-to-paste instructions to continue implementation in a fresh ChatGPT conversation.
+- [Programme 1 manual release QA checklist](docs/PROGRAMME_1_RELEASE_QA_CHECKLIST.md) — human browser/device smoke tests and explicit release sign-off gates.
+- [Programme 1 engineering handoff](docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md) — verified completed curriculum, technical architecture, final CI evidence, stacked PR chain and remaining release-readiness checks.
+- [New-chat continuation prompt](docs/CHATGPT_NEW_CHAT_PROMPT.md) — ready-to-paste instructions for release-readiness review from the completed 21-chapter state.
 
 ## Run locally
 
@@ -97,9 +98,54 @@ Run these checks from the repository root before submitting curriculum changes:
 
 ```bash
 python3 -m pip install numpy pandas scipy matplotlib seaborn plotly openpyxl
+node --check assets/python-data-analytics.js
+node --check assets/python-data-analytics-lessons.js
+node --check assets/programme1-readiness.js
+node --check scripts/validate_pages_release.js
+node scripts/validate_pages_release.js
+python3 -m py_compile scripts/validate_programme1.py scripts/verify_programme1_lessons.py scripts/verify_programme1_projects.py scripts/verify_python_exercises.py
 python3 scripts/validate_programme1.py
 python3 scripts/verify_programme1_lessons.py
+python3 scripts/verify_programme1_projects.py
 python3 scripts/verify_python_exercises.py
 ```
 
-The first check validates chapter order, release states, prerequisites, references, projects, interview targets, topic coverage and the existing lesson-to-exercise mapping. The second executes all released Programme 1 lesson solutions and named tests in isolated temporary working directories. The third executes all 84 reference solutions in the separate Python course. The `Validate DataTrail Programme 1` GitHub Actions workflow runs these checks on Programme 1 feature branches and stacked pull requests; it does not deploy feature branches to GitHub Pages.
+The Pages release script checks the exact production chapter set, project and question counts, legacy exercise inventory and UI-to-asset wiring. The Python curriculum validator checks chapter order, release states, prerequisites, references, project folders and interview allocation. The lesson and project verifiers execute the released examples in isolated temporary working directories; the legacy verifier runs all 84 reference solutions. The `Validate DataTrail Programme 1` workflow runs these checks on feature branches and stacked pull requests. It does not deploy feature branches to GitHub Pages.
+
+
+## Programme 1 portfolio and analyst interview readiness
+
+The completed Programme 1 curriculum includes four executable analyst portfolio projects under `projects/programme-1/`. Each project contains synthetic input data or deterministic fixtures, a runnable Python workflow and a README with its business question, metrics, methodology, deliverables and limitations.
+
+Verify all four projects from the repository root:
+
+```bash
+python3 -m pip install pandas matplotlib openpyxl
+python3 scripts/verify_programme1_projects.py
+```
+
+The Programme 1 interview bank contains **100 questions**: Lowball 20, Core 35, Highball 25 and Trap 20. Each includes a model answer, interviewer rationale and follow-up. The separate 51-question Python interview gym remains distinct.
+
+
+### Phase 7 verification evidence
+
+The final Phase 7 head `2b82e58b92661639898d8f8e6e4be653bfb734b3` passed both fresh GitHub Actions validations:
+- [Push run #130](https://github.com/Software-vikings/datatrail-study/actions/runs/39202830859) — success.
+- [Pull-request run #131](https://github.com/Software-vikings/datatrail-study/actions/runs/39202835462) — success.
+
+Both runs passed the shared Pages release gate, the 21-chapter curriculum validator, all 155 Programme 1 checks, all four project executions and the 84/205 legacy regression suite. This verifies the feature branch; it does not publish the site.
+
+
+### Latest source-audit verification — 2026-10-19
+
+After the portfolio and learner-readiness hardening pass, the current code/test head `cfc34de3d5ef04c62707771eb166781525bec53c` passed [GitHub Actions PR run #265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350).
+
+- 21 interactive Programme 1 lessons and **162 named coding checks** passed.
+- All four portfolio project verifiers passed, including sequential funnel, correct order-line grain, missing-ID/non-finite validation, aggregate-overflow rejection, idempotent SQLite reload, rollback and preservation of prior outputs.
+- C18, C19 and C20 lesson checks passed for finite monetary values, strict calendar months/cross-file duplicates and non-empty portfolio evidence.
+- The separate legacy Python course passed all **84 reference solutions and 205 named checks**.
+- Shared Pages release gate, curriculum alignment and JavaScript/Python syntax checks passed.
+
+This remains a feature-branch validation. The stacked PR chain has not been merged and GitHub Pages has not been deployed.
+
+After the documentation was brought into sync, the final branch head `e067107b62846d400078c976645d6bfea8b453e5` also passed [push run #276](https://github.com/Software-vikings/datatrail-study/actions/runs/39209512107) and [pull-request run #277](https://github.com/Software-vikings/datatrail-study/actions/runs/39209518453). Both reran the full 162-check lesson suite, all four project verifiers and the legacy 84/205 regression suite.

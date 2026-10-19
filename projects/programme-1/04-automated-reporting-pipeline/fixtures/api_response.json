@@ -1,0 +1,8 @@
+{
+  "results": [
+    {"order_id": "API-101", "month": "2026-02", "customer_id": "C101", "status": "paid", "amount": 1250.0},
+    {"order_id": "API-102", "month": "2026-02", "customer_id": "C102", "status": "paid", "amount": 2400.0},
+    {"order_id": "API-103", "month": "2026-03", "customer_id": "C103", "status": "pending", "amount": 900.0}
+  ],
+  "next_page": null
+}

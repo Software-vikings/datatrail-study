@@ -1,0 +1,3 @@
+order_id,month,customer_id,status,amount
+CSV-301,2026-03,C301,paid,3100
+CSV-302,2026-03,C302,paid,700

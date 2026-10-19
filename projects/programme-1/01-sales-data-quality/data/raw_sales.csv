@@ -1,0 +1,16 @@
+transaction_id,order_date,customer_id,city,product,quantity,unit_price
+T001,2026-01-03,C001,Chennai,Laptop,1,55000
+T002,2026-01-05,C002," Chennai ",Keyboard,2,1800
+T003,2026-01-05,C003,Bengaluru,Mouse,3,650
+T004,2026-01-08,C004,,Monitor,1,12000
+T005,not-a-date,C005,Delhi,Chair,1,4500
+T006,2026-01-12,C006,Hyderabad,Laptop,-1,55000
+T007,2026-01-14,C007,Mumbai,Mouse,zero,650
+T008,2026-01-15,C008," Chennai",Keyboard,1,1800
+T002,2026-01-05,C002,Chennai,Keyboard,2,1800
+T009,2026-02-02,C009,Bengaluru,Monitor,2,12000
+T010,2026-02-05,C010,Chennai,Desk,1,8000
+T011,2026-02-10,C011,,Mouse,1,650
+T012,2026-02-14,C012,Delhi,Chair,2,4500
+T013,2026-02-16,C013,Hyderabad,Keyboard,1,not-available
+T014,2026-02-18,C014,Mumbai,Mouse,2,650

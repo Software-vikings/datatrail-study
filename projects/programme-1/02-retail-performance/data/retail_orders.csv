@@ -1,0 +1,21 @@
+order_line_id,order_id,order_date,customer_id,region,category,product,quantity,unit_price,discount_pct
+L001,R001,2026-01-02,C001,South,Electronics,Monitor,1,12000,0.05
+L002,R002,2026-01-04,C002,West,Furniture,Dining Table,2,8000,0.10
+L003,R003,2026-01-08,C003,North,Electronics,Laptop,1,18000,0.00
+L004,R004,2026-01-10,C004,South,Accessories,USB Hub,4,650,0.00
+L005,R005,2026-01-13,C002,West,Furniture,Office Chair,1,4500,0.05
+L006,R006,2026-01-18,C005,East,Electronics,Keyboard,2,9500,0.10
+L007,R007,2026-01-22,C006,South,Furniture,Desk,1,9000,0.15
+L008,R008,2026-02-01,C001,South,Electronics,Monitor,1,12000,0.00
+L009,R009,2026-02-03,C007,North,Accessories,Mouse,5,500,0.05
+L010,R010,2026-02-07,C008,West,Electronics,Laptop,1,22000,0.10
+L011,R011,2026-02-12,C009,East,Furniture,Office Chair,2,7500,0.00
+L012,R012,2026-02-15,C003,North,Electronics,Monitor,1,18000,0.05
+L013,R013,2026-02-20,C010,South,Accessories,USB Cable,6,650,0.00
+L014,R014,2026-02-25,C011,West,Furniture,Desk,1,11000,0.10
+L015,R015,2026-03-02,C012,East,Electronics,Laptop,1,26000,0.05
+L016,R016,2026-03-06,C005,East,Furniture,Dining Table,1,8000,0.00
+L017,R017,2026-03-12,C013,South,Electronics,Monitor,1,15000,0.10
+L018,R018,2026-03-16,C014,North,Furniture,Office Chair,2,6500,0.05
+L019,R019,2026-03-22,C008,West,Accessories,Mouse Pad,3,750,0.00
+L020,R019,2026-03-28,C015,East,Electronics,Monitor,1,21000,0.15

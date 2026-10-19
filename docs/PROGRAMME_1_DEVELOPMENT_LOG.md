@@ -4,14 +4,16 @@ This log records the implemented state of Programme 1 and the checks run for eac
 
 ## Current release state
 
-- Curriculum: 21 chapters across five stages, defined in `assets/python-data-analytics.js`.
-- Available interactive chapters: 17 of 21 (P1-C00 through P1-C16).
-- Available coding exercises: 17, with 106 named automated checks.
-- Planned chapters: 4 (P1-C17 through P1-C20).
-- Existing Python course: its separate 84-lesson track remains available and is not replaced by Programme 1.
-- Progress: Programme 1 chapter completion and drafts use separate localStorage keys. Existing Python progress and drafts continue using their original keys.
-- Deployment: development occurs on feature branches and stacked pull requests. Nothing is published to the live site until the required pull requests are merged to `main`.
-
+- Curriculum: all 21 chapters (P1-C00 through P1-C20) are implemented and released in the Phase 7 feature branch; manifest version 1.6.0.
+- Available interactive chapters: **21 of 21**.
+- Available coding exercises: **21**, with **162 named automated checks**.
+- Portfolio: **four runnable projects** with synthetic data/deterministic fixtures and isolated project verification.
+- Interview readiness: **100 Programme 1 questions** — Lowball 20, Core 35, Highball 25 and Trap 20.
+- Existing Python course: the separate **84-lesson** track, **84 reference solutions** and **205 named test cases** remain preserved. Its separate 51-question interview gym is not merged into Programme 1.
+- Progress: Programme 1 chapter completion/drafts and project-studio progress use separate keys; legacy Python progress is not reset or reused.
+- Branch/release state: the final Phase 7 feature branch is `programme-1/phase-7-analyst-projects-interview-readiness`, documentation-updated head `e067107b62846d400078c976645d6bfea8b453e5` (last code/test head `cfc34de3d5ef04c62707771eb166781525bec53c`). PRs #1–#7 remain a stacked sequence, open and unmerged.
+- Deployment: no GitHub Pages deployment has been performed for this feature stack. Do not claim the current production site contains these changes until the PRs merge in order and the Pages workflow succeeds.
+- Remaining release tasks: independent code review and manual browser/device QA, followed by explicit owner approval for merge/deploy. GitHub's previous Codex review attempt was blocked by exhausted review quota; no submitted review records or inline threads were present at the checkpoint.
 ## 2026-10-19 — Phase 2: First beginner learning slice
 
 ### Delivered
@@ -127,52 +129,11 @@ Phase 5 adds 17 named checks across two lessons. Programme 1 now contains 17 rel
 **Phase 5 CI result:** GitHub Actions run [#83](https://github.com/Software-vikings/datatrail-study/actions/runs/39196482320) completed successfully. Run #81 also passed; #83 is the latest successful run after the final Phase 5 documentation update. All 17 released Programme 1 lessons passed their 106 named checks; all 84 legacy Python reference solutions passed their 205 named checks. Dependency installation, JavaScript/Python syntax, curriculum validation, runtime package declarations and chart preview integration also passed.
 
 
-## 2026-10-19 — New-chat handoff checkpoint (Phase 6 not yet implemented)
+## Superseded handoff snapshot — historical only
 
-### Verified repository state
+An earlier handoff snapshot in this log recorded the state after Phase 5, before Phase 6 and Phase 7 were implemented. Its 17/21 availability count, planned C17–C20 status and proposed next-batch instructions are historical and are **not current**. The authoritative current status is the 21/21 release state at the beginning of this document and in `docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md`.
 
-- Programme 1 remains a 21-chapter, five-stage curriculum.
-- P1-C00–P1-C16 are implemented and verified: **17 interactive lessons and 106 named exercise checks**.
-- P1-C17–P1-C20 remain planned. Do not count any of them as released.
-- The separate Python course remains at **84 reference solutions and 205 named tests**.
-- Programme 1 progress and drafts remain separate from the original Python course. Do not rename, reset or reuse its legacy progress keys.
-- The latest successful Phase 5 CI run is [#83](https://github.com/Software-vikings/datatrail-study/actions/runs/39196482320). It verified the 17 Programme 1 lessons/106 checks, the 84 legacy Python solutions/205 checks, syntax, curriculum and dependency/package integration.
-- Phase 5 head at this checkpoint: `2f84fc5ecc6bf60f2c06653dab2473cfc18c96bc`.
-- Phase 5 is a stacked feature branch and has not been merged to `main`. The Phase 5 branch was 69 commits ahead of `main` with no commits behind at the checkpoint.
-
-### Stacked pull-request sequence
-
-1. [PR #1 — curriculum foundation](https://github.com/Software-vikings/datatrail-study/pull/1), based on `main`.
-2. [PR #2 — first Programme 1 lessons](https://github.com/Software-vikings/datatrail-study/pull/2), based on Phase 1.
-3. [PR #3 — core Python C02–C08](https://github.com/Software-vikings/datatrail-study/pull/3), based on Phase 2.
-4. [PR #4 — NumPy/pandas C09–C14](https://github.com/Software-vikings/datatrail-study/pull/4), based on Phase 3.
-5. [PR #5 — statistics/visualisation C15–C16](https://github.com/Software-vikings/datatrail-study/pull/5), based on Phase 4.
-6. Phase 6 PR #6 is not created yet. Its continuation branch is `programme-1/phase-6-analyst-workflows-readiness`, based on `programme-1/phase-5-statistics-visualisation`.
-
-All Phase 1–5 PRs were open and unmerged at the checkpoint. Query GitHub for their live state before resuming. Do not merge or deploy unless explicitly authorised.
-
-### Next implementation batch — Phase 6
-
-Implement all three lessons as complete interactive packages:
-
-- **P1-C17 — APIs and external data collection:** HTTP and GET requests, query parameters, JSON parsing, response/status validation, timeouts, bounded retry/backoff, pagination, rate limits, environment-variable credentials and reproducible storage. Keep exercises deterministic; do not require real external APIs, secrets or third-party uptime.
-- **P1-C18 — Python and database integration:** SQLite connections/cursors, parameterised SQL, transactions, context managers/cleanup, pandas read/write integration and SQL-versus-pandas judgement. Use temporary or in-memory databases.
-- **P1-C19 — Excel automation and repeatable reporting:** workbook/sheet creation, reading/writing, styles, number formats, formulas, batch monthly-file processing, logging, validation/reconciliation and reusable reporting workflows. Use temporary files and confirm openpyxl browser/micropip compatibility if selected.
-
-Phase 6 release target: 20 available lessons (P1-C00–P1-C19), one planned chapter (P1-C20), a consistent manifest/deploy gate and full regression success. Update the curriculum validator's exact release set and CI dependencies. Run all lesson solutions and named checks, all legacy Python checks, syntax, validator and deployment gate. Record the actual final CI run in the docs and PR #6. Then leave the PR open and unmerged.
-
-### Following batch — Phase 7
-
-After Phase 6 is fully complete and verified, implement P1-C20, **Analyst projects and interview readiness**. Deliver all four substantial portfolio projects and the full Programme 1 interview target of 100 questions (Lowball 20, Core 35, Highball 25, Trap 20), plus meaningful end-to-end assessment, rubrics, documentation and readiness criteria. Keep the legacy 51-question Python interview gym distinct. Stack Phase 7 on Phase 6 and update the production release gate to C00–C20 only after this final chapter is truly complete.
-
-### Handoff documentation added
-
-- `docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md` is the detailed source of truth for curriculum, architecture, progress isolation, verification, package/runtime design, next-phase scope and the PR dependency chain.
-- `docs/CHATGPT_NEW_CHAT_PROMPT.md` contains the ready-to-paste continuation prompt.
-- The README links both documents.
-
-**Important:** The Phase 6 branch was created for continuity, but no Phase 6 lesson or runtime implementation has been committed at this checkpoint. Start the next session by verifying the branch and repository state, then implement; do not report Phase 6 as complete.
-
+All remaining release actions are review, manual browser/device QA and explicit merge/deployment authorisation; no further Programme 1 lesson phase is pending.
 
 ## 2026-10-19 — Phase 6 implementation: Analyst workflows (P1-C17–P1-C19)
 
@@ -203,3 +164,110 @@ python3 scripts/verify_python_exercises.py
 - Dependency installation, JavaScript/Python syntax, curriculum/lesson alignment and both exercise suites passed.
 - The Phase 6 branch remains stacked on Phase 5. PR #6 is open and unmerged; nothing was deployed.
 
+
+
+## 2026-10-19 — Phase 7 implementation: Analyst projects and interview readiness (P1-C20)
+
+### Delivered
+1. Released P1-C20, **Analyst projects and interview readiness**, with a beginner-first worked example, prediction, knowledge check, editable starter, hint, reference solution and 12 named checks. Its readiness evaluator checks common analytical evidence and project-specific deliverables for all four projects.
+2. Added four runnable portfolio projects: Sales Data Cleaning and Quality Audit; Retail Performance Analysis; Customer Funnel and Cohort Analysis; Automated Reporting Pipeline. Each includes source data or deterministic fixtures, Python workflows and a standalone README.
+3. Added `scripts/verify_programme1_projects.py`, which executes the projects in isolated temporary directories and validates metrics, output files, reconciliations and the generated workbook.
+4. Added 100 Programme 1 interview questions with model answers, interviewer rationales and follow-ups: Lowball 20, Core 35, Highball 25 and Trap 20.
+5. Integrated the project milestone studio with its own saved-progress key and added the Programme 1 interview filter without replacing the older project prompts or legacy 51-question Python interview gym.
+6. Advanced the manifest to v1.6.0; P1-C00–P1-C20 are available. Updated the release validator, feature-branch CI and independent Pages deployment gate to require 21 chapters, four project implementations and the exact interview allocation.
+
+### Full Phase 7 validation commands
+```bash
+python3 -m pip install numpy pandas scipy matplotlib seaborn plotly openpyxl
+node --check assets/python-data-analytics.js
+node --check assets/python-data-analytics-lessons.js
+node --check assets/programme1-readiness.js
+python3 -m py_compile scripts/validate_programme1.py scripts/verify_programme1_lessons.py scripts/verify_python_exercises.py scripts/verify_programme1_projects.py
+python3 scripts/validate_programme1.py
+python3 scripts/verify_programme1_lessons.py
+python3 scripts/verify_programme1_projects.py
+python3 scripts/verify_python_exercises.py
+```
+
+### GitHub Actions verification — success
+
+Final verified feature head: `2b82e58b92661639898d8f8e6e4be653bfb734b3`.
+
+- [Push validation #130](https://github.com/Software-vikings/datatrail-study/actions/runs/39202830859) — success.
+- [Pull-request validation #131](https://github.com/Software-vikings/datatrail-study/actions/runs/39202835462) — success.
+- JavaScript syntax, Python syntax, shared Pages release gate and curriculum/semantic validation all passed.
+- Programme 1: **21 released lessons and 155 named coding checks — all passed**.
+- Portfolio: **all four projects executed**; row-quality audit, retail analysis/charts, funnel/cohort outputs and API-fixture → SQLite → pandas → Excel pipeline verified in temporary directories.
+- Legacy Python: **84 reference solutions and 205 named checks — all passed**.
+- The Pages workflow now calls the same shared `scripts/validate_pages_release.js` gate that feature CI executes. The Pages workflow also runs the lesson verifier, project verifier and legacy suite before publishing.
+- PR #7 remains stacked on Phase 6. No PR was merged and no GitHub Pages deployment was triggered.
+
+
+
+## 2026-10-19 — Final documentation checkpoint
+
+After refreshing the engineering handoff and new-chat continuation prompt, the documentation-updated Phase 7 head `91c06bb0ffda7f9b680f4a6369b36f0893fc117a` passed fresh GitHub Actions validation:
+
+- [Push validation #132](https://github.com/Software-vikings/datatrail-study/actions/runs/39202959904) — success.
+- [Pull-request validation #133](https://github.com/Software-vikings/datatrail-study/actions/runs/39202963594) — success.
+
+Both runs passed the shared Pages release gate, Programme 1 curriculum/semantic validation, all 21 lesson packages and 155 named checks, all four portfolio project verifications, and the legacy Python suite (84 reference solutions / 205 named checks). These are feature-branch validation runs; they do not publish the website.
+
+
+## 2026-10-19 — Release hardening: Programme 1 project-progress backup lifecycle
+
+### Defect found and fixed
+A source audit found that the four-project studio stored milestone progress in the separate `datatrail-p1-project-progress` localStorage key, but the existing DataTrail progress JSON export/import and Reset progress action did not include that independent store. This could omit portfolio milestones from a learner's backup and leave them behind after a full reset.
+
+### Implementation
+1. Added a shared normalizer for Programme 1 project milestone state. It accepts only known project IDs and valid integer milestone indices, removes duplicates and ignores malformed values.
+2. Added `programme1ProjectProgress` to the existing progress JSON export.
+3. Updated import to restore and normalise this state when present. Older backup files without this field remain valid and do not erase already-saved Programme 1 project milestones.
+4. Updated Reset progress to clear both the main DataTrail progress key and the separate Programme 1 project-progress key.
+5. Updated the progress-export help text, README and handoff documentation.
+6. Extended `scripts/validate_pages_release.js` to assert that export/import/reset are wired and to execute the actual normalizer against duplicate, negative, fractional, out-of-range and unknown-project values.
+7. Extended the manual QA checklist with export, import, backwards-compatibility and reset scenarios. These browser tests remain not yet executed.
+
+### GitHub Actions verification — success
+The final hardening regression run on feature PR #7, run [#171](https://github.com/Software-vikings/datatrail-study/actions/runs/39205041871), completed successfully on the branch snapshot containing application commit `041f93df0000de1058d0b1792177f8e9579d9b41` and sanitizer-test commit `7df406556807e731163897e102e8438ab54cdb7e`.
+
+- JavaScript syntax and the shared Pages release validator: passed, including the runtime sanitizer regression.
+- Curriculum alignment: passed for all 21 available chapters.
+- Programme 1 lesson verifier: all **155 named checks** passed.
+- Project verifier: all **four portfolio projects** executed successfully.
+- Legacy verifier: all **84 reference solutions and 205 named checks** passed.
+
+The run validates the feature PR; it does not merge the PR or publish GitHub Pages. Independent code review and human browser/device acceptance testing remain outstanding.
+
+
+## 2026-10-19 — Final source-audit pass 2
+
+### Verified hardening
+- Programme 1 now has **162 named lesson checks** across its 21 available chapters.
+- Project 1 rejects missing customer/product identifiers, empty input, non-finite values, calculated line-revenue overflow and monthly total overflow.
+- Project 2 enforces a unique `order_line_id` while allowing repeated `order_id` values, validates dimensions and finite source values, and rejects row/segment/month aggregate overflow.
+- Project 3 computes a sequence-aware distinct-customer funnel and rejects missing/duplicate event identifiers.
+- Project 4 validates canonical months, allowed statuses and nonblank IDs, uses an explicitly begun transaction for idempotent SQLite table replacement, preflights paid aggregates before touching the last successful outputs, and tests rollback/preservation after an injected insert failure.
+- C18 rejects infinite/NaN monetary amounts; C19 validates real calendar months, finite revenue and cross-file duplicate order IDs; C20 rejects empty narrative evidence and malformed deliverable collections.
+- The manual QA checklist includes these edge cases; human browser/device testing is still not claimed complete.
+
+### GitHub Actions verification
+The full PR validation [run #265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350) passed on code/test head `cfc34de3d5ef04c62707771eb166781525bec53c`:
+- Syntax checks, shared Pages gate and semantic curriculum validation: passed.
+- 21 Programme 1 lessons and **162 named checks**: passed.
+- Four project verifiers: passed.
+- Legacy Python 84 reference solutions / 205 named checks: passed.
+
+The feature stack remains unmerged and unpublished. Independent review, human browser/device QA and explicit owner approval for merge/deployment remain outstanding.
+
+
+## 2026-10-19 — Final documentation sync and release-state revalidation
+
+After synchronising README, engineering handoff and new-chat continuation prompt with the completed source-audit state, the documentation-updated Phase 7 head `e067107b62846d400078c976645d6bfea8b453e5` passed:
+
+- [Push validation #276](https://github.com/Software-vikings/datatrail-study/actions/runs/39209512107) — success.
+- [Pull-request validation #277](https://github.com/Software-vikings/datatrail-study/actions/runs/39209518453) — success.
+
+All workflow steps passed: dependency installation, JavaScript/Python syntax, shared Pages release gate, curriculum alignment, 21 lesson packages and 162 named checks, four portfolio verifiers and legacy Python 84/205 tests. These feature-branch runs do not deploy the site.
+
+At the final repository-state check, PRs #1–#7 remained open, unmerged and mergeable in the expected stack. No submitted reviews or inline review threads were available; independent code review remains outstanding. Manual browser/device QA is also not yet performed. No merge or GitHub Pages deployment has occurred.

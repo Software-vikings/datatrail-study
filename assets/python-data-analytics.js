@@ -1,7 +1,7 @@
 window.DataTrailPythonAnalytics = {
   "id": "python-data-analytics",
   "title": "Python for Data Analytics",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "status": "in-progress",
   "description": "A mastery-based programme from absolute beginner Python through independent business-data workflows and data analyst interview readiness.",
   "learningContract": {
@@ -764,7 +764,7 @@ window.DataTrailPythonAnalytics = {
         "pandas-user-guide",
         "cs50p"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -1041,9 +1041,10 @@ window.DataTrailPythonAnalytics = {
       "P1-C16",
       "P1-C17",
       "P1-C18",
-      "P1-C19"
+      "P1-C19",
+      "P1-C20"
     ],
-    "plannedChapterCount": 1,
-    "notes": "Chapters P1-C00 through P1-C19 are implemented, integrated and verified. P1-C20 remains planned for the final portfolio and interview-readiness release."
+    "plannedChapterCount": 0,
+    "notes": "All 21 chapters (P1-C00 through P1-C20) are implemented. Four executable portfolio projects and the 100-question Programme 1 interview bank complete the analyst-readiness capstone."
   }
 };

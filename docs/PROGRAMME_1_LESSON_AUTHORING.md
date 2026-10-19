@@ -109,3 +109,21 @@ Tests execute with the learner's namespace. The harness also provides `__output_
 - Test actual saved/reloaded workbooks, including sheet names, values, formulas, styles, formats, filters, frozen panes and output paths.
 - State clearly that openpyxl writes formula strings but does not calculate formula results. Request recalculation when appropriate.
 - Run every file exercise in an isolated temporary working directory.
+
+
+## Phase 7 capstone and portfolio authoring rules
+
+- P1-C20 must have the full lesson schema and a real coding exercise; it is not just a link to projects or questions.
+- The four portfolio projects must be runnable from documented commands and must use synthetic data or deterministic fixtures. The verifier writes outputs only to temporary folders.
+- Every project must state its grain, business question, metric definitions, cleaning/validation rules, reconciliation, limitations and reproducible handoff.
+- The interview bank must have exactly 100 unique questions in the Lowball/Core/Highball/Trap allocation 20/35/25/20. Every question needs a technical topic, model answer, interviewer rationale and follow-up prompt.
+- Project progress uses its own localStorage key and must not reset or overwrite lesson completion or the legacy project list.
+- Keep the existing 51-question Python interview gym separate.
+
+
+## Phase 7 release verification rules
+
+- The exact Pages release assertions live in `scripts/validate_pages_release.js`; the Pages deployment workflow and feature CI must call the same script rather than duplicate release logic.
+- The release gate is executed on feature branches without deploying. It verifies 21 released chapters, 4 project definitions, 100 interview questions and the legacy 84-exercise bank.
+- Feature CI and the production deployment workflow must both run the Programme 1 lesson verifier, four-project verifier and legacy Python regression suite. Production publication remains restricted to the workflow's main-branch/manual-dispatch trigger.
+- Record the full head SHA and both push/PR Actions run URLs in the development log and handoff before marking the phase verified.

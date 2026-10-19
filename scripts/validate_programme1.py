@@ -69,13 +69,13 @@ def validate_manifest(programme: dict[str, Any]) -> None:
 
     available_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "available"]
     planned_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "planned"]
-    expected_available = [f"P1-C{i:02d}" for i in range(20)]
+    expected_available = [f"P1-C{i:02d}" for i in range(21)]
     require(available_ids == expected_available, f"Unexpected released chapter set: {available_ids}")
-    require(len(planned_ids) == 1, f"Expected one planned chapter, found {len(planned_ids)}")
+    require(len(planned_ids) == 0, f"Expected zero planned chapters, found {len(planned_ids)}")
     require(len(available_ids) + len(planned_ids) == len(chapters), "Every chapter must be either available or planned")
     release = programme.get("release", {})
     require(release.get("availableChapters") == expected_available, "Release index does not match the available chapters")
-    require(release.get("plannedChapterCount") == 1, "Release planned chapter count must be one")
+    require(release.get("plannedChapterCount") == 0, "Release planned chapter count must be zero")
 
     stage_counts: dict[str, int] = {}
     for chapter in chapters:
@@ -167,6 +167,7 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
         "P1-C17": ["from urllib.parse import urlencode", "def request_json(", "def collect_pages(", "max_attempts", "max_pages", "ANALYTICS_API_TOKEN"],
         "P1-C18": ["import sqlite3", 'sqlite3.connect(":memory:")', "WHERE customer_name = ?", "pd.read_sql_query(", "to_sql(", "finally:"],
         "P1-C19": ["from openpyxl import Workbook, load_workbook", 'Path(folder).glob("*.csv")', "PatternFill(", "freeze_panes", "auto_filter.ref", "fullCalcOnLoad"],
+        "P1-C20": ["PROJECT_REQUIREMENTS", "COMMON_REQUIREMENTS", "def review_submission(", "QUESTION_ALLOCATION"],
     }
     required_packages = {
         "P1-C09": ["numpy"],
@@ -197,6 +198,32 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
             for marker in required_solution_markers[lesson["curriculumId"]]:
                 require(marker in exercise_source, f"{lesson['curriculumId']} reference solution is missing {marker!r}")
             require(len(lesson["exercise"]["tests"]) >= 4, f"{lesson['curriculumId']} needs at least four independent checks")
+
+def validate_readiness(readiness: dict[str, Any]) -> None:
+    questions = readiness.get("interviewQuestions", [])
+    require(len(questions) == 100, f"Expected 100 Programme 1 interview questions, found {len(questions)}")
+    ids = [item.get("id") for item in questions]
+    require(all(ids) and len(set(ids)) == 100, "Interview question IDs must be present and unique")
+    expected_counts = {"Lowball": 20, "Core": 35, "Highball": 25, "Trap": 20}
+    counts: dict[str, int] = {}
+    for question in questions:
+        tier = question.get("tier")
+        counts[tier] = counts.get(tier, 0) + 1
+        for field in ("topic", "question", "answer", "rationale", "followUp"):
+            require(bool(question.get(field)), f"Interview question {question.get('id')} is missing {field}")
+    require(counts == expected_counts, f"Programme 1 interview tier allocation is incorrect: {counts}")
+    require(readiness.get("interviewAllocation") == {**expected_counts, "total": 100}, "Interview allocation metadata must total 100")
+    projects = readiness.get("projects", [])
+    expected_projects = {"sales-quality", "retail-performance", "funnel-cohort", "automated-reporting"}
+    require(len(projects) == 4 and {project.get("id") for project in projects} == expected_projects, "Exactly four named portfolio projects are required")
+    for project in projects:
+        for field in ("title", "summary", "folder", "skills", "deliverables", "milestones"):
+            require(bool(project.get(field)), f"Project {project.get('id')} is missing {field}")
+        folder = ROOT / project["folder"]
+        require((folder / "README.md").is_file(), f"{project['id']} needs a README")
+        require(bool(list((folder / "src").glob("*.py"))), f"{project['id']} needs runnable Python source")
+        require(bool(list((folder / "data").glob("*")) or list((folder / "fixtures").glob("*")) or list((folder / "monthly").glob("*"))), f"{project['id']} needs source data or fixtures")
+
 
 def validate_exercises(index_html: str, tasks: list[dict[str, Any]]) -> None:
     course = extract_json_between(index_html, "const pythonCourse=", "\nlessonRows.Python=")
@@ -240,19 +267,25 @@ def main() -> None:
     index_html = index_path.read_text(encoding="utf-8")
     require('src="assets/python-data-analytics.js"' in index_html, "Programme 1 manifest is not loaded by index.html")
     require('src="assets/python-data-analytics-lessons.js"' in index_html, "Programme 1 released lessons are not loaded by index.html")
+    require('src="assets/programme1-readiness.js"' in index_html, "Programme 1 project/interview data is not loaded by index.html")
 
     programme = load_assignment(ROOT / "assets/python-data-analytics.js", "DataTrailPythonAnalytics")
     lessons = load_assignment(ROOT / "assets/python-data-analytics-lessons.js", "DataTrailPythonAnalyticsLessons")
     tasks = load_assignment(ROOT / "assets/python-exercises.js", "DataTrailPythonExercises")
+    readiness = load_assignment(ROOT / "assets/programme1-readiness.js", "DataTrailProgramme1Readiness")
 
     validate_manifest(programme)
     validate_released_lessons(programme, lessons)
+    validate_readiness(readiness)
+    require("data-p1-open-projects" in index_html and "data-p1-open-interviews" in index_html, "C20 must link to the project studio and 100-question interview bank")
+    require("datatrail-p1-project-progress" in index_html, "Programme 1 project progress must use its own saved-progress key")
+    require('interviewFilter="All"' in index_html and 'interviewDifficultyFilter="All"' in index_html and 'interviewQuery=""' in index_html, "Programme 1 interview filters need explicit initial state")
     require("async function prepareProgrammePackages" in index_html, "Programme 1 needs a lesson-specific Python package loader")
     require(index_html.count("await prepareProgrammePackages(py,l);") >= 2, "Worked examples and coding exercises must load their declared Python packages")
     require("await micropip.install(programme_missing_pypi)" in index_html, "Programme 1 needs a PyPI package installation path")
     require("async function capturePythonVisuals" in index_html and "frame.srcdoc=payload.plotly_html" in index_html, "Matplotlib and Plotly charts must render in the lesson output")
     require('id="tutorPythonChart"' in index_html and 'id="workedExampleChart"' in index_html, "Both worked examples and graded exercises need chart preview hosts")
-    print("[PASS] Programme 1: 21 chapters, five stages, 20 interactive lesson packages available, one planned, four projects and 100 interview targets.")
+    print("[PASS] Programme 1: 21 chapters, five stages, all 21 interactive lesson packages available, zero planned, four projects and 100 interview targets.")
 
     validate_exercises(index_html, tasks)
     print("[PASS] Existing Python track: 84 lessons, 84 exercises, one-to-one mapping and semantic guards for lessons 27–28.")
