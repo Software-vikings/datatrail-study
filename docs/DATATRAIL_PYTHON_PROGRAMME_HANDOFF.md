@@ -3,12 +3,12 @@
 **Last verified checkpoint:** 2026-10-19  
 **Repository:** https://github.com/Software-vikings/datatrail-study  
 **Completed feature branch:** `programme-1/phase-7-analyst-projects-interview-readiness`  
-**Last fully verified Phase 7 implementation baseline:** `91c06bb0ffda7f9b680f4a6369b36f0893fc117a`  
+**Last fully verified initial Phase 7 implementation baseline:** `91c06bb0ffda7f9b680f4a6369b36f0893fc117a`  
 **Progress backup hardening commit:** `041f93df0000de1058d0b1792177f8e9579d9b41`  
 **Progress sanitizer / regression-test commit:** `7df406556807e731163897e102e8438ab54cdb7e`  
-**Latest successful PR validation for the hardening:** [run #171](https://github.com/Software-vikings/datatrail-study/actions/runs/39205041871) — success.  
+**Latest successful source-audit PR validation (code/test head):** `cfc34de3d5ef04c62707771eb166781525bec53c` — [run #265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350) — success.  
 **Phase 6 base branch/head:** `programme-1/phase-6-analyst-workflows-readiness` / `34aa0303f0292b288bd748ac18a79a1b41aeb102`  
-**Current release truth:** Programme 1 implementation is complete: 21/21 interactive chapters, 155 named coding checks, four runnable portfolio projects and 100 interview questions. The feature stack is not merged into `main`; GitHub Pages has not been deployed.
+**Current release truth:** Programme 1 implementation is complete: 21/21 interactive chapters, 162 named coding checks, four runnable portfolio projects and 100 interview questions. The feature stack is not merged into `main`; GitHub Pages has not been deployed.
 
 This is the source of truth for a fresh ChatGPT session. Read it first, then read `docs/PROGRAMME_1_LESSON_AUTHORING.md` and `docs/PROGRAMME_1_DEVELOPMENT_LOG.md`. The companion `docs/CHATGPT_NEW_CHAT_PROMPT.md` contains the updated continuation prompt.
 
@@ -37,7 +37,7 @@ The canonical curriculum is `assets/python-data-analytics.js`; lesson packages a
 | Area | Verified delivery |
 |---|---|
 | Curriculum | 21 interactive chapters, P1-C00 through P1-C20 |
-| Programme 1 coding checks | 155 named checks |
+| Programme 1 coding checks | 162 named checks |
 | Phase 6 | API collection, SQLite/pandas integration, repeatable Excel reporting |
 | Phase 7 capstone | Four runnable analyst projects and 100-question interview bank |
 | Legacy Python course | 84 reference solutions and 205 named checks, preserved separately |
@@ -91,7 +91,7 @@ Each question has a topic, question text, model answer, interviewer rationale an
 - Programme 1 readiness questions are in `assets/programme1-readiness.js`.
 - `prepareProgrammePackages(py, lesson)` is the shared dependency loader. Keep package declarations and CI imports aligned.
 - Programme 1 chapter completion and drafts retain their own existing state keys. Do not rename, clear or reuse legacy Python progress keys.
-- The Programme 1 project studio uses its separate `datatrail-p1-project-progress` key. Do not overwrite lesson progress or the original project list. The standard progress JSON export includes this state under `programme1ProjectProgress`; import validates project IDs and milestone indices, removes duplicates/invalid values, and accepts older backups without the field. **Reset progress** clears this store as well as the main DataTrail store.
+- The Programme 1 project studio uses its separate `datatrail-p1-project-progress` key. The four project workflows now validate sequential funnel events, source identifiers and true table grain, finite row and aggregate amounts, canonical months/statuses, idempotent/transactional database reloads and preservation of the last successful report after a failed replacement. The C18/C19/C20 lessons also exercise finite amounts, calendar-month/duplicate checks and non-empty portfolio evidence. Do not overwrite lesson progress or the original project list. The standard progress JSON export includes this state under `programme1ProjectProgress`; import validates project IDs and milestone indices, removes duplicates/invalid values, and accepts older backups without the field. **Reset progress** clears this store as well as the main DataTrail store.
 - Preserve the original 84-lesson Python track, its 84 reference solutions, 205 named tests, Basic/Intermediate/Advanced boundaries and 51-question interview gym.
 - Preserve the standalone SQL, Excel, NumPy, pandas, Statistics and Power BI learning tools. Programme 1 must not silently replace them.
 - API lessons and project fixtures must remain deterministic. Do not add live API credentials or network uptime as grading/CI requirements.
@@ -155,7 +155,7 @@ For the final Phase 7 documentation-updated head `91c06bb0ffda7f9b680f4a6369b36f
 - [Push validation #132](https://github.com/Software-vikings/datatrail-study/actions/runs/39202959904) — success.
 - [Pull-request validation #133](https://github.com/Software-vikings/datatrail-study/actions/runs/39202963594) — success.
 
-The final Phase 7 runs execute the shared Pages release gate, curriculum validation, all 21 lesson packages and 155 checks, all four projects, and the legacy 84/205 regression suite. The feature branch was validated; it was not published.
+The final Phase 7 runs execute the shared Pages release gate, curriculum validation, all 21 lesson packages and 162 checks, all four projects, and the legacy 84/205 regression suite. The feature branch was validated; it was not published.
 
 ---
 
@@ -184,7 +184,7 @@ The PRs are intentionally stacked. GitHub state was checked on 2026-10-19: PRs #
 These are the remaining tasks. They do not indicate missing Programme 1 chapters:
 
 - **Independent review:** the PR comment summaries show Codex code-review attempts could not continue because the connected review usage quota was exhausted. GitHub returned no submitted review records and no inline review threads for PRs #1–#7 at the checkpoint. Arrange an actual human or available automated review before merging.
-- **Manual learner-flow QA:** CI executes lesson solutions and project workflows, but the documentation does not claim a completed human browser/device pass. Use `docs/PROGRAMME_1_RELEASE_QA_CHECKLIST.md` to smoke-test lesson locking, drafts, project progress and its JSON export/import/reset lifecycle, interview filters, mobile layout, Pyodide loading, chart previews and workbook lesson UX.
+- **Manual learner-flow QA:** CI executes lesson solutions and project workflows, but the documentation does not claim a completed human browser/device pass. Use `docs/PROGRAMME_1_RELEASE_QA_CHECKLIST.md` to smoke-test lesson locking, drafts, project progress and its JSON export/import/reset lifecycle, interview filters, mobile layout, Pyodide loading, chart previews, portfolio schema/overflow cases, SQLite rollback and workbook lesson UX.
 - **Release authorisation:** the owner must explicitly approve merging the stack and publishing the website. Do not infer permission from “continue the work”.
 
 Once those checks are satisfied and approval is given, merge PRs in dependency order, verify the cumulative main-branch CI after each meaningful merge, and only then run the Pages deployment workflow.
