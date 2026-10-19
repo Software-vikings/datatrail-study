@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the Programme 1 curriculum blueprint and its existing Python lesson anchors."""
+"""Validate the Programme 1 curriculum, released lessons and legacy Python anchors."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def require(condition: bool, message: str) -> None:
 
 def validate_manifest(programme: dict[str, Any]) -> None:
     require(programme.get("id") == "python-data-analytics", "Unexpected Programme 1 ID")
-    require(programme.get("status") == "blueprint", "The manifest must remain marked as a blueprint")
+    require(programme.get("status") == "in-progress", "Programme 1 must be marked in progress once lessons are released")
     chapters = programme.get("chapters", [])
     require(len(chapters) == 21, f"Expected 21 chapters, found {len(chapters)}")
 
@@ -66,6 +66,12 @@ def validate_manifest(programme: dict[str, Any]) -> None:
                 by_id[prerequisite]["order"] < chapter["order"],
                 f"{chapter['id']} has a forward or circular prerequisite: {prerequisite}",
             )
+
+    available_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "available"]
+    planned_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "planned"]
+    require(available_ids == ["P1-C00", "P1-C01"], f"Unexpected released chapter set: {available_ids}")
+    require(len(planned_ids) == 19, f"Expected 19 planned chapters, found {len(planned_ids)}")
+    require(len(available_ids) + len(planned_ids) == len(chapters), "Every chapter must be either available or planned")
 
     stage_counts: dict[str, int] = {}
     for chapter in chapters:
@@ -102,6 +108,41 @@ def validate_manifest(programme: dict[str, Any]) -> None:
     require(counts == expected_counts, f"Unexpected interview allocation: {counts}")
     require(sum(counts.values()) == 100, "Interview question targets must total 100")
 
+
+
+def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str, Any]]) -> None:
+    available = [chapter for chapter in programme["chapters"] if chapter.get("status") == "available"]
+    require(len(lessons) == len(available), "Every available chapter must have exactly one lesson package")
+    lesson_ids = [lesson.get("curriculumId") for lesson in lessons]
+    expected_ids = [chapter["id"] for chapter in available]
+    require(lesson_ids == expected_ids, f"Released lesson order does not match available chapters: {lesson_ids}")
+
+    for lesson, chapter in zip(lessons, available):
+        require(lesson.get("id") == chapter["id"].lower(), f"{chapter['id']} has an unexpected lesson ID")
+        require(lesson.get("title") == chapter["title"], f"{chapter['id']} lesson title does not match the curriculum")
+        require(
+            lesson.get("prerequisites") == [item.lower() for item in chapter["prerequisites"]],
+            f"{chapter['id']} lesson prerequisites do not match the curriculum",
+        )
+        for field in ("level", "mins", "plain", "definition", "analogy", "example", "expectedOutput", "question", "options", "answer", "why", "task", "hint", "solution", "exercise"):
+            require(lesson.get(field) not in (None, "", []), f"{chapter['id']} lesson is missing {field}")
+
+        exercise = lesson["exercise"]
+        for field in ("title", "prompt", "starter", "hint", "solution", "tests"):
+            require(exercise.get(field) not in (None, "", []), f"{chapter['id']} exercise is missing {field}")
+        tests = exercise["tests"]
+        require(len(tests) >= 2, f"{chapter['id']} needs at least two named tests")
+        names = [test.get("name") for test in tests]
+        require(all(names), f"{chapter['id']} contains an unnamed test")
+        require(len(names) == len(set(names)), f"{chapter['id']} contains duplicate test names")
+        for test in tests:
+            require(test.get("code"), f"{chapter['id']} contains an empty test")
+            if test.get("expected") is not None:
+                require(test.get("actual"), f"{chapter['id']} test {test['name']} has expected but no actual expression")
+            if test.get("actual") is not None:
+                require(test.get("expected") is not None, f"{chapter['id']} test {test['name']} has actual but no expected value")
+            if test.get("failureMessage"):
+                require(bool(test["failureMessage"].strip()), f"{chapter['id']} has an empty failure message")
 
 def validate_exercises(index_html: str, tasks: list[dict[str, Any]]) -> None:
     course = extract_json_between(index_html, "const pythonCourse=", "\nlessonRows.Python=")
@@ -143,13 +184,16 @@ def validate_exercises(index_html: str, tasks: list[dict[str, Any]]) -> None:
 def main() -> None:
     index_path = ROOT / "index.html"
     index_html = index_path.read_text(encoding="utf-8")
-    require('src="assets/python-data-analytics.js"' in index_html, "Programme 1 blueprint is not loaded by index.html")
+    require('src="assets/python-data-analytics.js"' in index_html, "Programme 1 manifest is not loaded by index.html")
+    require('src="assets/python-data-analytics-lessons.js"' in index_html, "Programme 1 released lessons are not loaded by index.html")
 
     programme = load_assignment(ROOT / "assets/python-data-analytics.js", "DataTrailPythonAnalytics")
+    lessons = load_assignment(ROOT / "assets/python-data-analytics-lessons.js", "DataTrailPythonAnalyticsLessons")
     tasks = load_assignment(ROOT / "assets/python-exercises.js", "DataTrailPythonExercises")
 
     validate_manifest(programme)
-    print("[PASS] Programme 1: 21 chapters, valid prerequisites, five stages, four projects, 100 interview targets and linked references.")
+    validate_released_lessons(programme, lessons)
+    print("[PASS] Programme 1: 21 chapters, five stages, first two lesson packages available, 19 planned, four projects and 100 interview targets.")
 
     validate_exercises(index_html, tasks)
     print("[PASS] Existing Python track: 84 lessons, 84 exercises, one-to-one mapping and semantic guards for lessons 27–28.")
