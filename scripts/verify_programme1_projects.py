@@ -39,6 +39,22 @@ def verify_project_1(base: Path) -> None:
         assert (base / "project-1" / name).is_file(), name
     decision = pd.read_csv(base / "project-1" / "decision_log.csv")
     assert len(decision) == quality["raw_rows"] and set(decision["decision"]) == {"accepted", "rejected"}
+    source = pd.read_csv(folder / "data" / "raw_sales.csv")
+    extra = pd.DataFrame([
+        {"transaction_id": "T-MISSING-CUSTOMER", "order_date": "2026-03-01", "customer_id": None, "city": "Chennai", "product": "Keyboard", "quantity": 1, "unit_price": 100},
+        {"transaction_id": "T-MISSING-PRODUCT", "order_date": "2026-03-02", "customer_id": "C999", "city": "Chennai", "product": None, "quantity": 1, "unit_price": 100},
+    ])
+    probe_input = base / "project-1-missing-fields.csv"
+    pd.concat([source, extra], ignore_index=True).to_csv(probe_input, index=False)
+    probe_result = module.run(probe_input, base / "project-1-probe")
+    assert probe_result["quality"]["raw_rows"] == 17
+    assert probe_result["quality"]["accepted_rows"] == 8
+    assert probe_result["quality"]["rejected_rows"] == 9
+    assert probe_result["quality"]["missing_customer_ids"] == 1
+    assert probe_result["quality"]["missing_products"] == 1
+    probe_decisions = pd.read_csv(base / "project-1-probe" / "decision_log.csv").set_index("transaction_id")
+    assert "missing_customer_id" in probe_decisions.loc["T-MISSING-CUSTOMER", "reason"]
+    assert "missing_product" in probe_decisions.loc["T-MISSING-PRODUCT", "reason"]
     print("[PASS] Project 1: cleaning, duplicate/invalid-row audit, decision log and monthly reconciliation")
 
 
