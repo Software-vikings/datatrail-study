@@ -828,7 +828,7 @@ function load(){window.initSqlJs({locateFile:f=>"https://cdnjs.cloudflare.com/aj
 }
 const orderCsv="order_id,customer_id,order_date,amount,status\n1001,1,2026-09-01,1200,Paid\n1002,2,2026-09-02,5400,Paid\n1003,1,2026-09-05,800,Refunded\n1004,3,2026-09-08,3200,Paid\n1005,4,2026-09-12,7200,Pending\n1006,5,2026-09-17,2100,Paid\n1007,2,2026-09-20,1800,Paid\n1008,3,2026-09-22,6100,Paid\n1009,5,2026-09-25,950,Pending\n1010,1,2026-09-28,4300,Paid";
 function downloadOrdersCsv(){let blob=new Blob([orderCsv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="datatrail-orders.csv";a.click();URL.revokeObjectURL(url)}
-let pyReady=false,pyodide=null;
+let pyReady=false,pyodide=null,pyLoadingPromise=null;
 const pythonChallenges=window.DataTrailPythonExercises||[];
 let pyCurrentChallenge=0,pythonCodeEditor=null;
 function getPythonEditorValue(){let el=document.getElementById("pyEditor");return pythonCodeEditor?pythonCodeEditor.getValue():(el?el.value:"")}
@@ -1033,19 +1033,26 @@ function pythonLab(){
 async function ensurePy(){
  let status=document.getElementById("pyStatus");
  if(pyReady)return pyodide;
- if(status)status.textContent="Downloading Python runtime…";
- if(!window.loadPyodide){
-  await new Promise((resolve,reject)=>{
-   let script=document.createElement("script");
-   script.src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js";
-   script.onload=resolve;script.onerror=()=>reject(Error("Unable to load the Python runtime. Check your internet connection."));
-   document.head.appendChild(script)
-  })
- }
- pyodide=await loadPyodide();pyReady=true;
- const version=pyodide.runPython("import sys; sys.version.split()[0]");
- if(status)status.textContent="Python "+version+" ready";
- return pyodide
+ if(pyLoadingPromise)return pyLoadingPromise;
+ pyLoadingPromise=(async()=>{
+  if(status)status.textContent="Downloading Python runtime…";
+  if(!window.loadPyodide){
+   await new Promise((resolve,reject)=>{
+    let script=document.createElement("script");
+    script.src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js";
+    script.onload=resolve;script.onerror=()=>reject(Error("Unable to load the Python runtime. Check your internet connection."));
+    document.head.appendChild(script)
+   })
+  }
+  if(!window.loadPyodide)throw Error("The Python runtime script loaded, but its loader was not available.");
+  pyodide=await window.loadPyodide();pyReady=true;
+  const version=pyodide.runPython("import sys; sys.version.split()[0]");
+  if(status)status.textContent="Python "+version+" ready";
+  return pyodide
+ })();
+ try{return await pyLoadingPromise}
+ catch(error){pyReady=false;pyodide=null;throw error}
+ finally{pyLoadingPromise=null}
 }
 async function prepareProgrammePackages(py,lesson){
  const requested=Array.isArray(lesson&&lesson.packages)?lesson.packages:[];
