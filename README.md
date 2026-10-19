@@ -2,7 +2,7 @@
 
 A browser-based data analytics learning studio for beginners progressing toward analyst-level work. The existing Python course contains 84 lessons, 84 executable coding exercises and 205 named test cases, with explicit Basic, Intermediate and Advanced boundaries and a dedicated Python interview gym with 51 questions. Programme 1, Python for Data Analytics, is the new beginner-to-analyst curriculum being released separately in verified chapters. SQL and the other subject tracks remain in the site; their teaching redesign is staged separately.
 
-Programme 1 — **Python for Data Analytics** — is being built and released in verified phases. Its versioned 21-chapter curriculum lives in `assets/python-data-analytics.js`; the first two interactive chapters (Getting started with Python; First instructions and calculations) are available in the feature release, while the remaining 19 chapters stay marked as planned. The separate 84-lesson Python course remains available alongside Programme 1.
+Programme 1 — **Python for Data Analytics** — is being built and released in verified phases. Its versioned 21-chapter curriculum lives in `assets/python-data-analytics.js`; the first nine interactive chapters (Getting started; instructions and calculations; types and text; business decisions; loops; collections; functions; debugging and tests; files, CSV, JSON and dates) are available in the feature release. The remaining 12 chapters stay marked as planned. The separate 84-lesson Python course remains available alongside Programme 1.
 
 ## Publish the study site
 
@@ -33,7 +33,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 - Excel: datasets, clean table structure, cell references, sorting and filtering, formulas, conditional logic, SUMIFS, lookups and PivotTables.
 - SQL: relational tables, rows and keys, query structure, SELECT, filtering, sorting, aggregation, joins, CASE, CTEs and window functions.
-- Python for Data Analytics (Programme 1): a 21-chapter path from beginner Python to analyst workflows. Chapters 00–01 are released with guided teaching, runnable examples, expected output, coding exercises and mastery checks; later chapters are visibly marked as planned.
+- Python for Data Analytics (Programme 1): a 21-chapter path from beginner Python to analyst workflows. Chapters 00–08 are released with beginner-first teaching, runnable examples, expected output, prediction prompts, coding exercises, hints, reference solutions and mastery checks. Chapters 09–20 are visibly marked as planned.
 - Python (separate course): 84 lessons across Basic (22), Intermediate (40) and Advanced (22), including OOP, descriptors, metaclasses, generators, decorators, testing, concurrency and production-oriented design.
 - NumPy: arrays and axes, importing libraries, indexing, vectorisation, broadcasting, aggregation and boolean masks.
 - pandas: DataFrames, creating and inspecting tables, reading files, selecting, filtering, sorting, missing values, groupby, merge and pivot tables.
@@ -45,7 +45,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 - The Python exercise editor uses CodeMirror with Python syntax highlighting and line numbers. A plain-text editor fallback remains available if the editor CDN cannot load.
 - Python code executes locally in the browser using Pyodide 314.0.7. No local Python installation or account is required; first use downloads the runtime and needs an internet connection.
-- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 chapters use their own lesson packages and exercise checks. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
+- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 currently has nine interactive lessons with 45 named exercise checks; each uses its own lesson package and beginner-oriented exercise. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
 - The Python interview gym contains 51 questions: Lowball screening, Core practical questions, Highball deep dives and Trap/gotcha questions. Each includes a model answer, interviewer rationale and a follow-up prompt.
 - Continuous integration syntax-checks the application and exercise bank, verifies stage boundaries and the lesson-to-exercise mapping, and executes every reference solution against its named tests.
 
@@ -99,4 +99,4 @@ python3 scripts/verify_programme1_lessons.py
 python3 scripts/verify_python_exercises.py
 ```
 
-The first check validates chapter order, release states, prerequisites, references, projects, interview targets and the existing lesson-to-exercise mapping. The second executes the released Programme 1 lesson solutions and named tests. The third executes all 84 reference solutions in the separate Python course. The `Validate DataTrail Programme 1` GitHub Actions workflow runs these checks on Programme 1 feature branches and stacked pull requests; it does not deploy feature branches to GitHub Pages.
+The first check validates chapter order, release states, prerequisites, references, projects, interview targets, topic coverage and the existing lesson-to-exercise mapping. The second executes all released Programme 1 lesson solutions and named tests in isolated temporary working directories. The third executes all 84 reference solutions in the separate Python course. The `Validate DataTrail Programme 1` GitHub Actions workflow runs these checks on Programme 1 feature branches and stacked pull requests; it does not deploy feature branches to GitHub Pages.
