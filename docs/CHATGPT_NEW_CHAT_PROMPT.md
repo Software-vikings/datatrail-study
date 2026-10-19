@@ -24,7 +24,7 @@ Delivered and verified:
 - Shared Pages release validator is exercised in feature CI and the deployment workflow.
 - The source audit hardened ordered funnel calculations, IDs/table grain, empty/non-finite inputs, row and aggregate overflow, transactional/idempotent reporting reloads with rollback, C18/C19 validation exercises and C20 narrative/deliverable readiness rules. Run #265 passed on the code/test head with all 162 lesson checks and all project/legacy verifiers.
 
-Do not describe the programme as 17/21 chapters, do not restart Phase 6 or Phase 7, and do not build a reduced MVP. All seven implementation phases have successful PR validation runs; the final Phase 7 head passed push run #132 and PR run #133.
+Do not describe the programme as 17/21 chapters, do not restart Phase 6 or Phase 7, and do not build a reduced MVP. All seven implementation phases have successful PR validation runs; the final Phase 7 head passed push run #132 and PR run #133. The complete source-audit code/test head passed PR run [#265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350); the documentation-updated branch then passed push run [#276](https://github.com/Software-vikings/datatrail-study/actions/runs/39209512107) and PR run [#277](https://github.com/Software-vikings/datatrail-study/actions/runs/39209518453).
 
 ## Start by checking live GitHub state
 
@@ -38,7 +38,7 @@ Query the repository, branches, PRs #1–#7, latest Actions runs, review comment
 6. PR #6 — C17–C19, based on Phase 5.
 7. PR #7 — C20/projects/interview readiness, based on Phase 6.
 
-At the last checkpoint, all seven PRs were open, unmerged and ready for review. The head of PR #7 was `91c06bb0ffda7f9b680f4a6369b36f0893fc117a`. Do not assume these facts remain current; query GitHub.
+At the last checkpoint, all seven PRs were open, unmerged and mergeable in the intended dependency chain. PR #7 head was `e067107b62846d400078c976645d6bfea8b453e5`. Do not assume these facts remain current; query GitHub.
 
 ## Your next job
 
