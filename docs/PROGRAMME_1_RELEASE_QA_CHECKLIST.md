@@ -130,15 +130,21 @@ Open the Programme 1 project studio and inspect all four projects.
 - [ ] **Reset behavior:** use the clearly labelled, confirmation-protected Reset progress action in a disposable profile and confirm both the regular DataTrail store and `datatrail-p1-project-progress` are cleared.
 - [ ] **Navigation:** project shortcuts from P1-C20 open the corresponding project content.
 - [ ] **Sales quality edge cases:** use a disposable input with blank customer_id and blank product values; confirm both are rejected with row-level reasons and included in the quality summary.
+- [ ] **Sales aggregate overflow:** use two individually finite high-value rows whose monthly sum would overflow; confirm the pipeline stops with an explicit reconciliation-overflow message.
 - [ ] **Retail grain:** inspect the sample containing multiple order lines for one order; confirm order_line_id is unique while repeated order_id values are accepted.
 - [ ] **Retail validation:** test a blank customer/region/product and an infinite numeric value; confirm the workflow stops with a useful validation message rather than silently dropping a summary group.
+- [ ] **Retail aggregate overflow:** test finite line amounts whose monthly/segment sum exceeds the finite numeric range; confirm the report is rejected before CSV/chart outputs are trusted.
 - [ ] **Ordered funnel:** confirm a customer only advances when visit → signup → trial_start → purchase occurs in order; an out-of-order event is not counted, but a later qualifying repeat can be.
 - [ ] **Funnel identity:** try an event with a blank customer_id or event_id; confirm the input is rejected instead of silently excluding the record.
 - [ ] **Reporting pipeline schema:** test an impossible month (for example, 2026-13), an unsupported status and a non-finite amount; confirm each is rejected.
 - [ ] **Reporting repeatability:** run Project 4 twice into the same output folder; confirm the second run succeeds, replaces the managed SQLite orders table transactionally and produces the same reconciled totals.
+- [ ] **Reporting rollback:** inject a database insert failure during replacement; confirm the old committed SQLite orders table and rows remain intact after rollback.
+- [ ] **Reporting aggregate overflow:** load multiple individually finite high-value paid amounts that overflow when summed; confirm no workbook or run log is emitted as reconciled.
 - [ ] **Empty paid set:** supply a valid batch with no paid orders; confirm the workbook has a zero-valued grand total and no circular or reversed SUM range.
 
 ---
+
+- [ ] **Capstone readiness evidence:** submit all artifacts but leave one required narrative field blank; confirm the portfolio is still marked incomplete. Also try a malformed deliverable collection and confirm it is rejected.
 
 ## 6. Programme 1 interview practice
 
