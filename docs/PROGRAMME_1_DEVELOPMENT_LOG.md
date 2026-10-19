@@ -11,7 +11,7 @@ This log records the implemented state of Programme 1 and the checks run for eac
 - Interview readiness: **100 Programme 1 questions** — Lowball 20, Core 35, Highball 25 and Trap 20.
 - Existing Python course: the separate **84-lesson** track, **84 reference solutions** and **205 named test cases** remain preserved. Its separate 51-question interview gym is not merged into Programme 1.
 - Progress: Programme 1 chapter completion/drafts and project-studio progress use separate keys; legacy Python progress is not reset or reused.
-- Branch/release state: the final Phase 7 feature branch is `programme-1/phase-7-analyst-projects-interview-readiness`, last successful source-audit code/test head `cfc34de3d5ef04c62707771eb166781525bec53c`. PRs #1–#7 remain a stacked sequence, open and unmerged.
+- Branch/release state: the final Phase 7 feature branch is `programme-1/phase-7-analyst-projects-interview-readiness`, documentation-updated head `e067107b62846d400078c976645d6bfea8b453e5` (last code/test head `cfc34de3d5ef04c62707771eb166781525bec53c`). PRs #1–#7 remain a stacked sequence, open and unmerged.
 - Deployment: no GitHub Pages deployment has been performed for this feature stack. Do not claim the current production site contains these changes until the PRs merge in order and the Pages workflow succeeds.
 - Remaining release tasks: independent code review and manual browser/device QA, followed by explicit owner approval for merge/deploy. GitHub's previous Codex review attempt was blocked by exhausted review quota; no submitted review records or inline threads were present at the checkpoint.
 ## 2026-10-19 — Phase 2: First beginner learning slice
@@ -259,3 +259,15 @@ The full PR validation [run #265](https://github.com/Software-vikings/datatrail-
 - Legacy Python 84 reference solutions / 205 named checks: passed.
 
 The feature stack remains unmerged and unpublished. Independent review, human browser/device QA and explicit owner approval for merge/deployment remain outstanding.
+
+
+## 2026-10-19 — Final documentation sync and release-state revalidation
+
+After synchronising README, engineering handoff and new-chat continuation prompt with the completed source-audit state, the documentation-updated Phase 7 head `e067107b62846d400078c976645d6bfea8b453e5` passed:
+
+- [Push validation #276](https://github.com/Software-vikings/datatrail-study/actions/runs/39209512107) — success.
+- [Pull-request validation #277](https://github.com/Software-vikings/datatrail-study/actions/runs/39209518453) — success.
+
+All workflow steps passed: dependency installation, JavaScript/Python syntax, shared Pages release gate, curriculum alignment, 21 lesson packages and 162 named checks, four portfolio verifiers and legacy Python 84/205 tests. These feature-branch runs do not deploy the site.
+
+At the final repository-state check, PRs #1–#7 remained open, unmerged and mergeable in the expected stack. No submitted reviews or inline review threads were available; independent code review remains outstanding. Manual browser/device QA is also not yet performed. No merge or GitHub Pages deployment has occurred.
