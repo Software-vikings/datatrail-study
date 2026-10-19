@@ -2132,14 +2132,15 @@ window.DataTrailPythonAnalyticsLessons = [
         },
         {
           "name": "Rejects impossible calendar months, non-finite revenue and duplicate order IDs",
-          "code": "edge=Path(\"edge_cases\")\nedge.mkdir(exist_ok=True)\n(edge/\"2026-03.csv\").write_text(\"month,order_id,revenue\\\\n2026-13,201,10\\\\n2026-03,202,inf\\\\n2026-03,101,20\\\\n2026-03,203,30\\\\n\",encoding=\"utf-8\")\nedge_records,edge_skipped=load_monthly_files(edge)\nassert edge_skipped==3 and [row[\"order_id\"] for row in edge_records]==[\"203\"]",
+          "code": "edge=Path(\"edge_cases\")\nedge.mkdir(exist_ok=True)\n(edge/\"2026-02.csv\").write_text(\"month,order_id,revenue\\\\n2026-02,101,20\\\\n\",encoding=\"utf-8\")\n(edge/\"2026-03.csv\").write_text(\"month,order_id,revenue\\\\n2026-13,201,10\\\\n2026-03,202,inf\\\\n2026-03,101,30\\\\n2026-03,203,30\\\\n\",encoding=\"utf-8\")\nedge_records,edge_skipped=load_monthly_files(edge)\nassert edge_skipped==3 and [row[\"order_id\"] for row in edge_records]==[\"101\",\"203\"]",
           "expected": [
             3,
             [
+              "101",
               "203"
             ]
           ],
-          "actual": "[edge_skipped,[row['order_id'] for row in edge_records]]",
+          "actual": "[edge_skipped,[row[\"order_id\"] for row in edge_records]]",
           "failureMessage": "Validate actual calendar months, finite non-negative revenue and order IDs that remain unique across all imported months."
         },
         {
