@@ -1,8 +1,8 @@
 window.DataTrailPythonAnalytics = {
   "id": "python-data-analytics",
   "title": "Python for Data Analytics",
-  "version": "1.0.0",
-  "status": "blueprint",
+  "version": "1.1.0",
+  "status": "in-progress",
   "description": "A mastery-based programme from absolute beginner Python through independent business-data workflows and data analyst interview readiness.",
   "learningContract": {
     "explanationOrder": [
@@ -85,7 +85,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -116,7 +116,7 @@ window.DataTrailPythonAnalytics = {
         "cs50p",
         "python-tutorial"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -1019,5 +1019,13 @@ window.DataTrailPythonAnalytics = {
       "url": "https://openpyxl.readthedocs.io/en/stable/",
       "purpose": "Excel workbook creation and automation."
     }
-  ]
+  ],
+  "release": {
+    "availableChapters": [
+      "P1-C00",
+      "P1-C01"
+    ],
+    "plannedChapterCount": 19,
+    "notes": "The curriculum is released chapter by chapter. Only chapters with complete lesson packages and passing verification are available."
+  }
 };
