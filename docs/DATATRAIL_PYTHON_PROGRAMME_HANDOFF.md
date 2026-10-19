@@ -333,3 +333,17 @@ Never record a test as passing unless it was actually run. When a change is docu
 11. Then proceed to P1-C20 in a separate, fully tested Phase 7 batch.
 
 The user prefers implementation to be carried through to completion rather than receiving a plan or periodic report in place of code. Provide brief progress updates during long operations, but keep working until the deliverable is genuinely complete. Be precise about what is and is not verified.
+
+
+## 2026-10-19 — Phase 6 implementation update
+
+The Phase 6 feature branch now includes P1-C17 through P1-C19. The prior handoff paragraph saying that Phase 6 had no implementation is superseded by commit `14bfab108372ff6d638a5b04599415eb7e12604b`.
+
+- P1-C17 uses an injected offline HTTP transport; it demonstrates GET query parameters, JSON decoding and shape validation, status handling, timeouts, bounded retry/backoff, rate-limit handling, pagination safety, environment-based credentials and deterministic JSON storage.
+- P1-C18 uses isolated in-memory SQLite; it demonstrates parameter binding, relational constraints, transactions, rollback, pandas SQL integration, empty results and connection cleanup.
+- P1-C19 uses openpyxl to process monthly CSVs and generate a real styled Summary/Details workbook, including formula handling, logging, validation, filters, frozen headers and reconciliation.
+- The three lessons add 37 named checks. Programme 1's target is now 20 released lessons and 143 named checks. The separate legacy Python track remains 84 reference solutions and 205 checks.
+- Manifest version is 1.5.0. P1-C20 is the only planned chapter. CI installs openpyxl; the lesson validator and deployment gate require the exact C00–C19 set.
+- Phase 6 is not verified until the latest GitHub Actions run on this branch succeeds. Do not use the historical Phase 5 run #83 as evidence for this branch.
+
+After Phase 6 CI succeeds, continue to Phase 7 as a separate stacked PR based on this Phase 6 branch. Keep PRs open, unmerged and do not deploy without the user's explicit permission.

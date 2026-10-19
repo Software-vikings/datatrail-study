@@ -84,3 +84,28 @@ Tests execute with the learner's namespace. The harness also provides `__output_
 - [ ] README and development log are updated in the same development batch.
 - [ ] CI checks both Programme 1 and the existing Python course.
 - [ ] Production deployment remains gated until the validated pull request is merged to `main`.
+
+
+## Phase 6 workflow authoring rules
+
+### API collection (P1-C17)
+- Separate URL/query construction, transport, response parsing, schema validation, transformation and persistence.
+- Every real request needs a finite timeout. Retry only transient failures such as timeouts, HTTP 429 and selected 5xx responses, with a finite attempt cap and bounded backoff.
+- Validate HTTP status and JSON shape before using a response. Treat most 4xx responses as request or authentication corrections, not automatic retry candidates.
+- Pagination requires an explicit terminal condition and a maximum-page safety limit.
+- Read tokens from environment configuration. Never hardcode, print or commit credentials. Explain browser CORS and public/private credential boundaries.
+- Automated lessons inject deterministic fake transports; do not depend on public endpoints, secrets or external uptime.
+
+### Database integration (P1-C18)
+- Prefer standard-library sqlite3 before introducing an external database service.
+- Use in-memory or temporary databases for lessons and CI. Bind data values with SQL placeholders.
+- Demonstrate primary/foreign keys, constraints, transaction commit/rollback and cleanup with try/finally.
+- Explain that a connection context manager handles transaction boundaries but does not itself guarantee connection closure.
+- Verify pandas read_sql_query/to_sql round trips, empty results and total reconciliation.
+
+### Excel automation (P1-C19)
+- Declare openpyxl under pypiPackages and install it in CI so browser and reference verification use the same library.
+- Validate input files, headers and data rows; process files deterministically; log invalid rows and reconcile accepted source records.
+- Test actual saved/reloaded workbooks, including sheet names, values, formulas, styles, formats, filters, frozen panes and output paths.
+- State clearly that openpyxl writes formula strings but does not calculate formula results. Request recalculation when appropriate.
+- Run every file exercise in an isolated temporary working directory.
