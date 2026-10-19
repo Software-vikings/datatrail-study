@@ -154,6 +154,46 @@ def verify_project_4(base: Path) -> None:
     finally:
         workbook.close()
     assert "Reconciliation: PASS" in result["run_log"]
+    valid_record = {
+        "order_id": "PROBE-001", "month": "2026-04", "customer_id": "C-PROBE",
+        "status": "paid", "amount": 12.5,
+    }
+    normalized = module.validate_order_records([valid_record], "probe")
+    assert normalized[0]["amount"] == 12.5 and normalized[0]["status"] == "paid"
+    invalid_cases = [
+        ({**valid_record, "month": "2026-13"}, "invalid month"),
+        ({**valid_record, "status": "unknown"}, "unsupported status"),
+        ({**valid_record, "amount": float("inf")}, "finite and non-negative"),
+        ({**valid_record, "amount": float("nan")}, "finite and non-negative"),
+        ({**valid_record, "customer_id": " "}, "blank customer_id"),
+        ({**valid_record, "order_id": None}, "missing order_id"),
+    ]
+    for invalid_record, expected_message in invalid_cases:
+        try:
+            module.validate_order_records([invalid_record], "probe")
+        except ValueError as exc:
+            assert expected_message in str(exc), str(exc)
+        else:
+            raise AssertionError(f"Project 4 must reject invalid record: {invalid_record}")
+
+    # A valid batch with no paid orders should still produce a non-circular
+    # workbook total instead of a reversed SUM range.
+    pending_fixture = base / "pending-only.json"
+    pending_fixture.write_text(json.dumps({"results": [{
+        "order_id": "PENDING-001", "month": "2026-04", "customer_id": "C-PENDING",
+        "status": "pending", "amount": 10.0,
+    }]}), encoding="utf-8")
+    empty_monthly = base / "empty-monthly"
+    empty_monthly.mkdir()
+    pending_result = module.run_pipeline(pending_fixture, empty_monthly, base / "project-4-pending")
+    assert pending_result["paid"].empty
+    empty_workbook = load_workbook(pending_result["report_path"], data_only=False)
+    try:
+        assert empty_workbook["Summary"]["B2"].value == "=0"
+        assert empty_workbook["Summary"]["C2"].value == "=0"
+        assert empty_workbook["Details"].max_row == 1
+    finally:
+        empty_workbook.close()
     print("[PASS] Project 4: fixture ingestion, parameterised SQLite, pandas extract and Excel report")
 
 
