@@ -70,6 +70,18 @@ def verify_project_1(base: Path) -> None:
         assert "no sales records" in str(exc)
     else:
         raise AssertionError("Project 1 must reject an empty input extract")
+    extreme_sales = pd.DataFrame([
+        {"transaction_id": "T-HUGE-1", "order_date": "2026-04-01", "customer_id": "C-H1", "city": "Chennai", "product": "Desk", "quantity": 1e308, "unit_price": 1},
+        {"transaction_id": "T-HUGE-2", "order_date": "2026-04-02", "customer_id": "C-H2", "city": "Chennai", "product": "Chair", "quantity": 1e308, "unit_price": 1},
+    ])
+    extreme_path = base / "project-1-aggregate-overflow.csv"
+    extreme_sales.to_csv(extreme_path, index=False)
+    try:
+        module.run(extreme_path, base / "project-1-aggregate-overflow")
+    except ValueError as exc:
+        assert "revenue totals overflowed" in str(exc)
+    else:
+        raise AssertionError("Project 1 must reject an overflowing monthly revenue total")
     print("[PASS] Project 1: cleaning, duplicate/invalid-row audit, decision log and monthly reconciliation")
 
 
@@ -119,6 +131,21 @@ def verify_project_2(base: Path) -> None:
         assert "no order lines" in str(exc)
     else:
         raise AssertionError("Project 2 must reject an empty retail extract")
+    extreme_retail = pd.read_csv(folder / "data" / "retail_orders.csv").head(2).copy()
+    extreme_retail["order_line_id"] = ["HUGE-L1", "HUGE-L2"]
+    extreme_retail["order_id"] = ["HUGE-O1", "HUGE-O2"]
+    extreme_retail["customer_id"] = ["HUGE-C1", "HUGE-C2"]
+    extreme_retail["quantity"] = [1e308, 1e308]
+    extreme_retail["unit_price"] = [1.0, 1.0]
+    extreme_retail["discount_pct"] = [0.0, 0.0]
+    extreme_path = base / "project-2-aggregate-overflow.csv"
+    extreme_retail.to_csv(extreme_path, index=False)
+    try:
+        module.analyze(extreme_path, base / "project-2-aggregate-overflow")
+    except ValueError as exc:
+        assert "aggregation overflowed" in str(exc)
+    else:
+        raise AssertionError("Project 2 must reject an overflowing segment aggregation")
     assert abs(float(result["monthly"]["net_revenue"].sum()) - result["net_revenue"]) < 0.01
     assert len(result["region"]) == 4 and len(result["category"]) == 3
     for name in ("monthly_performance.csv", "region_performance.csv", "category_performance.csv", "customer_performance.csv", "monthly_net_revenue.png", "region_performance.png", "category_performance.png", "insights.md"):
@@ -263,6 +290,17 @@ def verify_project_4(base: Path) -> None:
     empty_monthly.mkdir()
     pending_result = module.run_pipeline(pending_fixture, empty_monthly, base / "project-4-pending")
     assert pending_result["paid"].empty
+    overflow_fixture = base / "paid-overflow.json"
+    overflow_fixture.write_text(json.dumps({"results": [
+        {"order_id": "HUGE-101", "month": "2026-04", "customer_id": "C-H1", "status": "paid", "amount": 1e308},
+        {"order_id": "HUGE-102", "month": "2026-04", "customer_id": "C-H2", "status": "paid", "amount": 1e308},
+    ]}), encoding="utf-8")
+    try:
+        module.run_pipeline(overflow_fixture, empty_monthly, base / "project-4-aggregate-overflow")
+    except ValueError as exc:
+        assert "aggregation overflowed" in str(exc)
+    else:
+        raise AssertionError("Project 4 must reject a non-finite paid revenue summary")
     empty_workbook = load_workbook(pending_result["report_path"], data_only=False)
     try:
         assert empty_workbook["Summary"]["B2"].value == "=0"
