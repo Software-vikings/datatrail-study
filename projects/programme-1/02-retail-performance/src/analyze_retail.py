@@ -69,6 +69,14 @@ def analyze(input_csv: Path, output_dir: Path) -> dict:
         order_lines=("order_id", "count"), net_revenue=("net_revenue", "sum")
     ).sort_values("net_revenue", ascending=False)
 
+    for label, summary_frame in (("monthly", monthly), ("region", region), ("category", category), ("customer", customer)):
+        if not np.isfinite(summary_frame["net_revenue"].to_numpy(dtype=float)).all():
+            raise ValueError(f"{label.title()} net revenue aggregation overflowed")
+    revenue_total = float(frame["net_revenue"].sum())
+    details_total = float(monthly["net_revenue"].sum())
+    if not np.isfinite(revenue_total) or not np.isfinite(details_total):
+        raise ValueError("Total net revenue reconciliation overflowed")
+
     monthly.to_csv(output_dir / "monthly_performance.csv", index=False)
     region.to_csv(output_dir / "region_performance.csv", index=False)
     category.to_csv(output_dir / "category_performance.csv", index=False)
@@ -99,8 +107,6 @@ def analyze(input_csv: Path, output_dir: Path) -> dict:
     top_region = str(region.iloc[0]["region"])
     top_category = str(category.iloc[0]["category"])
     best_month = str(monthly.sort_values("net_revenue", ascending=False).iloc[0]["month"])
-    revenue_total = float(frame["net_revenue"].sum())
-    details_total = float(monthly["net_revenue"].sum())
     if abs(revenue_total - details_total) > 0.01:
         raise AssertionError("Monthly summary does not reconcile to detail revenue")
 
