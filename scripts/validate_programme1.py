@@ -69,9 +69,13 @@ def validate_manifest(programme: dict[str, Any]) -> None:
 
     available_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "available"]
     planned_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "planned"]
-    require(available_ids == ["P1-C00", "P1-C01"], f"Unexpected released chapter set: {available_ids}")
-    require(len(planned_ids) == 19, f"Expected 19 planned chapters, found {len(planned_ids)}")
+    expected_available = [f"P1-C{i:02d}" for i in range(9)]
+    require(available_ids == expected_available, f"Unexpected released chapter set: {available_ids}")
+    require(len(planned_ids) == 12, f"Expected 12 planned chapters, found {len(planned_ids)}")
     require(len(available_ids) + len(planned_ids) == len(chapters), "Every chapter must be either available or planned")
+    release = programme.get("release", {})
+    require(release.get("availableChapters") == expected_available, "Release index does not match the available chapters")
+    require(release.get("plannedChapterCount") == 12, "Release planned chapter count must be 12")
 
     stage_counts: dict[str, int] = {}
     for chapter in chapters:
@@ -144,6 +148,22 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
             if test.get("failureMessage"):
                 require(bool(test["failureMessage"].strip()), f"{chapter['id']} has an empty failure message")
 
+    required_solution_markers = {
+        "P1-C02": ["int(", "float(", ".strip()", ".title()", "f\""],
+        "P1-C03": ["if ", "elif ", "else:", ">="],
+        "P1-C04": ["for sale in daily_sales:", "+="],
+        "P1-C05": ["orders[0]", "order[\"amount\"]", "set()", "unique_cities.add"],
+        "P1-C06": ["def calculate_invoice_total", "tax_rate=0.18", "return round("],
+        "P1-C07": ["def safe_amount", "try:", "except ValueError"],
+        "P1-C08": ["csv.DictReader", "json.dumps", "write_text(", "date.fromisoformat", "read_text("],
+    }
+    for lesson in lessons:
+        if lesson["curriculumId"] in required_solution_markers:
+            exercise_source = lesson["exercise"]["solution"]
+            for marker in required_solution_markers[lesson["curriculumId"]]:
+                require(marker in exercise_source, f"{lesson['curriculumId']} reference solution is missing {marker!r}")
+            require(len(lesson["exercise"]["tests"]) >= 4, f"{lesson['curriculumId']} needs at least four independent checks")
+
 def validate_exercises(index_html: str, tasks: list[dict[str, Any]]) -> None:
     course = extract_json_between(index_html, "const pythonCourse=", "\nlessonRows.Python=")
     task_map = extract_json_between(index_html, "const pythonLessonTaskMap=", ";\nconst trackOrder=")
@@ -193,7 +213,7 @@ def main() -> None:
 
     validate_manifest(programme)
     validate_released_lessons(programme, lessons)
-    print("[PASS] Programme 1: 21 chapters, five stages, first two lesson packages available, 19 planned, four projects and 100 interview targets.")
+    print("[PASS] Programme 1: 21 chapters, five stages, nine interactive lesson packages available, 12 planned, four projects and 100 interview targets.")
 
     validate_exercises(index_html, tasks)
     print("[PASS] Existing Python track: 84 lessons, 84 exercises, one-to-one mapping and semantic guards for lessons 27–28.")
