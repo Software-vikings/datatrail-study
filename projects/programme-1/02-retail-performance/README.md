@@ -8,13 +8,14 @@ Which months, regions and product categories contribute most to net revenue, and
 
 - Input: synthetic order-line data in `data/retail_orders.csv`.
 - Grain: one order line.
+- Unique key: `order_line_id`; `order_id` can repeat when an order contains multiple lines.
 - Gross revenue = quantity × unit price.
 - Net revenue = gross revenue × (1 − discount percentage).
 - Revenue is calculated before tax, delivery charges, refunds and cost of goods; it is not profit.
 
 ## Workflow
 
-1. Validate required columns, date parsing, unique order IDs, positive quantities, non-negative prices and discounts between 0 and 1.
+1. Validate required columns, nonblank identifiers/dimensions, unique order-line IDs, finite numeric values, date parsing, positive quantities, non-negative prices and discounts between 0 and 1.
 2. Calculate line-level gross and net revenue.
 3. Build monthly, region, category and customer summaries.
 4. Reconcile all summary revenue to the sum of the validated line-level revenue.
