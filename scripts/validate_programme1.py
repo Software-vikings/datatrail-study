@@ -54,8 +54,12 @@ def validate_manifest(programme: dict[str, Any]) -> None:
     by_id = {chapter["id"]: chapter for chapter in chapters}
     for position, chapter in enumerate(chapters):
         require(chapter.get("order") == position + 1, f"Incorrect order on {chapter['id']}")
-        for field in ("title", "stage", "topics", "outcomes", "references", "prerequisites"):
+        for field in ("title", "stage", "topics", "outcomes", "references"):
             require(bool(chapter.get(field)), f"{chapter['id']} is missing {field}")
+        require(
+            isinstance(chapter.get("prerequisites"), list),
+            f"{chapter['id']} prerequisites must be a list (empty is valid for the first chapter)",
+        )
         for prerequisite in chapter["prerequisites"]:
             require(prerequisite in by_id, f"{chapter['id']} has unknown prerequisite {prerequisite}")
             require(
