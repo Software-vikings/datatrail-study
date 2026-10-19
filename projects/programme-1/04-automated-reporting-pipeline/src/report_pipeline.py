@@ -112,8 +112,11 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
     try:
         connection.execute("PRAGMA foreign_keys = ON")
         with connection:
-            # Replace this pipeline-managed table inside the same transaction so
-            # repeated runs are idempotent and failed loads roll back cleanly.
+            # Explicitly begin before DDL: SQLite does not automatically open
+            # an implicit transaction for DROP/CREATE TABLE statements.
+            connection.execute("BEGIN")
+            # Replace this pipeline-managed table in the same transaction so
+            # repeated runs are idempotent and failed loads preserve the old table.
             connection.execute("DROP TABLE IF EXISTS orders")
             connection.execute("""
                 CREATE TABLE orders (
