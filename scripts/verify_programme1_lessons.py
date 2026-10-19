@@ -30,6 +30,11 @@ def load_lessons() -> list[dict[str, Any]]:
 
 
 def verify_lesson(lesson: dict[str, Any]) -> int:
+    for package in lesson.get("packages", []):
+        try:
+            __import__(package)
+        except ImportError as exc:
+            raise AssertionError(f"{lesson['curriculumId']} requires the {package!r} package") from exc
     exercise = lesson["exercise"]
     namespace: dict[str, Any] = {"__name__": "__main__"}
     setup = exercise.get("setup", "")
