@@ -347,3 +347,21 @@ The Phase 6 feature branch now includes P1-C17 through P1-C19. The prior handoff
 - Phase 6 is not verified until the latest GitHub Actions run on this branch succeeds. Do not use the historical Phase 5 run #83 as evidence for this branch.
 
 After Phase 6 CI succeeds, continue to Phase 7 as a separate stacked PR based on this Phase 6 branch. Keep PRs open, unmerged and do not deploy without the user's explicit permission.
+
+
+## 2026-10-19 — Phase 6 verified release checkpoint (supersedes the pending-CI notes above)
+
+**Phase 6 is implemented and GitHub Actions verified.** The implementation head tested was `ebeef6fb137e743a44145ae3cf2e06ea8d2c0317`.
+
+- Pull request: [PR #6 — Phase 6 Analyst workflows](https://github.com/Software-vikings/datatrail-study/pull/6), stacked on `programme-1/phase-5-statistics-visualisation`, open and unmerged.
+- Push validation: [Actions run #102](https://github.com/Software-vikings/datatrail-study/actions/runs/39199800740) — success.
+- PR validation: [Actions run #103](https://github.com/Software-vikings/datatrail-study/actions/runs/39199806299) — success.
+- Programme 1: **20 interactive lessons and all 143 named coding checks passed**.
+- Legacy Python: **84 reference solutions and all 205 named checks passed**.
+- JavaScript/Python syntax, dependency installation, manifest/lesson alignment and full reference verification passed.
+- P1-C17 uses deterministic offline HTTP; C18 uses isolated SQLite; C19 creates and validates a real openpyxl workbook. No API credentials, production database or external API uptime is required.
+- Manifest v1.5.0: C00–C19 available; C20 is the sole planned chapter.
+- Legacy course content, localStorage progress keys and other learning tracks remain separate and unchanged.
+- No PR was merged and no deployment was performed.
+
+**Next:** Phase 7 is a separate stacked PR based on this Phase 6 branch. Implement C20, all four portfolio project repositories and the 100-question Programme 1 interview bank. Update the exact release/deployment gate to C00–C20 only after Phase 7 is independently verified.

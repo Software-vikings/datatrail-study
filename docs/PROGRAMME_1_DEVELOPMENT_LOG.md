@@ -195,4 +195,11 @@ python3 scripts/verify_python_exercises.py
 ```
 
 ### CI evidence
-Phase 6 remains unverified until a fresh GitHub Actions run on the implementation commit succeeds. The historical Phase 5 run #83 must not be used as Phase 6 evidence.
+**Phase 6 GitHub Actions verification — success:**  
+- Push validation [run #102](https://github.com/Software-vikings/datatrail-study/actions/runs/39199800740) — successful on commit `ebeef6fb137e743a44145ae3cf2e06ea8d2c0317`.
+- Pull-request validation [run #103](https://github.com/Software-vikings/datatrail-study/actions/runs/39199806299) — successful on the same head.
+- Programme 1: **20 released lessons and all 143 named coding checks passed**.
+- Legacy Python: **84 reference solutions and all 205 named checks passed**.
+- Dependency installation, JavaScript/Python syntax, curriculum/lesson alignment and both exercise suites passed.
+- The Phase 6 branch remains stacked on Phase 5. PR #6 is open and unmerged; nothing was deployed.
+
