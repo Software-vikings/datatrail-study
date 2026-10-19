@@ -480,6 +480,7 @@ if(runExampleBtn)runExampleBtn.onclick=async()=>{
  if(output)output.textContent="Starting Python…";
  try{
   const py=await ensurePy();
+  await prepareProgrammePackages(py,l);
   py.globals.set("worked_example_code",l.example.replace(/\\n/g,"\n"));
   await py.runPythonAsync("import io, contextlib\nworked_example_stdout = io.StringIO()\nworked_example_error = ''\ntry:\n    with contextlib.redirect_stdout(worked_example_stdout):\n        exec(compile(worked_example_code, '<worked example>', 'exec'), {'__name__': '__main__'})\nexcept Exception as exc:\n    worked_example_error = type(exc).__name__ + (': ' + str(exc) if str(exc) else '')");
   const stdout=py.runPython("worked_example_stdout.getvalue()");
@@ -530,6 +531,7 @@ async function executeTutorPython(checkTests){
  if(feedback)feedback.innerHTML="";
  try{
   const py=await ensurePy();
+  await prepareProgrammePackages(py,l);
   py.globals.set("tutor_task_setup",pythonTask.setup||"");
   py.globals.set("tutor_task_code",code);
   py.globals.set("tutor_task_tests_json",JSON.stringify(pythonTask.tests||[]));
@@ -961,12 +963,22 @@ async function ensurePy(){
  if(status)status.textContent="Python "+version+" ready";
  return pyodide
 }
+async function prepareProgrammePackages(py,lesson){
+ const requested=Array.isArray(lesson&&lesson.packages)?lesson.packages:[];
+ const loaded=py.loadedPackages||{};
+ const missing=requested.filter(name=>!loaded[name]);
+ if(missing.length){
+  const status=document.getElementById("pyStatus");
+  if(status)status.textContent="Loading "+missing.join(" + ")+"…";
+  await py.loadPackage(missing)
+ }
+}
 async function loadPyData(){
  let out=document.getElementById("pyOutput");
  if(out)out.textContent="Loading NumPy and pandas…";
  try{
   let py=await ensurePy();
-  await py.loadPackage(["numpy","pandas"]);
+  await prepareProgrammePackages(py,{packages:["numpy","pandas"]});
   let status=document.getElementById("pyStatus");if(status)status.textContent="Python + NumPy + pandas ready";
   if(out)out.textContent="Packages loaded. You can now import numpy as np and pandas as pd."
  }catch(error){if(out)out.textContent="Package load failed: "+error.message}

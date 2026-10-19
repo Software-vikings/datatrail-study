@@ -685,5 +685,752 @@ window.DataTrailPythonAnalyticsLessons = [
         }
       ]
     }
+  },
+  {
+    "id": "p1-c09",
+    "curriculumId": "P1-C09",
+    "prerequisites": [
+      "p1-c08"
+    ],
+    "title": "NumPy numerical foundations",
+    "level": "Beginner → Intermediate",
+    "mins": 65,
+    "packages": [
+      "numpy"
+    ],
+    "plain": "Imagine you have thousands of daily sales figures. A normal Python loop can calculate them, but NumPy gives you a compact way to work with whole groups of numbers at once. An array is like a well-organised numeric table: you can add a whole row, compare every store with its target, or calculate totals without writing one loop for every cell.",
+    "definition": "NumPy's ndarray is an N-dimensional array whose elements share a data type. Its shape describes the length of each dimension, ndim counts those dimensions, and dtype describes the element type. Vectorised operations work on whole arrays. Broadcasting lets compatible shapes work together, Boolean masks select matching elements, and axis tells an aggregation which dimension to collapse. NaN represents a missing numeric value; np.isfinite identifies values that are neither NaN nor infinity.",
+    "analogy": "Think of a sales worksheet with days down the rows and stores across the columns. The shape tells you how many days and stores there are. axis=1 adds across each day's row; axis=0 adds down each store's column. A target for each store can be compared with every day because NumPy broadcasts that short target row across the larger table.",
+    "example": "import numpy as np\n\nsales = np.array([\n    [120, 80],\n    [140, 100],\n    [100, 130]\n])\n\nprint(\"Array shape:\", sales.shape)\nprint(\"Daily totals:\", sales.sum(axis=1))\nprint(\"Store totals:\", sales.sum(axis=0))",
+    "expectedOutput": "Array shape: (3, 2)\nDaily totals: [200 240]\nStore totals: [360 310]",
+    "prediction": "The array has three rows (days) and two columns (stores). What shape do you expect after adding with axis=0: three numbers or two?",
+    "predictionAnswer": "Two numbers. axis=0 collapses the three rows and adds down each column, leaving one total for each of the two stores. axis=1 would collapse each row and leave three daily totals.",
+    "question": "A target array has one value for each store. What happens when you compare a (4, 3) sales array with that (3,) target array?",
+    "options": [
+      "Each store's target is compared with its column for all four days.",
+      "Only the first day is compared.",
+      "NumPy always rejects arrays with different shapes."
+    ],
+    "answer": 0,
+    "why": "Broadcasting repeats the compatible one-dimensional target across the four rows. Each sales cell is compared with the target for its store; the original arrays do not need to be manually repeated.",
+    "task": "Build a 4-day by 3-store sales array. Calculate daily totals and store totals, compare each store with its target using broadcasting, select days where all three targets were met, apply a different discount rate to each store, reshape and extend the array, and calculate an average while ignoring a missing reading.",
+    "hint": "Create the sales table with np.array(..., dtype=float). Use sum(axis=1) for daily totals and sum(axis=0) for store totals. Compare it directly with the three-value target array. Use .all(axis=1) for days where every store met target, np.where for labels, and np.isfinite before averaging readings that may contain np.nan.",
+    "solution": "import numpy as np\n\ndaily_sales = np.array([\n    [120, 80, 50],\n    [150, 90, 70],\n    [130, 110, 60],\n    [160, 100, 90]\n], dtype=float)\nstore_targets = np.array([125, 95, 65], dtype=float)\n\ndaily_totals = daily_sales.sum(axis=1)\nstore_totals = daily_sales.sum(axis=0)\nabove_target = daily_sales >= store_targets\nhit_all_targets = above_target.all(axis=1)\ntarget_days = daily_sales[hit_all_targets]\nqualifying_revenue = float(target_days.sum())\n\ndiscount_rates = np.array([0.10, 0.05, 0.00])\nnet_sales = daily_sales * (1 - discount_rates)\nflat_sales = daily_sales.reshape(-1)\nexpanded_sales = np.concatenate(\n    [daily_sales, np.array([[180, 120, 100]], dtype=float)],\n    axis=0\n)\n\nreadings = np.array([10.0, np.nan, 14.0])\nfinite_readings = readings[np.isfinite(readings)]\naverage_reading = float(finite_readings.mean())\nstatus = np.where(hit_all_targets, \"Target met\", \"Below target\")\n\nprint(\"Daily totals:\", daily_totals.tolist())\nprint(\"Store totals:\", store_totals.tolist())\nprint(\"Target days:\", int(hit_all_targets.sum()))\nprint(\"Revenue on target days:\", qualifying_revenue)\nprint(\"Average valid reading:\", average_reading)",
+    "exercise": {
+      "title": "Analyse daily sales with NumPy arrays",
+      "prompt": "Complete the sales analysis below. Keep daily_sales as a two-dimensional NumPy array. Calculate totals by day and by store, identify days when every store met its own target, apply the store-specific discounts to the whole array, demonstrate reshape and concatenate, and calculate the mean of only finite readings.",
+      "setup": "",
+      "starter": "import numpy as np\n\ndaily_sales = np.array([\n    [120, 80, 50],\n    [150, 90, 70],\n    [130, 110, 60],\n    [160, 100, 90]\n], dtype=float)\nstore_targets = np.array([125, 95, 65], dtype=float)\n\n# One total for each day (row).\ndaily_totals = None\n\n# One total for each store (column).\nstore_totals = None\n\n# NumPy compares each column with its store target.\nabove_target = None\nhit_all_targets = None\ntarget_days = None\nqualifying_revenue = None\n\n# Apply a 10%, 5%, and 0% discount by store.\ndiscount_rates = np.array([0.10, 0.05, 0.00])\nnet_sales = None\n\n# Flatten and add one new day as another row.\nflat_sales = None\nexpanded_sales = None\n\n# Ignore NaN and infinity before calculating the mean.\nreadings = np.array([10.0, np.nan, 14.0])\nfinite_readings = None\naverage_reading = None\n\nstatus = None\n\nprint(\"Daily totals:\", daily_totals)\nprint(\"Store totals:\", store_totals)\nprint(\"Target days:\", int(hit_all_targets.sum()))\nprint(\"Revenue on target days:\", qualifying_revenue)\nprint(\"Average valid reading:\", average_reading)",
+      "hint": "Use daily_sales.sum(axis=1) and daily_sales.sum(axis=0). The target comparison already broadcasts: daily_sales >= store_targets. Apply .all(axis=1) to require all three stores to meet target. For discounts, multiply by (1 - discount_rates). Use reshape(-1), concatenate(..., axis=0), and np.isfinite(readings).",
+      "solution": "import numpy as np\n\ndaily_sales = np.array([\n    [120, 80, 50],\n    [150, 90, 70],\n    [130, 110, 60],\n    [160, 100, 90]\n], dtype=float)\nstore_targets = np.array([125, 95, 65], dtype=float)\n\ndaily_totals = daily_sales.sum(axis=1)\nstore_totals = daily_sales.sum(axis=0)\nabove_target = daily_sales >= store_targets\nhit_all_targets = above_target.all(axis=1)\ntarget_days = daily_sales[hit_all_targets]\nqualifying_revenue = float(target_days.sum())\n\ndiscount_rates = np.array([0.10, 0.05, 0.00])\nnet_sales = daily_sales * (1 - discount_rates)\nflat_sales = daily_sales.reshape(-1)\nexpanded_sales = np.concatenate(\n    [daily_sales, np.array([[180, 120, 100]], dtype=float)],\n    axis=0\n)\n\nreadings = np.array([10.0, np.nan, 14.0])\nfinite_readings = readings[np.isfinite(readings)]\naverage_reading = float(finite_readings.mean())\nstatus = np.where(hit_all_targets, \"Target met\", \"Below target\")\n\nprint(\"Daily totals:\", daily_totals.tolist())\nprint(\"Store totals:\", store_totals.tolist())\nprint(\"Target days:\", int(hit_all_targets.sum()))\nprint(\"Revenue on target days:\", qualifying_revenue)\nprint(\"Average valid reading:\", average_reading)",
+      "tests": [
+        {
+          "name": "Creates a two-dimensional array with the intended shape",
+          "code": "assert daily_sales.shape == (4, 3) and daily_sales.ndim == 2",
+          "expected": [
+            4,
+            3
+          ],
+          "actual": "list(daily_sales.shape)",
+          "failureMessage": "The four rows are days and the three columns are stores."
+        },
+        {
+          "name": "Aggregates across rows for daily totals",
+          "code": "assert np.array_equal(daily_totals, np.array([250, 310, 300, 350]))",
+          "expected": [
+            250,
+            310,
+            300,
+            350
+          ],
+          "actual": "daily_totals.tolist()",
+          "failureMessage": "Use axis=1 to collapse each row into one daily total."
+        },
+        {
+          "name": "Aggregates down columns for store totals",
+          "code": "assert np.array_equal(store_totals, np.array([560, 380, 270]))",
+          "expected": [
+            560,
+            380,
+            270
+          ],
+          "actual": "store_totals.tolist()",
+          "failureMessage": "Use axis=0 to collapse the days and keep one total per store."
+        },
+        {
+          "name": "Broadcasts each store target across every day",
+          "code": "assert np.array_equal(above_target, np.array([[False, False, False], [True, False, True], [True, True, False], [True, True, True]]))",
+          "expected": [
+            [
+              false,
+              false,
+              false
+            ],
+            [
+              true,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true
+            ]
+          ],
+          "actual": "above_target.tolist()",
+          "failureMessage": "Compare the (4, 3) sales array directly with the (3,) target array."
+        },
+        {
+          "name": "Uses a Boolean mask to select days meeting every target",
+          "code": "assert target_days.shape == (1, 3) and qualifying_revenue == 350.0",
+          "expected": [
+            1,
+            3,
+            350
+          ],
+          "actual": "[list(target_days.shape), qualifying_revenue]",
+          "failureMessage": "Use .all(axis=1) for the day-level condition, then use that Boolean mask to select rows."
+        },
+        {
+          "name": "Applies vectorised store-specific discounts",
+          "code": "assert np.allclose(net_sales[0], np.array([108.0, 76.0, 50.0]))",
+          "expected": [
+            108,
+            76,
+            50
+          ],
+          "actual": "net_sales[0].tolist()",
+          "failureMessage": "Multiply the full sales array by one minus the three store discount rates."
+        },
+        {
+          "name": "Reshapes and concatenates without losing the data",
+          "code": "assert flat_sales.shape == (12,) and expanded_sales.shape == (5, 3)",
+          "expected": [
+            [
+              12
+            ],
+            [
+              5,
+              3
+            ]
+          ],
+          "actual": "[list(flat_sales.shape), list(expanded_sales.shape)]",
+          "failureMessage": "reshape(-1) makes one flat array; concatenate with axis=0 adds a new day as a row."
+        },
+        {
+          "name": "Excludes non-finite readings before averaging",
+          "code": "assert int(np.isfinite(readings).sum()) == 2 and average_reading == 12.0",
+          "expected": [
+            2,
+            12
+          ],
+          "actual": "[int(np.isfinite(readings).sum()), average_reading]",
+          "failureMessage": "NaN is not an ordinary number. Build a finite-value mask before taking the mean."
+        },
+        {
+          "name": "Labels target days with np.where",
+          "code": "assert status.tolist() == ['Below target', 'Below target', 'Below target', 'Target met']",
+          "expected": [
+            "Below target",
+            "Below target",
+            "Below target",
+            "Target met"
+          ],
+          "actual": "status.tolist()",
+          "failureMessage": "np.where selects one label when the Boolean condition is true and another when it is false."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c10",
+    "curriculumId": "P1-C10",
+    "prerequisites": [
+      "p1-c09"
+    ],
+    "title": "pandas: tables from files",
+    "level": "Beginner → Intermediate",
+    "mins": 60,
+    "packages": [
+      "numpy",
+      "pandas"
+    ],
+    "plain": "Analysts rarely receive data as a neat Python list. They receive CSV files, Excel workbooks or exported reports. pandas gives you a table called a DataFrame, so you can inspect many rows and columns together, understand what each column contains and save a processed table for the next person.",
+    "definition": "A pandas Series is a labelled one-dimensional sequence; a DataFrame is a labelled two-dimensional table made of Series. read_csv() and read_json() load supported file formats, while read_excel() loads workbook sheets when a compatible Excel engine is installed. shape reports rows and columns, columns lists field names, dtypes reports column types, info() gives a compact structural summary, describe() summarises numeric columns, and to_csv()/to_excel() export a table.",
+    "analogy": "A DataFrame is like a register with labelled columns and numbered rows. The column headings tell you what each value means. Before calculating anything, you check how many rows arrived, whether the amount column is numeric, and whether the date column is really a date. This is the analyst's equivalent of checking a delivery before using it.",
+    "example": "import pandas as pd\nfrom io import StringIO\n\ncsv_text = \"\"\"order_id,city,amount,status\nA101,Chennai,1200,Paid\nA102,Pune,5400,Paid\nA103,Chennai,800,Refunded\"\"\"\n\norders = pd.read_csv(StringIO(csv_text))\n\nprint(\"Shape:\", orders.shape)\nprint(\"Columns:\", list(orders.columns))\nprint(\"Paid orders:\", int(orders[\"status\"].eq(\"Paid\").sum()))",
+    "expectedOutput": "Shape: (3, 4)\nColumns: ['order_id', 'city', 'amount', 'status']\nPaid orders: 2",
+    "prediction": "read_csv() reads the CSV amount field. What should you check before trusting a calculation: the column's displayed values alone, or its data type as well?",
+    "predictionAnswer": "Check both. A column can look numeric while still being stored as text. The dtype tells you what pandas will do in calculations; parse or convert the column deliberately when needed.",
+    "question": "Which pandas object is designed to hold a labelled two-dimensional table?",
+    "options": [
+      "A Series",
+      "A DataFrame",
+      "A Python set"
+    ],
+    "answer": 1,
+    "why": "A DataFrame is the table: it has labelled rows and columns. A Series is one labelled column or one-dimensional sequence.",
+    "task": "Read the supplied orders CSV into a DataFrame. Parse the date column, inspect its shape and columns, select Paid orders, export them to a new CSV file and read that saved file back into a second DataFrame.",
+    "hint": "Use pd.read_csv(StringIO(orders_csv), parse_dates=['order_date']). Check .shape and .columns. Filter with orders.loc[orders['status'].eq('Paid')]. Save with to_csv(..., index=False), then read the exported CSV again with parse_dates.",
+    "solution": "import pandas as pd\nfrom io import StringIO\nfrom pathlib import Path\n\norders_csv = \"\"\"order_id,order_date,city,amount,status\nA101,2026-01-05,Chennai,1200,Paid\nA102,2026-01-06,Pune,5400,Paid\nA103,2026-01-08,Chennai,800,Refunded\nA104,2026-02-01,Bengaluru,3200,Paid\nA105,2026-02-03,Hyderabad,2100,Paid\"\"\"\n\norders = pd.read_csv(StringIO(orders_csv), parse_dates=[\"order_date\"])\npaid_orders = orders.loc[orders[\"status\"].eq(\"Paid\")].copy()\npaid_orders.to_csv(\"paid_orders.csv\", index=False)\nreloaded = pd.read_csv(\"paid_orders.csv\", parse_dates=[\"order_date\"])\n\nprint(\"Rows loaded:\", len(orders))\nprint(\"Paid orders:\", len(paid_orders))\nprint(\"Paid revenue:\", float(paid_orders[\"amount\"].sum()))",
+    "exercise": {
+      "title": "Load, inspect and export an orders table",
+      "prompt": "Use pandas to load the CSV text as a DataFrame, parse order_date as a real date, select only Paid orders, export those rows to paid_orders.csv and load that file back into reloaded. Keep the original orders DataFrame unchanged.",
+      "setup": "",
+      "starter": "import pandas as pd\nfrom io import StringIO\nfrom pathlib import Path\n\norders_csv = \"\"\"order_id,order_date,city,amount,status\nA101,2026-01-05,Chennai,1200,Paid\nA102,2026-01-06,Pune,5400,Paid\nA103,2026-01-08,Chennai,800,Refunded\nA104,2026-02-01,Bengaluru,3200,Paid\nA105,2026-02-03,Hyderabad,2100,Paid\"\"\"\n\n# Load the CSV text into a DataFrame and parse the date.\norders = None\n\n# Keep only Paid orders in a separate DataFrame.\npaid_orders = None\n\n# Export the filtered table and load it back.\noutput_path = Path(\"paid_orders.csv\")\nreloaded = None\n\nprint(\"Rows loaded:\", len(orders))\nprint(\"Paid orders:\", len(paid_orders))\nprint(\"Paid revenue:\", float(paid_orders[\"amount\"].sum()))",
+      "hint": "Pass StringIO(orders_csv) to pd.read_csv and put 'order_date' in parse_dates. Use .loc with .eq('Paid') to select rows. Call paid_orders.to_csv(output_path, index=False), then pd.read_csv(output_path, parse_dates=['order_date']).",
+      "solution": "import pandas as pd\nfrom io import StringIO\nfrom pathlib import Path\n\norders_csv = \"\"\"order_id,order_date,city,amount,status\nA101,2026-01-05,Chennai,1200,Paid\nA102,2026-01-06,Pune,5400,Paid\nA103,2026-01-08,Chennai,800,Refunded\nA104,2026-02-01,Bengaluru,3200,Paid\nA105,2026-02-03,Hyderabad,2100,Paid\"\"\"\n\norders = pd.read_csv(StringIO(orders_csv), parse_dates=[\"order_date\"])\npaid_orders = orders.loc[orders[\"status\"].eq(\"Paid\")].copy()\noutput_path = Path(\"paid_orders.csv\")\npaid_orders.to_csv(output_path, index=False)\nreloaded = pd.read_csv(output_path, parse_dates=[\"order_date\"])\n\nprint(\"Rows loaded:\", len(orders))\nprint(\"Paid orders:\", len(paid_orders))\nprint(\"Paid revenue:\", float(paid_orders[\"amount\"].sum()))",
+      "tests": [
+        {
+          "name": "Loads all five records into a DataFrame",
+          "code": "assert isinstance(orders, pd.DataFrame) and orders.shape == (5, 5)",
+          "expected": [
+            5,
+            5
+          ],
+          "actual": "list(orders.shape)",
+          "failureMessage": "read_csv should create one DataFrame with five data rows and five columns."
+        },
+        {
+          "name": "Preserves the source column names",
+          "code": "assert orders.columns.tolist() == ['order_id', 'order_date', 'city', 'amount', 'status']",
+          "expected": [
+            "order_id",
+            "order_date",
+            "city",
+            "amount",
+            "status"
+          ],
+          "actual": "orders.columns.tolist()",
+          "failureMessage": "Keep the original field names so the later selections refer to the correct columns."
+        },
+        {
+          "name": "Parses amounts as numeric values and dates as dates",
+          "code": "assert pd.api.types.is_numeric_dtype(orders['amount']) and pd.api.types.is_datetime64_any_dtype(orders['order_date'])",
+          "expected": [
+            "numeric amount",
+            "datetime date"
+          ],
+          "actual": "[str(orders['amount'].dtype), str(orders['order_date'].dtype)]",
+          "failureMessage": "Use parse_dates for order_date. Check the dtype rather than assuming CSV text was interpreted correctly."
+        },
+        {
+          "name": "Selects exactly the Paid orders",
+          "code": "assert paid_orders['order_id'].tolist() == ['A101', 'A102', 'A104', 'A105']",
+          "expected": [
+            "A101",
+            "A102",
+            "A104",
+            "A105"
+          ],
+          "actual": "paid_orders['order_id'].tolist()",
+          "failureMessage": "The Refunded A103 row must not be included."
+        },
+        {
+          "name": "Calculates Paid revenue from numeric values",
+          "code": "assert float(paid_orders['amount'].sum()) == 11900.0",
+          "expected": 11900,
+          "actual": "float(paid_orders['amount'].sum())",
+          "failureMessage": "The four Paid rows total 11,900; the refunded amount is excluded."
+        },
+        {
+          "name": "Writes the filtered table to a real CSV file",
+          "code": "assert output_path.exists()",
+          "expected": true,
+          "actual": "output_path.exists()",
+          "failureMessage": "to_csv must write the filtered DataFrame to the requested path."
+        },
+        {
+          "name": "Reloads the exported rows and preserves the date column",
+          "code": "assert reloaded.shape == (4, 5) and pd.api.types.is_datetime64_any_dtype(reloaded['order_date'])",
+          "expected": [
+            4,
+            5,
+            "datetime"
+          ],
+          "actual": "[list(reloaded.shape), str(reloaded['order_date'].dtype)]",
+          "failureMessage": "Read the exported CSV into a new DataFrame and parse its date column again."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c11",
+    "curriculumId": "P1-C11",
+    "prerequisites": [
+      "p1-c10"
+    ],
+    "title": "Selecting, filtering and transforming rows",
+    "level": "Intermediate",
+    "mins": 65,
+    "packages": [
+      "numpy",
+      "pandas"
+    ],
+    "plain": "A business question rarely needs every row and every column. You may need only Paid orders over ₹2,000, sorted from largest to smallest, with city names cleaned and a month column added. pandas lets you select the exact part of a table you need and create useful columns without changing the meaning of the original records.",
+    "definition": "Column selection chooses one or more Series from a DataFrame. loc selects by labels and Boolean conditions; iloc selects by integer position. Boolean masks filter rows, and compound conditions use parentheses with &, | and ~. sort_values() orders records. String methods under .str clean text, datetime properties under .dt extract date parts, and assigning a new column creates a derived field. Use .copy() when you intend to modify a filtered subset independently.",
+    "analogy": "Imagine a filing cabinet containing every invoice. Selecting columns is choosing which fields to look at; filtering is pulling out only invoices that meet the rule; sorting puts the largest invoice first. A derived column is an extra label you add to help the business answer a question.",
+    "example": "import pandas as pd\n\norders = pd.DataFrame({\n    \"order_id\": [\"A101\", \"A102\", \"A103\"],\n    \"city\": [\" chennai \", \"Pune\", \"CHENNAI\"],\n    \"amount\": [1200, 5400, 3200],\n    \"status\": [\"Paid\", \"Paid\", \"Refunded\"]\n})\n\npaid = orders.loc[orders[\"status\"].eq(\"Paid\")].copy()\npaid = paid.sort_values(\"amount\", ascending=False)\n\nprint(\"Paid order IDs:\", paid[\"order_id\"].tolist())\nprint(\"Selected columns:\", orders.loc[:, [\"order_id\", \"amount\"]].columns.tolist())",
+    "expectedOutput": "Paid order IDs: ['A102', 'A101']\nSelected columns: ['order_id', 'amount']",
+    "prediction": "Why does the example use .copy() after filtering the Paid orders instead of immediately changing the original orders table?",
+    "predictionAnswer": "copy() makes an independent DataFrame for the next steps. It avoids accidental changes to the source and makes the intention clear when adding or changing columns on a filtered result.",
+    "question": "Which selector retrieves rows and columns by integer position?",
+    "options": [
+      "loc",
+      "iloc",
+      "groupby"
+    ],
+    "answer": 1,
+    "why": "iloc uses integer positions, such as the first two rows with df.iloc[:2]. loc uses row and column labels or Boolean conditions.",
+    "task": "Select the requested columns and first two rows. Filter Paid orders worth at least ₹2,000, sort them from highest to lowest, clean city names, parse the order dates, create a reporting month and assign a High/Standard value band.",
+    "hint": "Use orders.loc[:, [...]] for columns and .iloc[:2] for the first two records. Put each Boolean condition in parentheses and join them with &. Then use sort_values(), .str.strip().str.title(), pd.to_datetime(...), .dt.to_period('M') and np.where().",
+    "solution": "import numpy as np\nimport pandas as pd\n\norders = pd.DataFrame({\n    \"order_id\": [\"A101\", \"A102\", \"A103\", \"A104\", \"A105\", \"A106\"],\n    \"customer\": [\"Asha\", \"Rahul\", \"Meera\", \"Asha\", \"Imran\", \"Kavya\"],\n    \"city\": [\" chennai \", \"Pune\", \"Bengaluru\", \"CHENNAI\", \"Chennai\", \"Hyderabad\"],\n    \"order_date\": [\"2026-01-05\", \"2026-01-06\", \"2026-01-07\", \"2026-01-10\", \"2026-01-11\", \"2026-01-12\"],\n    \"amount\": [1200, 5400, 800, 3200, 7200, 2100],\n    \"status\": [\"Paid\", \"Paid\", \"Refunded\", \"Paid\", \"Pending\", \"Paid\"]\n})\n\nselected = orders.loc[:, [\"order_id\", \"city\", \"amount\"]]\nfirst_two = selected.iloc[:2, :]\npaid_high = orders.loc[\n    (orders[\"status\"] == \"Paid\") & (orders[\"amount\"] >= 2000)\n].copy()\npaid_high = paid_high.sort_values(\"amount\", ascending=False)\n\norders[\"city_clean\"] = orders[\"city\"].str.strip().str.title()\norders[\"order_date\"] = pd.to_datetime(orders[\"order_date\"])\norders[\"order_month\"] = orders[\"order_date\"].dt.to_period(\"M\").astype(str)\norders[\"value_band\"] = np.where(orders[\"amount\"] >= 5000, \"High\", \"Standard\")\n\nprint(\"Paid high-value orders:\", paid_high[\"order_id\"].tolist())\nprint(\"Cleaned cities:\", orders[\"city_clean\"].head(3).tolist())",
+    "exercise": {
+      "title": "Build a focused orders view",
+      "prompt": "From the supplied orders table, create a three-column selected view, get its first two rows by position, filter Paid orders with amount >= 2000, sort them from highest to lowest, clean every city name, parse order_date, create order_month in YYYY-MM format and classify each order as High (>= 5000) or Standard.",
+      "setup": "",
+      "starter": "import numpy as np\nimport pandas as pd\n\norders = pd.DataFrame({\n    \"order_id\": [\"A101\", \"A102\", \"A103\", \"A104\", \"A105\", \"A106\"],\n    \"customer\": [\"Asha\", \"Rahul\", \"Meera\", \"Asha\", \"Imran\", \"Kavya\"],\n    \"city\": [\" chennai \", \"Pune\", \"Bengaluru\", \"CHENNAI\", \"Chennai\", \"Hyderabad\"],\n    \"order_date\": [\"2026-01-05\", \"2026-01-06\", \"2026-01-07\", \"2026-01-10\", \"2026-01-11\", \"2026-01-12\"],\n    \"amount\": [1200, 5400, 800, 3200, 7200, 2100],\n    \"status\": [\"Paid\", \"Paid\", \"Refunded\", \"Paid\", \"Pending\", \"Paid\"]\n})\n\n# Select only the three requested columns.\nselected = None\n\n# Use integer positions to retrieve the first two rows.\nfirst_two = None\n\n# Apply both business conditions, then sort the result.\npaid_high = None\n\n# Create cleaned text and date-based analytical columns.\norders[\"city_clean\"] = None\norders[\"order_date\"] = None\norders[\"order_month\"] = None\norders[\"value_band\"] = None\n\nprint(\"Paid high-value orders:\", paid_high[\"order_id\"].tolist())\nprint(\"Cleaned cities:\", orders[\"city_clean\"].head(3).tolist())",
+      "hint": "Use .loc[:, ['order_id', 'city', 'amount']] to select columns and .iloc[:2, :] for two rows. For the filter, combine (orders['status'] == 'Paid') & (orders['amount'] >= 2000). Use .copy() before sorting. Clean with .str.strip().str.title(), parse with pd.to_datetime(), and create value_band with np.where().",
+      "solution": "import numpy as np\nimport pandas as pd\n\norders = pd.DataFrame({\n    \"order_id\": [\"A101\", \"A102\", \"A103\", \"A104\", \"A105\", \"A106\"],\n    \"customer\": [\"Asha\", \"Rahul\", \"Meera\", \"Asha\", \"Imran\", \"Kavya\"],\n    \"city\": [\" chennai \", \"Pune\", \"Bengaluru\", \"CHENNAI\", \"Chennai\", \"Hyderabad\"],\n    \"order_date\": [\"2026-01-05\", \"2026-01-06\", \"2026-01-07\", \"2026-01-10\", \"2026-01-11\", \"2026-01-12\"],\n    \"amount\": [1200, 5400, 800, 3200, 7200, 2100],\n    \"status\": [\"Paid\", \"Paid\", \"Refunded\", \"Paid\", \"Pending\", \"Paid\"]\n})\n\nselected = orders.loc[:, [\"order_id\", \"city\", \"amount\"]]\nfirst_two = selected.iloc[:2, :]\npaid_high = orders.loc[\n    (orders[\"status\"] == \"Paid\") & (orders[\"amount\"] >= 2000)\n].copy()\npaid_high = paid_high.sort_values(\"amount\", ascending=False)\n\norders[\"city_clean\"] = orders[\"city\"].str.strip().str.title()\norders[\"order_date\"] = pd.to_datetime(orders[\"order_date\"])\norders[\"order_month\"] = orders[\"order_date\"].dt.to_period(\"M\").astype(str)\norders[\"value_band\"] = np.where(orders[\"amount\"] >= 5000, \"High\", \"Standard\")\n\nprint(\"Paid high-value orders:\", paid_high[\"order_id\"].tolist())\nprint(\"Cleaned cities:\", orders[\"city_clean\"].head(3).tolist())",
+      "tests": [
+        {
+          "name": "Selects only the requested columns",
+          "code": "assert selected.columns.tolist() == ['order_id', 'city', 'amount']",
+          "expected": [
+            "order_id",
+            "city",
+            "amount"
+          ],
+          "actual": "selected.columns.tolist()",
+          "failureMessage": "Use loc with the explicit list of column labels."
+        },
+        {
+          "name": "Uses iloc to retrieve the first two rows",
+          "code": "assert first_two['order_id'].tolist() == ['A101', 'A102']",
+          "expected": [
+            "A101",
+            "A102"
+          ],
+          "actual": "first_two['order_id'].tolist()",
+          "failureMessage": "iloc slices rows by integer position, not by the displayed order ID."
+        },
+        {
+          "name": "Combines both filter conditions correctly",
+          "code": "assert paid_high['order_id'].tolist() == ['A102', 'A104', 'A106']",
+          "expected": [
+            "A102",
+            "A104",
+            "A106"
+          ],
+          "actual": "paid_high['order_id'].tolist()",
+          "failureMessage": "Keep only Paid orders whose amount is at least 2,000."
+        },
+        {
+          "name": "Sorts the filtered rows from highest amount to lowest",
+          "code": "assert paid_high['amount'].tolist() == [5400, 3200, 2100]",
+          "expected": [
+            5400,
+            3200,
+            2100
+          ],
+          "actual": "paid_high['amount'].tolist()",
+          "failureMessage": "Use sort_values('amount', ascending=False)."
+        },
+        {
+          "name": "Cleans whitespace and city capitalisation",
+          "code": "assert orders['city_clean'].tolist() == ['Chennai', 'Pune', 'Bengaluru', 'Chennai', 'Chennai', 'Hyderabad']",
+          "expected": [
+            "Chennai",
+            "Pune",
+            "Bengaluru",
+            "Chennai",
+            "Chennai",
+            "Hyderabad"
+          ],
+          "actual": "orders['city_clean'].tolist()",
+          "failureMessage": "Use the .str accessor with strip() and title() to standardise the city values."
+        },
+        {
+          "name": "Parses dates and creates a year-month column",
+          "code": "assert pd.api.types.is_datetime64_any_dtype(orders['order_date']) and orders['order_month'].tolist() == ['2026-01'] * 6",
+          "expected": [
+            "datetime",
+            "2026-01"
+          ],
+          "actual": "[str(orders['order_date'].dtype), orders['order_month'].tolist()]",
+          "failureMessage": "Convert order_date before accessing its .dt date properties."
+        },
+        {
+          "name": "Creates the requested High and Standard categories",
+          "code": "assert orders['value_band'].tolist() == ['Standard', 'High', 'Standard', 'Standard', 'High', 'Standard']",
+          "expected": [
+            "Standard",
+            "High",
+            "Standard",
+            "Standard",
+            "High",
+            "Standard"
+          ],
+          "actual": "orders['value_band'].tolist()",
+          "failureMessage": "Use np.where with the inclusive amount >= 5000 boundary."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c12",
+    "curriculumId": "P1-C12",
+    "prerequisites": [
+      "p1-c11"
+    ],
+    "title": "Data cleaning and quality checks",
+    "level": "Intermediate",
+    "mins": 70,
+    "packages": [
+      "numpy",
+      "pandas"
+    ],
+    "plain": "Real datasets can contain duplicate orders, misspelled city names, blank cells, text inside number columns and dates that cannot be understood. Cleaning is not simply deleting anything unusual. First measure the problems, decide which records can be corrected or safely excluded, and keep a clear count of what changed.",
+    "definition": "Data-quality checks examine completeness, uniqueness, validity, consistency and plausibility. isna()/notna() detect missing values; duplicated() identifies repeated keys; drop_duplicates() applies a chosen duplicate policy; to_numeric() and to_datetime() convert fields with an explicit error policy. A cleaning audit records counts before and after each decision so the effect on the dataset can be explained and reproduced.",
+    "analogy": "Think of checking an invoice register before sending it to finance. If an order number appears twice, you decide which record is authoritative. If an amount says 'unknown', you do not quietly turn it into zero. You record the issue, apply a rule, and count how many rows remain after the checks.",
+    "example": "import pandas as pd\n\nraw = pd.DataFrame({\n    \"order_id\": [501, 502, 502, 503],\n    \"amount\": [\"1200\", \"2400\", \"2400\", \"unknown\"]\n})\n\nprint(\"Duplicate order IDs:\", int(raw.duplicated(\"order_id\").sum()))\namounts = pd.to_numeric(raw[\"amount\"], errors=\"coerce\")\nprint(\"Amounts that need review:\", int(amounts.isna().sum()))",
+    "expectedOutput": "Duplicate order IDs: 1\nAmounts that need review: 1",
+    "prediction": "If to_numeric(..., errors='coerce') receives the text 'unknown', should it invent a value of zero?",
+    "predictionAnswer": "No. With errors='coerce', an invalid numeric value becomes a missing value (NaN). That makes the problem visible and lets you decide whether to correct, flag or exclude the row.",
+    "question": "Why should an analyst count and document rows removed during cleaning?",
+    "options": [
+      "So the cleaned table is always smaller.",
+      "So the effect of each cleaning rule can be explained and reconciled.",
+      "Because pandas requires every DataFrame to have fewer rows."
+    ],
+    "answer": 1,
+    "why": "Cleaning choices can change totals and business conclusions. An audit count shows what was removed or corrected and makes the work explainable.",
+    "task": "Clean the supplied order register. Count duplicate IDs before removing duplicates, standardise city names, convert amount and order_date safely, count invalid or missing fields, exclude rows that fail the stated validity rules and calculate the retained revenue.",
+    "hint": "Count duplicated keys first. Use drop_duplicates(..., keep='first'). Replace blank city text with np.nan before strip/title. Convert amount with pd.to_numeric(errors='coerce') and dates with pd.to_datetime(errors='coerce'). Build a Boolean valid_rows mask, then use .loc[valid_rows].copy().",
+    "solution": "import numpy as np\nimport pandas as pd\n\nraw_orders = pd.DataFrame({\n    \"order_id\": [501, 502, 502, 503, 504, 505, 506, 507],\n    \"city\": [\" chennai \", \"PUNE\", \"PUNE\", \"Chennai\", \"Bengaluru\", None, \" Hyderabad \", \"Mumbai\"],\n    \"amount\": [\"1200\", \"2400\", \"2400\", \"unknown\", \"-500\", \"900\", \"1500\", \"1800\"],\n    \"order_date\": [\"2026-01-05\", \"2026-01-06\", \"2026-01-06\", \"not-a-date\", \"2026-01-08\", \"2026-01-09\", \"2026-01-10\", \"2026-01-11\"]\n})\n\nduplicate_count = int(raw_orders.duplicated(subset=[\"order_id\"]).sum())\nclean_orders = raw_orders.drop_duplicates(subset=[\"order_id\"], keep=\"first\").copy()\nclean_orders[\"city\"] = (\n    clean_orders[\"city\"]\n    .replace(r\"^\\s*$\", np.nan, regex=True)\n    .str.strip()\n    .str.title()\n)\nclean_orders[\"amount\"] = pd.to_numeric(clean_orders[\"amount\"], errors=\"coerce\")\nclean_orders[\"order_date\"] = pd.to_datetime(clean_orders[\"order_date\"], errors=\"coerce\")\n\ninvalid_amount_count = int(clean_orders[\"amount\"].isna().sum())\nnegative_amount_count = int(clean_orders[\"amount\"].lt(0).sum())\ninvalid_date_count = int(clean_orders[\"order_date\"].isna().sum())\nmissing_city_count = int(clean_orders[\"city\"].isna().sum())\n\nvalid_rows = (\n    clean_orders[\"city\"].notna()\n    & clean_orders[\"amount\"].notna()\n    & clean_orders[\"amount\"].ge(0)\n    & clean_orders[\"order_date\"].notna()\n)\ninvalid_row_count = int((~valid_rows).sum())\nclean_orders = clean_orders.loc[valid_rows].copy()\nclean_revenue = float(clean_orders[\"amount\"].sum())\n\nprint(\"Duplicate IDs:\", duplicate_count)\nprint(\"Rows retained:\", len(clean_orders))\nprint(\"Clean revenue:\", clean_revenue)",
+    "exercise": {
+      "title": "Clean an imperfect order register with an audit trail",
+      "prompt": "Apply a clear cleaning policy to raw_orders: keep the first occurrence of each order_id; standardise city names; convert amount and order_date with errors='coerce'; count invalid amounts, negative amounts, invalid dates and missing cities; retain only rows with a city, a valid non-negative amount and a valid date. Preserve the cleaned table and calculate its revenue.",
+      "setup": "",
+      "starter": "import numpy as np\nimport pandas as pd\n\nraw_orders = pd.DataFrame({\n    \"order_id\": [501, 502, 502, 503, 504, 505, 506, 507],\n    \"city\": [\" chennai \", \"PUNE\", \"PUNE\", \"Chennai\", \"Bengaluru\", None, \" Hyderabad \", \"Mumbai\"],\n    \"amount\": [\"1200\", \"2400\", \"2400\", \"unknown\", \"-500\", \"900\", \"1500\", \"1800\"],\n    \"order_date\": [\"2026-01-05\", \"2026-01-06\", \"2026-01-06\", \"not-a-date\", \"2026-01-08\", \"2026-01-09\", \"2026-01-10\", \"2026-01-11\"]\n})\n\n# Count duplicate business keys before removing repeated rows.\nduplicate_count = None\n\n# Keep the first order_id and work on a separate copy.\nclean_orders = None\n\n# Standardise text and safely convert numeric/date fields.\nclean_orders[\"city\"] = None\nclean_orders[\"amount\"] = None\nclean_orders[\"order_date\"] = None\n\n# Record data-quality counts before applying the row filter.\ninvalid_amount_count = None\nnegative_amount_count = None\ninvalid_date_count = None\nmissing_city_count = None\n\n# Keep only rows that satisfy the stated validity rules.\nvalid_rows = None\ninvalid_row_count = None\nclean_orders = None\nclean_revenue = None\n\nprint(\"Duplicate IDs:\", duplicate_count)\nprint(\"Rows retained:\", len(clean_orders))\nprint(\"Clean revenue:\", clean_revenue)",
+      "hint": "Calculate duplicated(subset=['order_id']).sum() before drop_duplicates. Replace blank city text with np.nan, then strip() and title(). Use to_numeric and to_datetime with errors='coerce'. Build valid_rows from notna() checks plus amount.ge(0), count ~valid_rows, and only then filter.",
+      "solution": "import numpy as np\nimport pandas as pd\n\nraw_orders = pd.DataFrame({\n    \"order_id\": [501, 502, 502, 503, 504, 505, 506, 507],\n    \"city\": [\" chennai \", \"PUNE\", \"PUNE\", \"Chennai\", \"Bengaluru\", None, \" Hyderabad \", \"Mumbai\"],\n    \"amount\": [\"1200\", \"2400\", \"2400\", \"unknown\", \"-500\", \"900\", \"1500\", \"1800\"],\n    \"order_date\": [\"2026-01-05\", \"2026-01-06\", \"2026-01-06\", \"not-a-date\", \"2026-01-08\", \"2026-01-09\", \"2026-01-10\", \"2026-01-11\"]\n})\n\nduplicate_count = int(raw_orders.duplicated(subset=[\"order_id\"]).sum())\nclean_orders = raw_orders.drop_duplicates(subset=[\"order_id\"], keep=\"first\").copy()\nclean_orders[\"city\"] = (\n    clean_orders[\"city\"]\n    .replace(r\"^\\s*$\", np.nan, regex=True)\n    .str.strip()\n    .str.title()\n)\nclean_orders[\"amount\"] = pd.to_numeric(clean_orders[\"amount\"], errors=\"coerce\")\nclean_orders[\"order_date\"] = pd.to_datetime(clean_orders[\"order_date\"], errors=\"coerce\")\n\ninvalid_amount_count = int(clean_orders[\"amount\"].isna().sum())\nnegative_amount_count = int(clean_orders[\"amount\"].lt(0).sum())\ninvalid_date_count = int(clean_orders[\"order_date\"].isna().sum())\nmissing_city_count = int(clean_orders[\"city\"].isna().sum())\n\nvalid_rows = (\n    clean_orders[\"city\"].notna()\n    & clean_orders[\"amount\"].notna()\n    & clean_orders[\"amount\"].ge(0)\n    & clean_orders[\"order_date\"].notna()\n)\ninvalid_row_count = int((~valid_rows).sum())\nclean_orders = clean_orders.loc[valid_rows].copy()\nclean_revenue = float(clean_orders[\"amount\"].sum())\n\nprint(\"Duplicate IDs:\", duplicate_count)\nprint(\"Rows retained:\", len(clean_orders))\nprint(\"Clean revenue:\", clean_revenue)",
+      "tests": [
+        {
+          "name": "Counts the repeated order key before deduplication",
+          "code": "assert duplicate_count == 1",
+          "expected": 1,
+          "actual": "duplicate_count",
+          "failureMessage": "Count duplicates by the business key, order_id, before removing them."
+        },
+        {
+          "name": "Converts invalid numeric text to a missing value",
+          "code": "assert invalid_amount_count == 1",
+          "expected": 1,
+          "actual": "invalid_amount_count",
+          "failureMessage": "The text 'unknown' is not an amount. errors='coerce' should expose it as missing."
+        },
+        {
+          "name": "Counts negative amounts separately from invalid text",
+          "code": "assert negative_amount_count == 1",
+          "expected": 1,
+          "actual": "negative_amount_count",
+          "failureMessage": "A negative amount is numeric but fails the non-negative business rule."
+        },
+        {
+          "name": "Counts dates that cannot be parsed",
+          "code": "assert invalid_date_count == 1",
+          "expected": 1,
+          "actual": "invalid_date_count",
+          "failureMessage": "Use to_datetime with errors='coerce' so the invalid date becomes missing and can be counted."
+        },
+        {
+          "name": "Counts missing city values after text standardisation",
+          "code": "assert missing_city_count == 1",
+          "expected": 1,
+          "actual": "missing_city_count",
+          "failureMessage": "Missing and blank city names must remain missing, not become the literal word 'None' or an empty label."
+        },
+        {
+          "name": "Retains only four valid, unique orders with clean city names",
+          "code": "assert len(clean_orders) == 4 and sorted(clean_orders['city'].tolist()) == ['Chennai', 'Hyderabad', 'Mumbai', 'Pune']",
+          "expected": [
+            4,
+            "Chennai",
+            "Hyderabad",
+            "Mumbai",
+            "Pune"
+          ],
+          "actual": "[len(clean_orders), sorted(clean_orders['city'].tolist())]",
+          "failureMessage": "Deduplicate first, then retain only rows with a city, non-negative amount and valid date."
+        },
+        {
+          "name": "Reconciles the retained revenue and confirms no invalid values remain",
+          "code": "assert clean_revenue == 6900.0 and clean_orders['amount'].ge(0).all() and clean_orders.notna().all().all()",
+          "expected": [
+            6900,
+            true
+          ],
+          "actual": "[clean_revenue, bool(clean_orders['amount'].ge(0).all()), bool(clean_orders.notna().all().all())]",
+          "failureMessage": "The four retained orders total 6,900 and have no missing fields or negative amounts."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c13",
+    "curriculumId": "P1-C13",
+    "prerequisites": [
+      "p1-c12"
+    ],
+    "title": "Grouping and business summaries",
+    "level": "Intermediate",
+    "mins": 70,
+    "packages": [
+      "numpy",
+      "pandas"
+    ],
+    "plain": "Managers ask questions such as: Which city generated the most revenue? How many orders came from each city? What share of total sales came from Pune? pandas can split a table into groups, calculate several measures for each group and return a compact summary. This is one of the most important daily skills for a data analyst.",
+    "definition": "groupby() separates rows into groups based on one or more keys. Aggregation with agg() reduces each group to summary values such as size, sum, mean and nunique. transform() calculates a group-level value but returns it aligned to every original row. filter() keeps or removes whole groups based on a condition. pivot_table() reshapes grouped values into a matrix, while crosstab() creates a frequency table for combinations of categories.",
+    "analogy": "Imagine sorting invoices into separate city folders. You can count the invoices and add their values in each folder. The manager may want one summary row per city, while an analyst may also want the city total written beside every original invoice. groupby().agg() makes the summary; transform() brings the group-level figure back to each row.",
+    "example": "import pandas as pd\n\norders = pd.DataFrame({\n    \"city\": [\"Chennai\", \"Chennai\", \"Pune\", \"Pune\"],\n    \"amount\": [1200, 1800, 5400, 2400]\n})\n\nsummary = orders.groupby(\"city\", as_index=False).agg(\n    order_count=(\"amount\", \"size\"),\n    revenue=(\"amount\", \"sum\")\n)\n\nprint(summary.to_dict(\"records\"))",
+    "expectedOutput": "[{'city': 'Chennai', 'order_count': 2, 'revenue': 3000}, {'city': 'Pune', 'order_count': 2, 'revenue': 7800}]",
+    "prediction": "The original orders table has four rows. After grouping by city and calculating one summary row per city, how many rows should summary contain?",
+    "predictionAnswer": "Two rows, one for Chennai and one for Pune. A grouped aggregation reduces the original detail rows into one record for each distinct group.",
+    "question": "Which operation adds a group total to every original row without reducing the number of rows?",
+    "options": [
+      "groupby().agg()",
+      "groupby().transform()",
+      "drop_duplicates()"
+    ],
+    "answer": 1,
+    "why": "transform() returns a result aligned to the original index. agg() summarises each group into fewer rows; transform() keeps the row-level shape.",
+    "task": "Build a city summary containing order count, total revenue, average order value and unique customers. Calculate each city's share of total revenue, add the city total back to every order with transform, keep only cities whose total is at least ₹5,000, and build category tables.",
+    "hint": "Use groupby('city', as_index=False).agg(...) with named aggregations. Divide each group's revenue by the overall amount sum for its share. Use groupby('city')['amount'].transform('sum') for a row-aligned total, groupby(...).filter(...) for whole groups, and pd.crosstab() for city/status counts.",
+    "solution": "import pandas as pd\n\norders = pd.DataFrame({\n    \"order_id\": [1, 2, 3, 4, 5, 6, 7, 8],\n    \"city\": [\"Chennai\", \"Chennai\", \"Pune\", \"Pune\", \"Pune\", \"Bengaluru\", \"Bengaluru\", \"Chennai\"],\n    \"customer_id\": [101, 102, 103, 101, 104, 102, 105, 101],\n    \"amount\": [1200, 1800, 5400, 2400, 1600, 3200, 2100, 800],\n    \"month\": [\"2026-01\", \"2026-01\", \"2026-01\", \"2026-02\", \"2026-02\", \"2026-02\", \"2026-02\", \"2026-02\"],\n    \"status\": [\"Paid\", \"Paid\", \"Paid\", \"Paid\", \"Refunded\", \"Paid\", \"Paid\", \"Refunded\"]\n})\n\ncity_summary = orders.groupby(\"city\", as_index=False).agg(\n    order_count=(\"order_id\", \"size\"),\n    revenue=(\"amount\", \"sum\"),\n    average_order=(\"amount\", \"mean\"),\n    unique_customers=(\"customer_id\", \"nunique\")\n)\ncity_summary[\"revenue_share\"] = city_summary[\"revenue\"] / orders[\"amount\"].sum()\ncity_summary = city_summary.sort_values(\"revenue\", ascending=False)\n\norders[\"city_total\"] = orders.groupby(\"city\")[\"amount\"].transform(\"sum\")\nlarge_cities = orders.groupby(\"city\").filter(\n    lambda group: group[\"amount\"].sum() >= 5000\n)\nstatus_counts = pd.crosstab(orders[\"city\"], orders[\"status\"])\nmonthly_city = pd.pivot_table(\n    orders,\n    index=\"city\",\n    columns=\"month\",\n    values=\"amount\",\n    aggfunc=\"sum\",\n    fill_value=0\n)\n\nprint(\"Revenue leader:\", city_summary.iloc[0][\"city\"])\nprint(\"Total revenue:\", float(city_summary[\"revenue\"].sum()))\nprint(\"Large-city rows:\", len(large_cities))",
+    "exercise": {
+      "title": "Summarise sales performance by city",
+      "prompt": "Create one row per city with order_count, revenue, average_order and unique_customers. Add revenue_share as a fraction of total revenue, sort the summary from highest revenue to lowest, use transform to add city_total to every order, filter to cities with at least ₹5,000 total revenue, and create city/status counts plus a city-by-month pivot table.",
+      "setup": "",
+      "starter": "import pandas as pd\n\norders = pd.DataFrame({\n    \"order_id\": [1, 2, 3, 4, 5, 6, 7, 8],\n    \"city\": [\"Chennai\", \"Chennai\", \"Pune\", \"Pune\", \"Pune\", \"Bengaluru\", \"Bengaluru\", \"Chennai\"],\n    \"customer_id\": [101, 102, 103, 101, 104, 102, 105, 101],\n    \"amount\": [1200, 1800, 5400, 2400, 1600, 3200, 2100, 800],\n    \"month\": [\"2026-01\", \"2026-01\", \"2026-01\", \"2026-02\", \"2026-02\", \"2026-02\", \"2026-02\", \"2026-02\"],\n    \"status\": [\"Paid\", \"Paid\", \"Paid\", \"Paid\", \"Refunded\", \"Paid\", \"Paid\", \"Refunded\"]\n})\n\n# Return one summary row per city with four named measures.\ncity_summary = None\n\n# Calculate each city's share and sort the summary.\ncity_summary[\"revenue_share\"] = None\ncity_summary = None\n\n# Add each city's total to every source order.\norders[\"city_total\"] = None\n\n# Keep only groups with revenue >= 5000.\nlarge_cities = None\n\n# Build city by status counts and city by month revenue.\nstatus_counts = None\nmonthly_city = None\n\nprint(\"Revenue leader:\", city_summary.iloc[0][\"city\"])\nprint(\"Total revenue:\", float(city_summary[\"revenue\"].sum()))\nprint(\"Large-city rows:\", len(large_cities))",
+      "hint": "Use named aggregation: order_count=('order_id','size'), revenue=('amount','sum'), average_order=('amount','mean'), unique_customers=('customer_id','nunique'). Divide revenue by orders['amount'].sum(). transform('sum') keeps one city total on each row; filter() keeps complete groups. crosstab uses city and status; pivot_table uses city rows, month columns and amount values.",
+      "solution": "import pandas as pd\n\norders = pd.DataFrame({\n    \"order_id\": [1, 2, 3, 4, 5, 6, 7, 8],\n    \"city\": [\"Chennai\", \"Chennai\", \"Pune\", \"Pune\", \"Pune\", \"Bengaluru\", \"Bengaluru\", \"Chennai\"],\n    \"customer_id\": [101, 102, 103, 101, 104, 102, 105, 101],\n    \"amount\": [1200, 1800, 5400, 2400, 1600, 3200, 2100, 800],\n    \"month\": [\"2026-01\", \"2026-01\", \"2026-01\", \"2026-02\", \"2026-02\", \"2026-02\", \"2026-02\", \"2026-02\"],\n    \"status\": [\"Paid\", \"Paid\", \"Paid\", \"Paid\", \"Refunded\", \"Paid\", \"Paid\", \"Refunded\"]\n})\n\ncity_summary = orders.groupby(\"city\", as_index=False).agg(\n    order_count=(\"order_id\", \"size\"),\n    revenue=(\"amount\", \"sum\"),\n    average_order=(\"amount\", \"mean\"),\n    unique_customers=(\"customer_id\", \"nunique\")\n)\ncity_summary[\"revenue_share\"] = city_summary[\"revenue\"] / orders[\"amount\"].sum()\ncity_summary = city_summary.sort_values(\"revenue\", ascending=False)\n\norders[\"city_total\"] = orders.groupby(\"city\")[\"amount\"].transform(\"sum\")\nlarge_cities = orders.groupby(\"city\").filter(\n    lambda group: group[\"amount\"].sum() >= 5000\n)\nstatus_counts = pd.crosstab(orders[\"city\"], orders[\"status\"])\nmonthly_city = pd.pivot_table(\n    orders,\n    index=\"city\",\n    columns=\"month\",\n    values=\"amount\",\n    aggfunc=\"sum\",\n    fill_value=0\n)\n\nprint(\"Revenue leader:\", city_summary.iloc[0][\"city\"])\nprint(\"Total revenue:\", float(city_summary[\"revenue\"].sum()))\nprint(\"Large-city rows:\", len(large_cities))",
+      "tests": [
+        {
+          "name": "Produces one summary row for each city",
+          "code": "assert city_summary['city'].tolist() == ['Pune', 'Bengaluru', 'Chennai']",
+          "expected": [
+            "Pune",
+            "Bengaluru",
+            "Chennai"
+          ],
+          "actual": "city_summary['city'].tolist()",
+          "failureMessage": "Group by city and sort the revenue summary in descending order."
+        },
+        {
+          "name": "Calculates order counts and total revenue correctly",
+          "code": "assert city_summary.set_index('city')['revenue'].to_dict() == {'Pune': 9400, 'Bengaluru': 5300, 'Chennai': 3800} and city_summary.set_index('city')['order_count'].to_dict() == {'Pune': 3, 'Bengaluru': 2, 'Chennai': 3}",
+          "expected": {
+            "Pune": 9400,
+            "Bengaluru": 5300,
+            "Chennai": 3800
+          },
+          "actual": "city_summary.set_index('city')['revenue'].to_dict()",
+          "failureMessage": "Use size for order counts and sum for revenue; do not count distinct customers as orders."
+        },
+        {
+          "name": "Counts unique customers within each city",
+          "code": "assert city_summary.set_index('city').loc['Pune', 'unique_customers'] == 3 and city_summary.set_index('city').loc['Chennai', 'unique_customers'] == 2",
+          "expected": [
+            3,
+            2
+          ],
+          "actual": "[city_summary.set_index('city').loc['Pune', 'unique_customers'], city_summary.set_index('city').loc['Chennai', 'unique_customers']]",
+          "failureMessage": "Use nunique on customer_id so a customer with multiple orders is counted once."
+        },
+        {
+          "name": "Calculates revenue share that reconciles to 100 percent",
+          "code": "assert abs(float(city_summary['revenue_share'].sum()) - 1.0) < 1e-12",
+          "expected": 1,
+          "actual": "float(city_summary['revenue_share'].sum())",
+          "failureMessage": "Divide every city's revenue by the same total revenue across all orders."
+        },
+        {
+          "name": "Uses transform to preserve every original order row",
+          "code": "assert len(orders) == 8 and orders['city_total'].tolist() == [3800, 3800, 9400, 9400, 9400, 5300, 5300, 3800]",
+          "expected": [
+            8,
+            3800,
+            3800,
+            9400,
+            9400,
+            9400,
+            5300,
+            5300,
+            3800
+          ],
+          "actual": "[len(orders), orders['city_total'].tolist()]",
+          "failureMessage": "transform should return a group total aligned to each source row, not a shorter grouped table."
+        },
+        {
+          "name": "Filters complete groups using the city revenue threshold",
+          "code": "assert len(large_cities) == 5 and set(large_cities['city']) == {'Pune', 'Bengaluru'}",
+          "expected": [
+            5,
+            "Pune",
+            "Bengaluru"
+          ],
+          "actual": "[len(large_cities), sorted(large_cities['city'].unique().tolist())]",
+          "failureMessage": "filter() should keep all order rows belonging to a city whose total is at least 5,000."
+        },
+        {
+          "name": "Builds category counts and a city-by-month pivot",
+          "code": "assert status_counts.loc['Pune', 'Paid'] == 2 and monthly_city.loc['Pune', '2026-01'] == 5400 and monthly_city.loc['Chennai', '2026-02'] == 800",
+          "expected": [
+            2,
+            5400,
+            800
+          ],
+          "actual": "[status_counts.loc['Pune', 'Paid'], monthly_city.loc['Pune', '2026-01'], monthly_city.loc['Chennai', '2026-02']]",
+          "failureMessage": "Use crosstab for category frequencies and pivot_table for numeric values split by city and month."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c14",
+    "curriculumId": "P1-C14",
+    "prerequisites": [
+      "p1-c13"
+    ],
+    "title": "Joining, reshaping and time-based analysis",
+    "level": "Intermediate",
+    "mins": 75,
+    "packages": [
+      "numpy",
+      "pandas"
+    ],
+    "plain": "A real business report often needs more than one table. Orders contain the amount and date, while a customer table tells you the city. You combine them using a shared key, check that the join did not multiply rows, reshape the result for a report and calculate how revenue changes month by month.",
+    "definition": "concat() stacks DataFrames while preserving or resetting indexes. merge() combines records using key columns and supports inner, left, right and outer join types. validate checks join-key cardinality, and indicator adds a column showing whether a row matched. pivot_table() turns categories into columns; melt() converts wide columns back into rows. Datetime indexes support resample() for fixed time periods, while rolling() calculates moving-window measures and shift() aligns values from a previous period.",
+    "analogy": "Imagine two registers: one has orders and customer IDs; the other has customer IDs and cities. A join looks up the matching city for each order. You count the rows before and after so a repeated customer ID does not accidentally multiply sales. Then you group by month to create a timeline and calculate a moving average.",
+    "example": "import pandas as pd\n\norders = pd.DataFrame({\n    \"customer_id\": [1, 2],\n    \"amount\": [1200, 5400]\n})\ncustomers = pd.DataFrame({\n    \"customer_id\": [1, 2],\n    \"city\": [\"Chennai\", \"Pune\"]\n})\n\njoined = orders.merge(customers, on=\"customer_id\", how=\"left\")\nprint(\"Rows after join:\", len(joined))\nprint(\"Cities:\", joined[\"city\"].tolist())",
+    "expectedOutput": "Rows after join: 2\nCities: ['Chennai', 'Pune']",
+    "prediction": "A customer table accidentally contains two rows for the same customer_id. What might happen when one order for that customer is merged with it?",
+    "predictionAnswer": "The order can appear twice because it matches both customer records. The row count and revenue may grow incorrectly. Check key uniqueness and use merge(validate='many_to_one') when each order should match at most one customer row.",
+    "question": "Which pandas merge validation is suitable when many orders can belong to one customer, but each customer_id must be unique in the customer table?",
+    "options": [
+      "one_to_one",
+      "many_to_one",
+      "many_to_many"
+    ],
+    "answer": 1,
+    "why": "Each order row is on the many side and the customer lookup is on the one side. many_to_one checks that the right-side customer key is unique.",
+    "task": "Combine three monthly order batches, join them to the customer lookup with a left join and many-to-one validation, identify unmatched orders, build monthly revenue, calculate a two-month rolling average and previous-month revenue, and create wide and long city-by-month report tables.",
+    "hint": "Use pd.concat([...], ignore_index=True) for the three batches. Parse order_date, then merge on customer_id with how='left', validate='many_to_one' and indicator=True. Resample matched orders to month start ('MS'), use rolling(2, min_periods=1) and shift(1), and use pivot_table followed by reset_index().melt(...).",
+    "solution": "import pandas as pd\n\njanuary = pd.DataFrame({\n    \"order_id\": [1001, 1002],\n    \"customer_id\": [1, 2],\n    \"order_date\": [\"2026-01-05\", \"2026-01-12\"],\n    \"amount\": [1200, 5400]\n})\nfebruary = pd.DataFrame({\n    \"order_id\": [1003, 1004],\n    \"customer_id\": [1, 3],\n    \"order_date\": [\"2026-02-02\", \"2026-02-10\"],\n    \"amount\": [800, 3200]\n})\nmarch = pd.DataFrame({\n    \"order_id\": [1005, 1006],\n    \"customer_id\": [2, 9],\n    \"order_date\": [\"2026-03-01\", \"2026-03-09\"],\n    \"amount\": [1800, 700]\n})\ncustomers = pd.DataFrame({\n    \"customer_id\": [1, 2, 3],\n    \"city\": [\"Chennai\", \"Pune\", \"Bengaluru\"]\n})\n\norders = pd.concat([january, february, march], ignore_index=True)\norders[\"order_date\"] = pd.to_datetime(orders[\"order_date\"])\njoined = orders.merge(\n    customers,\n    on=\"customer_id\",\n    how=\"left\",\n    validate=\"many_to_one\",\n    indicator=True\n)\nmatched = joined.loc[joined[\"_merge\"].eq(\"both\")].copy()\nunmatched = joined.loc[joined[\"_merge\"].eq(\"left_only\")].copy()\n\nmonthly = (\n    matched.set_index(\"order_date\")[\"amount\"]\n    .resample(\"MS\")\n    .sum()\n    .rename(\"revenue\")\n    .reset_index()\n)\nmonthly[\"two_month_average\"] = monthly[\"revenue\"].rolling(2, min_periods=1).mean()\nmonthly[\"previous_month_revenue\"] = monthly[\"revenue\"].shift(1)\n\nmatched[\"month\"] = matched[\"order_date\"].dt.to_period(\"M\").astype(str)\nwide = matched.pivot_table(\n    index=\"city\",\n    columns=\"month\",\n    values=\"amount\",\n    aggfunc=\"sum\",\n    fill_value=0\n)\nlong = wide.reset_index().melt(\n    id_vars=\"city\",\n    var_name=\"month\",\n    value_name=\"revenue\"\n)\n\nprint(\"Orders combined:\", len(orders))\nprint(\"Unmatched orders:\", len(unmatched))\nprint(\"Monthly revenue:\", monthly[\"revenue\"].tolist())",
+    "exercise": {
+      "title": "Join customer data and build a monthly revenue report",
+      "prompt": "Combine the January, February and March order batches with concat. Parse order_date, left-join the unique customer lookup with validate='many_to_one' and indicator=True, separate matched and unmatched orders, calculate monthly revenue, a two-month rolling average and previous-month revenue, then reshape the matched revenue into wide and long city-by-month tables.",
+      "setup": "",
+      "starter": "import pandas as pd\n\njanuary = pd.DataFrame({\n    \"order_id\": [1001, 1002],\n    \"customer_id\": [1, 2],\n    \"order_date\": [\"2026-01-05\", \"2026-01-12\"],\n    \"amount\": [1200, 5400]\n})\nfebruary = pd.DataFrame({\n    \"order_id\": [1003, 1004],\n    \"customer_id\": [1, 3],\n    \"order_date\": [\"2026-02-02\", \"2026-02-10\"],\n    \"amount\": [800, 3200]\n})\nmarch = pd.DataFrame({\n    \"order_id\": [1005, 1006],\n    \"customer_id\": [2, 9],\n    \"order_date\": [\"2026-03-01\", \"2026-03-09\"],\n    \"amount\": [1800, 700]\n})\ncustomers = pd.DataFrame({\n    \"customer_id\": [1, 2, 3],\n    \"city\": [\"Chennai\", \"Pune\", \"Bengaluru\"]\n})\n\n# Stack the three monthly files into one table.\norders = None\norders[\"order_date\"] = None\n\n# Keep all orders and check that customer_id is unique on the lookup side.\njoined = None\nmatched = None\nunmatched = None\n\n# Summarise monthly revenue and create time-based comparison columns.\nmonthly = None\nmonthly[\"two_month_average\"] = None\nmonthly[\"previous_month_revenue\"] = None\n\n# Reshape city/month revenue from wide to long form.\nmatched[\"month\"] = None\nwide = None\nlong = None\n\nprint(\"Orders combined:\", len(orders))\nprint(\"Unmatched orders:\", len(unmatched))\nprint(\"Monthly revenue:\", monthly[\"revenue\"].tolist())",
+      "hint": "Use concat with ignore_index=True. Convert the dates before resampling. merge must use how='left', validate='many_to_one' and indicator=True. Rows with _merge == 'both' matched; 'left_only' did not. Resample on the date index with 'MS', then add rolling(2, min_periods=1) and shift(1). pivot_table makes the wide table; reset_index().melt() makes the long table.",
+      "solution": "import pandas as pd\n\njanuary = pd.DataFrame({\n    \"order_id\": [1001, 1002],\n    \"customer_id\": [1, 2],\n    \"order_date\": [\"2026-01-05\", \"2026-01-12\"],\n    \"amount\": [1200, 5400]\n})\nfebruary = pd.DataFrame({\n    \"order_id\": [1003, 1004],\n    \"customer_id\": [1, 3],\n    \"order_date\": [\"2026-02-02\", \"2026-02-10\"],\n    \"amount\": [800, 3200]\n})\nmarch = pd.DataFrame({\n    \"order_id\": [1005, 1006],\n    \"customer_id\": [2, 9],\n    \"order_date\": [\"2026-03-01\", \"2026-03-09\"],\n    \"amount\": [1800, 700]\n})\ncustomers = pd.DataFrame({\n    \"customer_id\": [1, 2, 3],\n    \"city\": [\"Chennai\", \"Pune\", \"Bengaluru\"]\n})\n\norders = pd.concat([january, february, march], ignore_index=True)\norders[\"order_date\"] = pd.to_datetime(orders[\"order_date\"])\njoined = orders.merge(\n    customers,\n    on=\"customer_id\",\n    how=\"left\",\n    validate=\"many_to_one\",\n    indicator=True\n)\nmatched = joined.loc[joined[\"_merge\"].eq(\"both\")].copy()\nunmatched = joined.loc[joined[\"_merge\"].eq(\"left_only\")].copy()\n\nmonthly = (\n    matched.set_index(\"order_date\")[\"amount\"]\n    .resample(\"MS\")\n    .sum()\n    .rename(\"revenue\")\n    .reset_index()\n)\nmonthly[\"two_month_average\"] = monthly[\"revenue\"].rolling(2, min_periods=1).mean()\nmonthly[\"previous_month_revenue\"] = monthly[\"revenue\"].shift(1)\n\nmatched[\"month\"] = matched[\"order_date\"].dt.to_period(\"M\").astype(str)\nwide = matched.pivot_table(\n    index=\"city\",\n    columns=\"month\",\n    values=\"amount\",\n    aggfunc=\"sum\",\n    fill_value=0\n)\nlong = wide.reset_index().melt(\n    id_vars=\"city\",\n    var_name=\"month\",\n    value_name=\"revenue\"\n)\n\nprint(\"Orders combined:\", len(orders))\nprint(\"Unmatched orders:\", len(unmatched))\nprint(\"Monthly revenue:\", monthly[\"revenue\"].tolist())",
+      "tests": [
+        {
+          "name": "Concatenates the three monthly batches without losing orders",
+          "code": "assert len(orders) == 6 and orders['order_id'].tolist() == [1001, 1002, 1003, 1004, 1005, 1006]",
+          "expected": [
+            6,
+            [
+              1001,
+              1002,
+              1003,
+              1004,
+              1005,
+              1006
+            ]
+          ],
+          "actual": "[len(orders), orders['order_id'].tolist()]",
+          "failureMessage": "Use concat with ignore_index=True so all six rows are kept in one consistent index."
+        },
+        {
+          "name": "Uses a many-to-one left join without multiplying order rows",
+          "code": "assert len(joined) == 6 and joined['city'].notna().sum() == 5",
+          "expected": [
+            6,
+            5
+          ],
+          "actual": "[len(joined), int(joined['city'].notna().sum())]",
+          "failureMessage": "Every order should remain once. The customer lookup must have one row per customer_id."
+        },
+        {
+          "name": "Identifies the unmatched customer order",
+          "code": "assert len(unmatched) == 1 and unmatched['order_id'].tolist() == [1006] and unmatched['customer_id'].tolist() == [9]",
+          "expected": [
+            1,
+            [
+              1006
+            ],
+            [
+              9
+            ]
+          ],
+          "actual": "[len(unmatched), unmatched['order_id'].tolist(), unmatched['customer_id'].tolist()]",
+          "failureMessage": "The March order for customer 9 has no customer lookup row and should be marked left_only."
+        },
+        {
+          "name": "Resamples matched orders to monthly revenue",
+          "code": "assert monthly['revenue'].tolist() == [6600, 4000, 1800]",
+          "expected": [
+            6600,
+            4000,
+            1800
+          ],
+          "actual": "monthly['revenue'].tolist()",
+          "failureMessage": "Only matched orders enter the city-based report. The unmatched 700 is not included in the monthly customer-linked revenue."
+        },
+        {
+          "name": "Calculates the two-month rolling average",
+          "code": "assert monthly['two_month_average'].tolist() == [6600.0, 5300.0, 2900.0]",
+          "expected": [
+            6600,
+            5300,
+            2900
+          ],
+          "actual": "monthly['two_month_average'].tolist()",
+          "failureMessage": "Use rolling(window=2, min_periods=1).mean() to average the current and previous month where available."
+        },
+        {
+          "name": "Uses shift to align the prior month's revenue",
+          "code": "assert pd.isna(monthly.loc[0, 'previous_month_revenue']) and monthly['previous_month_revenue'].iloc[1:].tolist() == [6600.0, 4000.0]",
+          "expected": [
+            null,
+            6600,
+            4000
+          ],
+          "actual": "[str(monthly.loc[0, 'previous_month_revenue']), monthly['previous_month_revenue'].iloc[1:].tolist()]",
+          "failureMessage": "shift(1) moves the previous month's value down by one row; the first month has no prior value."
+        },
+        {
+          "name": "Creates both wide and long city-by-month report shapes",
+          "code": "assert wide.shape == (3, 3) and long.shape == (9, 3) and wide.loc['Chennai', '2026-01'] == 1200 and long['revenue'].sum() == 12400",
+          "expected": [
+            3,
+            3,
+            9,
+            3,
+            1200,
+            12400
+          ],
+          "actual": "[list(wide.shape), list(long.shape), wide.loc['Chennai', '2026-01'], int(long['revenue'].sum())]",
+          "failureMessage": "The matched order revenue totals 12,400. The unmatched March order must not enter the customer-linked revenue table."
+        }
+      ]
+    }
   }
 ];

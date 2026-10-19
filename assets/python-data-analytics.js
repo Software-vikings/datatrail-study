@@ -1,7 +1,7 @@
 window.DataTrailPythonAnalytics = {
   "id": "python-data-analytics",
   "title": "Python for Data Analytics",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "status": "in-progress",
   "description": "A mastery-based programme from absolute beginner Python through independent business-data workflows and data analyst interview readiness.",
   "learningContract": {
@@ -379,7 +379,7 @@ window.DataTrailPythonAnalytics = {
         "numpy-guide",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -412,7 +412,7 @@ window.DataTrailPythonAnalytics = {
         "pandas-user-guide",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -447,7 +447,7 @@ window.DataTrailPythonAnalytics = {
         "pandas-user-guide",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -481,7 +481,7 @@ window.DataTrailPythonAnalytics = {
         "pandas-user-guide",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -515,7 +515,7 @@ window.DataTrailPythonAnalytics = {
         "pandas-user-guide",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -549,7 +549,7 @@ window.DataTrailPythonAnalytics = {
         "pandas-user-guide",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -1030,9 +1030,15 @@ window.DataTrailPythonAnalytics = {
       "P1-C05",
       "P1-C06",
       "P1-C07",
-      "P1-C08"
+      "P1-C08",
+      "P1-C09",
+      "P1-C10",
+      "P1-C11",
+      "P1-C12",
+      "P1-C13",
+      "P1-C14"
     ],
-    "plannedChapterCount": 12,
-    "notes": "Chapters P1-C00 through P1-C08 are implemented, integrated and verified. Chapters P1-C09 through P1-C20 remain planned for later releases."
+    "plannedChapterCount": 6,
+    "notes": "Chapters P1-C00 through P1-C14 are implemented, integrated and verified. Chapters P1-C15 through P1-C20 remain planned for later releases."
   }
 };

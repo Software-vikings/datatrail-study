@@ -69,13 +69,13 @@ def validate_manifest(programme: dict[str, Any]) -> None:
 
     available_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "available"]
     planned_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "planned"]
-    expected_available = [f"P1-C{i:02d}" for i in range(9)]
+    expected_available = [f"P1-C{i:02d}" for i in range(15)]
     require(available_ids == expected_available, f"Unexpected released chapter set: {available_ids}")
-    require(len(planned_ids) == 12, f"Expected 12 planned chapters, found {len(planned_ids)}")
+    require(len(planned_ids) == 6, f"Expected six planned chapters, found {len(planned_ids)}")
     require(len(available_ids) + len(planned_ids) == len(chapters), "Every chapter must be either available or planned")
     release = programme.get("release", {})
     require(release.get("availableChapters") == expected_available, "Release index does not match the available chapters")
-    require(release.get("plannedChapterCount") == 12, "Release planned chapter count must be 12")
+    require(release.get("plannedChapterCount") == 6, "Release planned chapter count must be six")
 
     stage_counts: dict[str, int] = {}
     for chapter in chapters:
@@ -156,7 +156,25 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
         "P1-C06": ["def calculate_invoice_total", "tax_rate=0.18", "return round("],
         "P1-C07": ["def safe_amount", "try:", "except ValueError"],
         "P1-C08": ["csv.DictReader", "json.dumps", "write_text(", "date.fromisoformat", "read_text("],
+        "P1-C09": ["import numpy as np", "np.array(", "sum(axis=1)", "sum(axis=0)", "np.isfinite(", "np.where("],
+        "P1-C10": ["import pandas as pd", "pd.read_csv", "to_csv(", "parse_dates"],
+        "P1-C11": [".loc[", ".iloc[", ".str.", ".dt.", "sort_values(", "np.where("],
+        "P1-C12": ["pd.to_numeric(", "pd.to_datetime(", "drop_duplicates(", "notna()", "negative_amount_count"],
+        "P1-C13": ["groupby(", "agg(", "transform(", "filter(", "pd.crosstab(", "pivot_table("],
+        "P1-C14": ["pd.concat(", "merge(", 'validate="many_to_one"', 'resample("MS")', "rolling(", "shift(", ".melt("],
     }
+    required_packages = {
+        "P1-C09": ["numpy"],
+        "P1-C10": ["numpy", "pandas"],
+        "P1-C11": ["numpy", "pandas"],
+        "P1-C12": ["numpy", "pandas"],
+        "P1-C13": ["numpy", "pandas"],
+        "P1-C14": ["numpy", "pandas"],
+    }
+    for lesson in lessons:
+        curriculum_id = lesson["curriculumId"]
+        if curriculum_id in required_packages:
+            require(lesson.get("packages") == required_packages[curriculum_id], f"{curriculum_id} must declare its exact runtime packages")
     for lesson in lessons:
         if lesson["curriculumId"] in required_solution_markers:
             exercise_source = lesson["exercise"]["solution"]
@@ -213,7 +231,9 @@ def main() -> None:
 
     validate_manifest(programme)
     validate_released_lessons(programme, lessons)
-    print("[PASS] Programme 1: 21 chapters, five stages, nine interactive lesson packages available, 12 planned, four projects and 100 interview targets.")
+    require("async function prepareProgrammePackages" in index_html, "Programme 1 needs a lesson-specific NumPy/pandas package loader")
+    require(index_html.count("await prepareProgrammePackages(py,l);") >= 2, "Worked examples and coding exercises must load their declared Python packages")
+    print("[PASS] Programme 1: 21 chapters, five stages, 15 interactive lesson packages available, six planned, four projects and 100 interview targets.")
 
     validate_exercises(index_html, tasks)
     print("[PASS] Existing Python track: 84 lessons, 84 exercises, one-to-one mapping and semantic guards for lessons 27–28.")
