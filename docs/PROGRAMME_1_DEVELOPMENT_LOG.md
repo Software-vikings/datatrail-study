@@ -5,9 +5,9 @@ This log records the implemented state of Programme 1 and the checks run for eac
 ## Current release state
 
 - Curriculum: 21 chapters across five stages, defined in `assets/python-data-analytics.js`.
-- Available interactive chapters: 15 of 21 (P1-C00 through P1-C14).
-- Available coding exercises: 15, with 89 named automated checks.
-- Planned chapters: 6 (P1-C15 through P1-C20).
+- Available interactive chapters: 17 of 21 (P1-C00 through P1-C16).
+- Available coding exercises: 17, with 106 named automated checks.
+- Planned chapters: 4 (P1-C17 through P1-C20).
 - Existing Python course: its separate 84-lesson track remains available and is not replaced by Programme 1.
 - Progress: Programme 1 chapter completion and drafts use separate localStorage keys. Existing Python progress and drafts continue using their original keys.
 - Deployment: development occurs on feature branches and stacked pull requests. Nothing is published to the live site until the required pull requests are merged to `main`.
@@ -92,3 +92,34 @@ python3 scripts/verify_python_exercises.py
 ```
 
 The Stage B release adds 44 named NumPy/pandas exercise checks. Together, the 15 available Programme 1 lessons contain 89 named checks. Automated validation also retains all 84 legacy Python reference solutions and their 205 named checks.
+
+
+## 2026-10-19 — Phase 5: Statistics and visualisation
+
+### Delivered
+
+1. Released P1-C15, **Statistics for working analysts**: variable descriptions, quantiles and IQR outliers; sample standard deviation and standard error; t-based confidence intervals; independent Welch and paired t-tests; Cohen's d; chi-square for categorical conversion outcomes; one-way ANOVA; Pearson correlation; binomial and normal probabilities.
+2. Built an applied statistical workflow that requires the learner to match each test to the data type and study design, report effect size and uncertainty, and distinguish statistical significance from causation.
+3. Released P1-C16, **Visualisation and analytical communication**: Matplotlib figure/axes, Seaborn distribution comparisons, Plotly interactive figures, chart selection, titles, units, legends, accessible labels, zero baselines, uncertainty intervals, annotation and misleading scales.
+4. Added an integrated three-chart exercise: an uncertainty-aware Matplotlib bar chart, a Seaborn campaign box plot and a Plotly interactive monthly trend. The task ends with a question/method/result/limitation/action narrative.
+5. Added a safe, sandboxed chart-preview surface to both the worked-example and coding-exercise steps. Matplotlib figures are rendered as images and Plotly figures are displayed in a sandboxed HTML iframe.
+6. Added lesson-specific SciPy and Matplotlib package loading, with Seaborn and Plotly installed through micropip when P1-C16 is opened.
+7. Extended the reference verifier to import actual SciPy, Matplotlib, Seaborn and Plotly dependencies. Matplotlib is configured with the headless Agg backend for deterministic CI verification.
+8. Expanded CI dependency installation and topic, runtime-package, PyPI-package and chart-renderer validation. The production deployment gate now requires exactly P1-C00 through P1-C16.
+9. Updated the README, this log and the lesson-authoring standard. Four final curriculum chapters (P1-C17–P1-C20) remain planned.
+
+### Verification commands
+
+Run from the repository root:
+
+```bash
+python3 -m pip install numpy pandas scipy matplotlib seaborn plotly
+node --check assets/python-data-analytics.js
+node --check assets/python-data-analytics-lessons.js
+python3 -m py_compile scripts/validate_programme1.py scripts/verify_programme1_lessons.py scripts/verify_python_exercises.py
+python3 scripts/validate_programme1.py
+python3 scripts/verify_programme1_lessons.py
+python3 scripts/verify_python_exercises.py
+```
+
+Phase 5 adds 17 named checks across two lessons. Programme 1 now contains 17 released lessons and 106 named exercise checks. The CI suite continues to execute all 84 reference solutions and 205 named checks in the separate legacy Python course.
