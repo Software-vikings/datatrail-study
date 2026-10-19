@@ -35,6 +35,17 @@ def verify_lesson(lesson: dict[str, Any]) -> int:
             __import__(package)
         except ImportError as exc:
             raise AssertionError(f"{lesson['curriculumId']} requires the {package!r} package") from exc
+
+    if "matplotlib" in lesson.get("packages", []):
+        import matplotlib
+        matplotlib.use("Agg", force=True)
+
+    for package in lesson.get("pypiPackages", []):
+        try:
+            __import__(package)
+        except ImportError as exc:
+            raise AssertionError(f"{lesson['curriculumId']} requires the PyPI package {package!r}") from exc
+
     exercise = lesson["exercise"]
     namespace: dict[str, Any] = {"__name__": "__main__"}
     setup = exercise.get("setup", "")

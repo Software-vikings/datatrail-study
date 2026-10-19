@@ -1,7 +1,7 @@
 window.DataTrailPythonAnalytics = {
   "id": "python-data-analytics",
   "title": "Python for Data Analytics",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "status": "in-progress",
   "description": "A mastery-based programme from absolute beginner Python through independent business-data workflows and data analyst interview readiness.",
   "learningContract": {
@@ -587,7 +587,7 @@ window.DataTrailPythonAnalytics = {
         "scipy-stats",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -623,7 +623,7 @@ window.DataTrailPythonAnalytics = {
         "seaborn-tutorial",
         "plotly-python"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -1036,9 +1036,11 @@ window.DataTrailPythonAnalytics = {
       "P1-C11",
       "P1-C12",
       "P1-C13",
-      "P1-C14"
+      "P1-C14",
+      "P1-C15",
+      "P1-C16"
     ],
-    "plannedChapterCount": 6,
-    "notes": "Chapters P1-C00 through P1-C14 are implemented, integrated and verified. Chapters P1-C15 through P1-C20 remain planned for later releases."
+    "plannedChapterCount": 4,
+    "notes": "Chapters P1-C00 through P1-C16 are implemented, integrated and verified. Chapters P1-C17 through P1-C20 remain planned for later releases."
   }
 };
