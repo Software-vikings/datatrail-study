@@ -1033,7 +1033,7 @@ async function prepareProgrammePackages(py,lesson){
  if(pypiPackages.length){
   py.globals.set("programme_pypi_packages_json",JSON.stringify(pypiPackages));
   const status=document.getElementById("pyStatus");
-  if(status)status.textContent="Checking additional visualisation packages…";
+  if(status)status.textContent="Checking additional Python packages…";
   await py.runPythonAsync("import importlib.util, json, micropip\nprogramme_missing_pypi = [name for name in json.loads(programme_pypi_packages_json) if importlib.util.find_spec(name) is None]\nif programme_missing_pypi:\n    await micropip.install(programme_missing_pypi)");
  }
 }

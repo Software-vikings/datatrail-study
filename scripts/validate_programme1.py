@@ -69,13 +69,13 @@ def validate_manifest(programme: dict[str, Any]) -> None:
 
     available_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "available"]
     planned_ids = [chapter["id"] for chapter in chapters if chapter.get("status") == "planned"]
-    expected_available = [f"P1-C{i:02d}" for i in range(17)]
+    expected_available = [f"P1-C{i:02d}" for i in range(20)]
     require(available_ids == expected_available, f"Unexpected released chapter set: {available_ids}")
-    require(len(planned_ids) == 4, f"Expected four planned chapters, found {len(planned_ids)}")
+    require(len(planned_ids) == 1, f"Expected one planned chapter, found {len(planned_ids)}")
     require(len(available_ids) + len(planned_ids) == len(chapters), "Every chapter must be either available or planned")
     release = programme.get("release", {})
     require(release.get("availableChapters") == expected_available, "Release index does not match the available chapters")
-    require(release.get("plannedChapterCount") == 4, "Release planned chapter count must be four")
+    require(release.get("plannedChapterCount") == 1, "Release planned chapter count must be one")
 
     stage_counts: dict[str, int] = {}
     for chapter in chapters:
@@ -128,7 +128,7 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
             lesson.get("prerequisites") == [item.lower() for item in chapter["prerequisites"]],
             f"{chapter['id']} lesson prerequisites do not match the curriculum",
         )
-        for field in ("level", "mins", "plain", "definition", "analogy", "example", "expectedOutput", "question", "options", "answer", "why", "task", "hint", "solution", "exercise"):
+        for field in ("level", "mins", "plain", "definition", "analogy", "example", "expectedOutput", "prediction", "predictionAnswer", "question", "options", "answer", "why", "task", "hint", "solution", "exercise"):
             require(lesson.get(field) not in (None, "", []), f"{chapter['id']} lesson is missing {field}")
 
         exercise = lesson["exercise"]
@@ -164,6 +164,9 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
         "P1-C14": ["pd.concat(", "merge(", 'validate="many_to_one"', 'resample("MS")', "rolling(", "shift(", ".melt("],
         "P1-C15": ["from scipy import stats", "quantile(", "stats.t.interval(", "ttest_ind(", "ttest_rel(", "chi2_contingency(", "f_oneway(", "pearsonr(", "binom.pmf(", "norm.cdf("],
         "P1-C16": ["import matplotlib.pyplot as plt", "import seaborn as sns", "import plotly.express as px", "yerr=", "sns.boxplot(", "px.line(", "to_html(", "chart_story"],
+        "P1-C17": ["from urllib.parse import urlencode", "def request_json(", "def collect_pages(", "max_attempts", "max_pages", "ANALYTICS_API_TOKEN"],
+        "P1-C18": ["import sqlite3", 'sqlite3.connect(":memory:")', "WHERE customer_name = ?", "pd.read_sql_query(", "to_sql(", "finally:"],
+        "P1-C19": ["from openpyxl import Workbook, load_workbook", 'Path(folder).glob("*.csv")', "PatternFill(", "freeze_panes", "auto_filter.ref", "fullCalcOnLoad"],
     }
     required_packages = {
         "P1-C09": ["numpy"],
@@ -174,6 +177,7 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
         "P1-C14": ["numpy", "pandas"],
         "P1-C15": ["numpy", "pandas", "scipy"],
         "P1-C16": ["numpy", "pandas", "matplotlib"],
+        "P1-C18": ["pandas"],
     }
     for lesson in lessons:
         curriculum_id = lesson["curriculumId"]
@@ -181,6 +185,7 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
             require(lesson.get("packages") == required_packages[curriculum_id], f"{curriculum_id} must declare its exact runtime packages")
     required_pypi_packages = {
         "P1-C16": ["seaborn", "plotly"],
+        "P1-C19": ["openpyxl"],
     }
     for lesson in lessons:
         curriculum_id = lesson["curriculumId"]
@@ -247,7 +252,7 @@ def main() -> None:
     require("await micropip.install(programme_missing_pypi)" in index_html, "Programme 1 needs a PyPI package installation path")
     require("async function capturePythonVisuals" in index_html and "frame.srcdoc=payload.plotly_html" in index_html, "Matplotlib and Plotly charts must render in the lesson output")
     require('id="tutorPythonChart"' in index_html and 'id="workedExampleChart"' in index_html, "Both worked examples and graded exercises need chart preview hosts")
-    print("[PASS] Programme 1: 21 chapters, five stages, 17 interactive lesson packages available, four planned, four projects and 100 interview targets.")
+    print("[PASS] Programme 1: 21 chapters, five stages, 20 interactive lesson packages available, one planned, four projects and 100 interview targets.")
 
     validate_exercises(index_html, tasks)
     print("[PASS] Existing Python track: 84 lessons, 84 exercises, one-to-one mapping and semantic guards for lessons 27–28.")

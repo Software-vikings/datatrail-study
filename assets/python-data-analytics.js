@@ -1,7 +1,7 @@
 window.DataTrailPythonAnalytics = {
   "id": "python-data-analytics",
   "title": "Python for Data Analytics",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "status": "in-progress",
   "description": "A mastery-based programme from absolute beginner Python through independent business-data workflows and data analyst interview readiness.",
   "learningContract": {
@@ -658,7 +658,7 @@ window.DataTrailPythonAnalytics = {
         "requests-quickstart",
         "python-library"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -692,7 +692,7 @@ window.DataTrailPythonAnalytics = {
         "sqlalchemy-tutorial",
         "pandas-user-guide"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -728,7 +728,7 @@ window.DataTrailPythonAnalytics = {
         "python-library",
         "python-data-analysis"
       ],
-      "status": "planned",
+      "status": "available",
       "acceptanceCriteria": [
         "Learner can explain the idea in ordinary English.",
         "Learner can predict and explain the output of a small example.",
@@ -1038,9 +1038,12 @@ window.DataTrailPythonAnalytics = {
       "P1-C13",
       "P1-C14",
       "P1-C15",
-      "P1-C16"
+      "P1-C16",
+      "P1-C17",
+      "P1-C18",
+      "P1-C19"
     ],
-    "plannedChapterCount": 4,
-    "notes": "Chapters P1-C00 through P1-C16 are implemented, integrated and verified. Chapters P1-C17 through P1-C20 remain planned for later releases."
+    "plannedChapterCount": 1,
+    "notes": "Chapters P1-C00 through P1-C19 are implemented, integrated and verified. P1-C20 remains planned for the final portfolio and interview-readiness release."
   }
 };

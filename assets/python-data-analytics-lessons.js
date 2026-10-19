@@ -1703,5 +1703,434 @@ window.DataTrailPythonAnalyticsLessons = [
         }
       ]
     }
+  },
+  {
+    "id": "p1-c17",
+    "curriculumId": "P1-C17",
+    "prerequisites": [
+      "p1-c16"
+    ],
+    "title": "APIs and external data collection",
+    "level": "Intermediate",
+    "mins": 90,
+    "plain": "Analysts often need information that is not already in a spreadsheet: exchange rates, public statistics, product catalogues or order records held by another system. An API gives software a documented way to ask for that information. The important skill is not just sending a request. You must check whether it worked, confirm the returned data has the shape you expected, handle temporary failures, respect pagination and protect credentials.",
+    "definition": "An Application Programming Interface (API) is a defined contract through which one software system exposes capabilities or data to another. In HTTP, a client sends a request to a resource URL and receives a response containing a status code, headers and possibly a body. A GET request retrieves a representation; query parameters refine the request. JSON (JavaScript Object Notation) is a common structured response format. Pagination divides a large result set into multiple bounded requests. A timeout limits how long the client waits; a retry policy repeats only selected transient failures within a finite attempt budget.",
+    "analogy": "Imagine requesting files from a records office. The URL is the office address, query parameters describe which records you need, and the response is the envelope you receive. A status code is the clerk's reply: 200 means the request was accepted, 404 means the requested record was not found, 429 means you are asking too often, and 5xx means the service is having a problem. Pagination is receiving the records in numbered bundles. Your access card is a credential: you keep it private and never print it on the envelope.",
+    "setupGuide": "This lesson uses an injected fake transport with fixed responses. No network access, API account or credential is needed. Real browser requests may be blocked by Cross-Origin Resource Sharing (CORS), a browser security rule controlled by the API server. In a production application, use the service's documented client policy or a trusted backend; do not put a private server credential in browser JavaScript. The exercise models the request/response contract so it can be tested offline.",
+    "example": "import json\nfrom pathlib import Path\nfrom urllib.parse import urlencode, urlsplit, parse_qs\n\nclass DemoResponse:\n    def __init__(self, status_code, payload):\n        self.status_code = status_code\n        self.body = payload if isinstance(payload, str) else json.dumps(payload)\n    def json(self):\n        return json.loads(self.body)\n\ndef build_url(base_url, params):\n    query = urlencode(params)\n    return f\"{base_url}?{query}\" if query else base_url\n\ndef request_json(url, transport, max_attempts=3, timeout=5, wait=None):\n    if max_attempts < 1:\n        raise ValueError(\"max_attempts must be at least 1\")\n    if timeout <= 0:\n        raise ValueError(\"timeout must be positive\")\n    wait = wait or (lambda seconds: None)\n    for attempt in range(max_attempts):\n        try:\n            response = transport(url, timeout=timeout)\n        except TimeoutError:\n            if attempt + 1 == max_attempts:\n                raise\n            wait(min(2 ** attempt, 4))\n            continue\n        status = response.status_code\n        if status == 429 or status >= 500:\n            if attempt + 1 == max_attempts:\n                raise RuntimeError(f\"Request failed after {max_attempts} attempts: HTTP {status}\")\n            wait(min(2 ** attempt, 4))\n            continue\n        if status >= 400:\n            raise ValueError(f\"Request was rejected: HTTP {status}\")\n        payload = response.json()\n        if not isinstance(payload, dict) or not isinstance(payload.get(\"results\"), list):\n            raise ValueError(\"The API response must contain a results list\")\n        return payload\n    raise RuntimeError(\"Request attempts were exhausted\")\n\ndef collect_pages(base_url, params, transport, max_pages=5, wait=None):\n    if max_pages < 1:\n        raise ValueError(\"max_pages must be at least 1\")\n    collected = []\n    for page_number in range(1, max_pages + 1):\n        page_params = dict(params)\n        page_params[\"page\"] = page_number\n        payload = request_json(build_url(base_url, page_params), transport, wait=wait)\n        collected.extend(payload[\"results\"])\n        if payload.get(\"next_page\") is None:\n            return collected\n    raise RuntimeError(f\"Pagination exceeded the safety limit of {max_pages} pages\")\n\ndef authentication_headers(environment):\n    token = environment.get(\"ANALYTICS_API_TOKEN\")\n    return {\"Authorization\": f\"Bearer {token}\"} if token else {}\n\ndef save_records(records, destination):\n    destination = Path(destination)\n    destination.parent.mkdir(parents=True, exist_ok=True)\n    destination.write_text(json.dumps(records, sort_keys=True, indent=2), encoding=\"utf-8\")\n    return destination\n\nresponses = {\n    1: DemoResponse(200, {\"results\": [{\"id\": 101, \"amount\": 120}, {\"id\": 102, \"amount\": 80}], \"next_page\": 2}),\n    2: DemoResponse(200, {\"results\": [{\"id\": 103, \"amount\": 150}], \"next_page\": None})\n}\nattempts = {1: 0, 2: 0}\nretry_delays = []\ndef fake_get(url, timeout):\n    page = int(parse_qs(urlsplit(url).query)[\"page\"][0])\n    attempts[page] += 1\n    if page == 1 and attempts[page] == 1:\n        return DemoResponse(503, {})\n    return responses[page]\n\nfirst_url = build_url(\"https://data.example.test/orders\", {\"status\": \"paid\", \"limit\": 2})\norders = collect_pages(\"https://data.example.test/orders\", {\"status\": \"paid\", \"limit\": 2}, fake_get, max_pages=4, wait=retry_delays.append)\nsaved_path = save_records(orders, Path(\"data/orders.json\"))\nheaders = authentication_headers({\"ANALYTICS_API_TOKEN\": \"demo-token-not-for-production\"})\nprint(\"Request URL:\", first_url)\nprint(\"Loaded pages:\", len(attempts))\nprint(\"Order IDs:\", [order[\"id\"] for order in orders])\nprint(\"Retry attempts:\", attempts[1])\nprint(\"Retry delays:\", retry_delays)\nprint(\"Saved records:\", len(json.loads(saved_path.read_text(encoding=\"utf-8\"))))\nprint(\"Authentication configured:\", \"Authorization\" in headers)",
+    "expectedOutput": "Request URL: https://data.example.test/orders?status=paid&limit=2\nLoaded pages: 2\nOrder IDs: [101, 102, 103]\nRetry attempts: 2\nRetry delays: [1]\nSaved records: 3\nAuthentication configured: True",
+    "prediction": "The service returns HTTP 503 on the first attempt, then HTTP 200. With a maximum of three attempts, a five-second timeout and a bounded retry policy, how many transport calls happen before the data is returned?",
+    "predictionAnswer": "Two calls. The first 503 is a server-side failure that may be transient, so the client waits for the bounded retry delay and tries once more. The second response is 200 and contains the expected JSON list. A 404 is different: repeating the same invalid request is not a useful recovery strategy.",
+    "question": "Which response should normally be considered a transient retry candidate when the same request is otherwise valid?",
+    "options": [
+      "HTTP 404 — the resource does not exist",
+      "HTTP 503 — the service is temporarily unavailable",
+      "HTTP 401 — the credentials are not accepted"
+    ],
+    "answer": 1,
+    "why": "A 503 is a server-side failure that may clear without changing the request. A 404 usually requires correcting the resource path, and a 401 requires correcting authentication. Retries must still be finite and respectful of rate limits.",
+    "task": "Build a deterministic data collector that encodes query parameters, passes a timeout to an injected transport, validates status and JSON shape, retries bounded transient failures, gathers pages until the API signals the end, stores collected data reproducibly, and reads an optional token from environment configuration. Use only supplied fake responses.",
+    "hint": "Use urlencode() rather than manual URL concatenation. Parse response JSON, validate the results list, retry only timeout/429/5xx failures within max_attempts, and reject permanent 4xx responses. In pagination, stop at next_page=None and enforce max_pages. Save UTF-8 JSON with sorted keys; never print a token.",
+    "solution": "import json\nfrom pathlib import Path\nfrom urllib.parse import urlencode, urlsplit, parse_qs\n\nclass DemoResponse:\n    def __init__(self, status_code, payload):\n        self.status_code = status_code\n        self.body = payload if isinstance(payload, str) else json.dumps(payload)\n    def json(self):\n        return json.loads(self.body)\n\ndef build_url(base_url, params):\n    query = urlencode(params)\n    return f\"{base_url}?{query}\" if query else base_url\n\ndef request_json(url, transport, max_attempts=3, timeout=5, wait=None):\n    if max_attempts < 1:\n        raise ValueError(\"max_attempts must be at least 1\")\n    if timeout <= 0:\n        raise ValueError(\"timeout must be positive\")\n    wait = wait or (lambda seconds: None)\n    for attempt in range(max_attempts):\n        try:\n            response = transport(url, timeout=timeout)\n        except TimeoutError:\n            if attempt + 1 == max_attempts:\n                raise\n            wait(min(2 ** attempt, 4))\n            continue\n        status = response.status_code\n        if status == 429 or status >= 500:\n            if attempt + 1 == max_attempts:\n                raise RuntimeError(f\"Request failed after {max_attempts} attempts: HTTP {status}\")\n            wait(min(2 ** attempt, 4))\n            continue\n        if status >= 400:\n            raise ValueError(f\"Request was rejected: HTTP {status}\")\n        payload = response.json()\n        if not isinstance(payload, dict) or not isinstance(payload.get(\"results\"), list):\n            raise ValueError(\"The API response must contain a results list\")\n        return payload\n    raise RuntimeError(\"Request attempts were exhausted\")\n\ndef collect_pages(base_url, params, transport, max_pages=5, wait=None):\n    if max_pages < 1:\n        raise ValueError(\"max_pages must be at least 1\")\n    collected = []\n    for page_number in range(1, max_pages + 1):\n        page_params = dict(params)\n        page_params[\"page\"] = page_number\n        payload = request_json(build_url(base_url, page_params), transport, wait=wait)\n        collected.extend(payload[\"results\"])\n        if payload.get(\"next_page\") is None:\n            return collected\n    raise RuntimeError(f\"Pagination exceeded the safety limit of {max_pages} pages\")\n\ndef authentication_headers(environment):\n    token = environment.get(\"ANALYTICS_API_TOKEN\")\n    return {\"Authorization\": f\"Bearer {token}\"} if token else {}\n\ndef save_records(records, destination):\n    destination = Path(destination)\n    destination.parent.mkdir(parents=True, exist_ok=True)\n    destination.write_text(json.dumps(records, sort_keys=True, indent=2), encoding=\"utf-8\")\n    return destination\n\nresponses = {\n    1: DemoResponse(200, {\"results\": [{\"id\": 101, \"amount\": 120}, {\"id\": 102, \"amount\": 80}], \"next_page\": 2}),\n    2: DemoResponse(200, {\"results\": [{\"id\": 103, \"amount\": 150}], \"next_page\": None})\n}\nattempts = {1: 0, 2: 0}\nretry_delays = []\ndef fake_get(url, timeout):\n    page = int(parse_qs(urlsplit(url).query)[\"page\"][0])\n    attempts[page] += 1\n    if page == 1 and attempts[page] == 1:\n        return DemoResponse(503, {})\n    return responses[page]\n\nfirst_url = build_url(\"https://data.example.test/orders\", {\"status\": \"paid\", \"limit\": 2})\norders = collect_pages(\"https://data.example.test/orders\", {\"status\": \"paid\", \"limit\": 2}, fake_get, max_pages=4, wait=retry_delays.append)\nsaved_path = save_records(orders, Path(\"data/orders.json\"))\nheaders = authentication_headers({\"ANALYTICS_API_TOKEN\": \"demo-token-not-for-production\"})\nprint(\"Request URL:\", first_url)\nprint(\"Loaded pages:\", len(attempts))\nprint(\"Order IDs:\", [order[\"id\"] for order in orders])\nprint(\"Retry attempts:\", attempts[1])\nprint(\"Retry delays:\", retry_delays)\nprint(\"Saved records:\", len(json.loads(saved_path.read_text(encoding=\"utf-8\"))))\nprint(\"Authentication configured:\", \"Authorization\" in headers)",
+    "packages": [],
+    "exercise": {
+      "title": "Create a resilient, testable API collector",
+      "prompt": "Complete the API client so the supplied fake transport returns all three paid orders. Demonstrate query encoding, finite timeouts, status/JSON validation, bounded retries/backoff, pagination, reproducible JSON storage and optional environment-variable authentication. Do not make a real network call.",
+      "setup": "",
+      "starter": "import json\nfrom pathlib import Path\nfrom urllib.parse import urlencode, urlsplit, parse_qs\nclass DemoResponse:\n    def __init__(self, status_code, payload):\n        self.status_code = status_code\n        self.body = payload if isinstance(payload, str) else json.dumps(payload)\n    def json(self):\n        return json.loads(self.body)\ndef build_url(base_url, params):\n    # TODO: encode dictionary values as URL query parameters.\n    return base_url\ndef request_json(url, transport, max_attempts=3, timeout=5, wait=None):\n    # TODO: validate settings, status and JSON shape; retry only bounded transient failures.\n    return {\"results\": []}\ndef collect_pages(base_url, params, transport, max_pages=5, wait=None):\n    # TODO: request numbered pages and stop when next_page is None.\n    return []\ndef authentication_headers(environment):\n    # TODO: read an optional token from environment configuration without printing it.\n    return {}\ndef save_records(records, destination):\n    # TODO: save sorted, indented UTF-8 JSON in a reproducible location.\n    return Path(destination)\nresponses = {\n    1: DemoResponse(200, {\"results\": [{\"id\": 101}, {\"id\": 102}], \"next_page\": 2}),\n    2: DemoResponse(200, {\"results\": [{\"id\": 103}], \"next_page\": None})\n}\nattempts = {1: 0, 2: 0}\nretry_delays = []\ndef fake_get(url, timeout):\n    page = int(parse_qs(urlsplit(url).query)[\"page\"][0])\n    attempts[page] += 1\n    if page == 1 and attempts[page] == 1:\n        return DemoResponse(503, {})\n    return responses[page]\nprint(\"API exercise ready for your implementation.\")",
+      "hint": "Use urlencode() and json.loads(). Retry only timeout, 429 and 5xx responses, with a strict maximum attempt count. Reject permanent 4xx responses. Validate results is a list, stop pagination at next_page=None, enforce max_pages and save sorted UTF-8 JSON.",
+      "solution": "import json\nfrom pathlib import Path\nfrom urllib.parse import urlencode, urlsplit, parse_qs\n\nclass DemoResponse:\n    def __init__(self, status_code, payload):\n        self.status_code = status_code\n        self.body = payload if isinstance(payload, str) else json.dumps(payload)\n    def json(self):\n        return json.loads(self.body)\n\ndef build_url(base_url, params):\n    query = urlencode(params)\n    return f\"{base_url}?{query}\" if query else base_url\n\ndef request_json(url, transport, max_attempts=3, timeout=5, wait=None):\n    if max_attempts < 1:\n        raise ValueError(\"max_attempts must be at least 1\")\n    if timeout <= 0:\n        raise ValueError(\"timeout must be positive\")\n    wait = wait or (lambda seconds: None)\n    for attempt in range(max_attempts):\n        try:\n            response = transport(url, timeout=timeout)\n        except TimeoutError:\n            if attempt + 1 == max_attempts:\n                raise\n            wait(min(2 ** attempt, 4))\n            continue\n        status = response.status_code\n        if status == 429 or status >= 500:\n            if attempt + 1 == max_attempts:\n                raise RuntimeError(f\"Request failed after {max_attempts} attempts: HTTP {status}\")\n            wait(min(2 ** attempt, 4))\n            continue\n        if status >= 400:\n            raise ValueError(f\"Request was rejected: HTTP {status}\")\n        payload = response.json()\n        if not isinstance(payload, dict) or not isinstance(payload.get(\"results\"), list):\n            raise ValueError(\"The API response must contain a results list\")\n        return payload\n    raise RuntimeError(\"Request attempts were exhausted\")\n\ndef collect_pages(base_url, params, transport, max_pages=5, wait=None):\n    if max_pages < 1:\n        raise ValueError(\"max_pages must be at least 1\")\n    collected = []\n    for page_number in range(1, max_pages + 1):\n        page_params = dict(params)\n        page_params[\"page\"] = page_number\n        payload = request_json(build_url(base_url, page_params), transport, wait=wait)\n        collected.extend(payload[\"results\"])\n        if payload.get(\"next_page\") is None:\n            return collected\n    raise RuntimeError(f\"Pagination exceeded the safety limit of {max_pages} pages\")\n\ndef authentication_headers(environment):\n    token = environment.get(\"ANALYTICS_API_TOKEN\")\n    return {\"Authorization\": f\"Bearer {token}\"} if token else {}\n\ndef save_records(records, destination):\n    destination = Path(destination)\n    destination.parent.mkdir(parents=True, exist_ok=True)\n    destination.write_text(json.dumps(records, sort_keys=True, indent=2), encoding=\"utf-8\")\n    return destination\n\nresponses = {\n    1: DemoResponse(200, {\"results\": [{\"id\": 101, \"amount\": 120}, {\"id\": 102, \"amount\": 80}], \"next_page\": 2}),\n    2: DemoResponse(200, {\"results\": [{\"id\": 103, \"amount\": 150}], \"next_page\": None})\n}\nattempts = {1: 0, 2: 0}\nretry_delays = []\ndef fake_get(url, timeout):\n    page = int(parse_qs(urlsplit(url).query)[\"page\"][0])\n    attempts[page] += 1\n    if page == 1 and attempts[page] == 1:\n        return DemoResponse(503, {})\n    return responses[page]\n\nfirst_url = build_url(\"https://data.example.test/orders\", {\"status\": \"paid\", \"limit\": 2})\norders = collect_pages(\"https://data.example.test/orders\", {\"status\": \"paid\", \"limit\": 2}, fake_get, max_pages=4, wait=retry_delays.append)\nsaved_path = save_records(orders, Path(\"data/orders.json\"))\nheaders = authentication_headers({\"ANALYTICS_API_TOKEN\": \"demo-token-not-for-production\"})\nprint(\"Request URL:\", first_url)\nprint(\"Loaded pages:\", len(attempts))\nprint(\"Order IDs:\", [order[\"id\"] for order in orders])\nprint(\"Retry attempts:\", attempts[1])\nprint(\"Retry delays:\", retry_delays)\nprint(\"Saved records:\", len(json.loads(saved_path.read_text(encoding=\"utf-8\"))))\nprint(\"Authentication configured:\", \"Authorization\" in headers)",
+      "tests": [
+        {
+          "name": "Encodes GET query parameters safely",
+          "code": "assert build_url(\"https://data.example.test/orders\", {\"status\":\"paid\",\"limit\":2}) == \"https://data.example.test/orders?status=paid&limit=2\"",
+          "expected": "status=paid&limit=2",
+          "actual": "build_url(\"https://data.example.test/orders\", {\"status\":\"paid\",\"limit\":2})",
+          "failureMessage": "Use urllib.parse.urlencode so parameters are encoded safely instead of manually concatenated."
+        },
+        {
+          "name": "Passes a finite timeout to the transport",
+          "code": "seen = {}\nrequest_json(\"https://example.test\", lambda url, timeout: (seen.update({\"timeout\":timeout}) or DemoResponse(200,{\"results\":[]})))\nassert seen[\"timeout\"] == 5",
+          "expected": 5,
+          "actual": "seen[\"timeout\"]",
+          "failureMessage": "Every request needs a finite timeout so a stalled service cannot hold the workflow indefinitely."
+        },
+        {
+          "name": "Retries a transient HTTP 503 and succeeds",
+          "code": "assert attempts[1] == 2",
+          "expected": 2,
+          "actual": "attempts[1]",
+          "failureMessage": "A temporary 5xx response can be retried within a finite attempt budget."
+        },
+        {
+          "name": "Uses bounded exponential retry delay",
+          "code": "assert retry_delays == [1]",
+          "expected": [
+            1
+          ],
+          "actual": "retry_delays",
+          "failureMessage": "Use a bounded backoff delay and a strict maximum attempt count rather than an unbounded retry loop."
+        },
+        {
+          "name": "Does not retry a permanent HTTP 404",
+          "code": "calls=[]\ntry:\n    request_json(\"https://example.test\",lambda url,timeout:(calls.append(1) or DemoResponse(404,{})))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"HTTP 404 should be rejected\")\nassert len(calls)==1",
+          "expected": 1,
+          "actual": "len(calls)",
+          "failureMessage": "Most 4xx responses need a corrected request or authentication, not an automatic retry."
+        },
+        {
+          "name": "Parses JSON and validates the expected response shape",
+          "code": "try:\n    request_json(\"https://example.test\",lambda url,timeout:DemoResponse(200,'{\"unexpected\": []}'))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"A response without a results list should fail\")",
+          "failureMessage": "Parse the JSON response and confirm that the required results value is a list before using it."
+        },
+        {
+          "name": "Retries HTTP 429 rate limiting within the attempt cap",
+          "code": "rate_calls=[]\ndef rate_transport(url,timeout):\n    rate_calls.append(1)\n    return DemoResponse(429 if len(rate_calls)==1 else 200,{\"results\":[{\"id\":7}]})\nrate_wait=[]\nassert request_json(\"https://example.test\",rate_transport,wait=rate_wait.append)[\"results\"]==[{\"id\":7}]\nassert len(rate_calls)==2 and rate_wait==[1]",
+          "expected": [
+            2,
+            [
+              1
+            ]
+          ],
+          "actual": "[len(rate_calls),rate_wait]",
+          "failureMessage": "Treat HTTP 429 as a rate-limit response and retry only after a bounded delay."
+        },
+        {
+          "name": "Collects all pages and stops at the final page",
+          "code": "assert [row[\"id\"] for row in orders]==[101,102,103]",
+          "expected": [
+            101,
+            102,
+            103
+          ],
+          "actual": "[row[\"id\"] for row in orders]",
+          "failureMessage": "Follow the page signal until next_page is None and preserve the returned record order."
+        },
+        {
+          "name": "Enforces the maximum-page safety limit",
+          "code": "endless=lambda url,timeout:DemoResponse(200,{\"results\":[],\"next_page\":999})\ntry:\n    collect_pages(\"https://example.test\",{},endless,max_pages=2)\nexcept RuntimeError as error:\n    assert \"safety limit\" in str(error)\nelse:\n    raise AssertionError(\"Unbounded pagination must stop\")",
+          "failureMessage": "A service that always advertises another page must not create an infinite collection loop."
+        },
+        {
+          "name": "Rejects invalid retry configuration",
+          "code": "try:\n    request_json(\"https://example.test\",lambda url,timeout:DemoResponse(200,{\"results\":[]}),max_attempts=0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"Zero attempts is invalid\")",
+          "failureMessage": "Validate max_attempts before making a request; it must be at least one."
+        },
+        {
+          "name": "Reads an optional token from the environment",
+          "code": "assert authentication_headers({})=={} and authentication_headers({\"ANALYTICS_API_TOKEN\":\"sample-secret\"})=={\"Authorization\":\"Bearer sample-secret\"}",
+          "expected": "Bearer sample-secret when configured",
+          "actual": "authentication_headers({\"ANALYTICS_API_TOKEN\":\"sample-secret\"})",
+          "failureMessage": "Keep credentials in environment configuration, never in source code or printed output."
+        },
+        {
+          "name": "Saves collected JSON reproducibly",
+          "code": "saved = json.loads(Path(\"data/orders.json\").read_text(encoding=\"utf-8\"))\nassert saved == orders and Path(\"data/orders.json\").is_file()",
+          "expected": 3,
+          "actual": "len(saved)",
+          "failureMessage": "Save UTF-8 JSON to a known path with stable key ordering so another run can reproduce the collected dataset."
+        },
+        {
+          "name": "Produces the documented offline output",
+          "code": "assert __output__.splitlines()==[\n\"Request URL: https://data.example.test/orders?status=paid&limit=2\",\n\"Loaded pages: 2\",\n\"Order IDs: [101, 102, 103]\",\n\"Retry attempts: 2\",\n\"Retry delays: [1]\",\n\"Saved records: 3\",\n\"Authentication configured: True\"\n]",
+          "expected": "Seven deterministic output lines with no external network calls",
+          "actual": "__output__.strip()",
+          "failureMessage": "The complete worked example must show the URL, pagination, retries, saved records and credential status without contacting a real API."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c18",
+    "curriculumId": "P1-C18",
+    "prerequisites": [
+      "p1-c17"
+    ],
+    "title": "Python and database integration",
+    "level": "Intermediate",
+    "mins": 90,
+    "packages": [
+      "pandas"
+    ],
+    "plain": "A company may keep millions of orders in a database rather than in one spreadsheet. Python can ask the database for only the rows needed, then bring those rows into pandas for analysis. The important habits are to use parameters for values, use transactions for changes, check joins and totals, and close connections when the work is finished.",
+    "definition": "A database connection represents a session with a database. A cursor or connection execution method sends SQL statements and returns rows. A parameterised query separates SQL structure from input values, reducing injection risk. A transaction groups changes into a unit that commits together or rolls back on failure. SQLite is an embedded relational database; pandas can read SQL query results into a DataFrame and write DataFrames back to a SQL table.",
+    "analogy": "Think of the database as a secure storeroom with a clerk. SQL is the precise request form. A parameter placeholder is a blank on that form where the clerk places your search value; it is safer than letting the value rewrite the request. A transaction is a sealed batch: either every change is accepted or the batch is rolled back. pandas is your desk, where you analyse selected records after the clerk brings them out.",
+    "example": "import sqlite3\nimport pandas as pd\ndef build_connection():\n    connection=sqlite3.connect(\":memory:\")\n    connection.execute(\"PRAGMA foreign_keys = ON\")\n    with connection:\n        connection.execute(\"CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, customer_name TEXT NOT NULL UNIQUE)\")\n        connection.execute(\"CREATE TABLE orders (order_id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(customer_id), status TEXT NOT NULL, amount REAL NOT NULL CHECK(amount >= 0))\")\n        connection.executemany(\"INSERT INTO customers VALUES (?, ?)\",[(1,\"Asha\"),(2,\"Mira\"),(3,\"Noor\")])\n        connection.executemany(\"INSERT INTO orders VALUES (?, ?, ?, ?)\",[(101,1,\"paid\",120),(102,2,\"paid\",330),(103,3,\"pending\",90)])\n    return connection\ndef find_customer(connection,customer_name):\n    return connection.execute(\"SELECT customer_id, customer_name FROM customers WHERE customer_name = ?\",(customer_name,)).fetchone()\ndef add_order(connection,order_id,customer_id,status,amount):\n    if amount<0:\n        raise ValueError(\"Order amount cannot be negative\")\n    with connection:\n        connection.execute(\"INSERT INTO orders VALUES (?, ?, ?, ?)\",(order_id,customer_id,status,amount))\ndef make_report():\n    connection=build_connection()\n    try:\n        paid_orders=pd.read_sql_query(\"\"\"\n            SELECT o.order_id,c.customer_name,o.amount\n            FROM orders AS o JOIN customers AS c ON c.customer_id=o.customer_id\n            WHERE o.status = ? AND o.amount >= ?\n            ORDER BY o.order_id\n        \"\"\",connection,params=(\"paid\",100))\n        summary=paid_orders.groupby(\"customer_name\",as_index=False).agg(order_count=(\"order_id\",\"count\"),revenue=(\"amount\",\"sum\"))\n        summary.to_sql(\"customer_summary\",connection,if_exists=\"replace\",index=False)\n        saved_summary=pd.read_sql_query(\"SELECT * FROM customer_summary ORDER BY customer_name\",connection)\n        return paid_orders,saved_summary,connection\n    finally:\n        connection.close()\npaid_orders,summary,closed_connection=make_report()\nprint(\"Paid orders:\",len(paid_orders))\nprint(\"Paid revenue:\",int(paid_orders[\"amount\"].sum()))\nprint(\"Customers:\",paid_orders[\"customer_name\"].tolist())\nprint(\"Summary rows:\",len(summary))",
+    "expectedOutput": "Paid orders: 2\nPaid revenue: 450\nCustomers: ['Asha', 'Mira']\nSummary rows: 2",
+    "prediction": "A report inserts three changes in one transaction, but the third row violates a foreign-key rule. What should happen when the transaction is rolled back?",
+    "predictionAnswer": "None of the changes in that transaction should remain committed. A transaction is an all-or-nothing unit. The application should report or handle the integrity error and keep the database in its last consistent state.",
+    "question": "Which approach safely looks up a customer name supplied by a user?",
+    "options": [
+      "Build SQL with f\"... WHERE name = '{customer_name}'\"",
+      "Use WHERE customer_name = ? and pass (customer_name,) separately",
+      "Remove spaces from the customer name and paste it into SQL"
+    ],
+    "answer": 1,
+    "why": "A bound parameter is treated as a value, not executable SQL. String concatenation can let unexpected input change query logic and create SQL injection vulnerabilities.",
+    "task": "Create an isolated SQLite database with customers and orders. Use keys and constraints. Safely insert and query records with placeholders and transactions, read a filtered join into pandas, group it, write the summary back, verify totals and close the connection even on failure.",
+    "hint": "Use sqlite3.connect(':memory:'). Bind values with ? placeholders and pass a tuple separately. Use with connection: for a transaction, but remember that it does not automatically close the connection. Use try/finally for close. pandas.read_sql_query() and DataFrame.to_sql() connect SQL and pandas.",
+    "solution": "import sqlite3\nimport pandas as pd\ndef build_connection():\n    connection=sqlite3.connect(\":memory:\")\n    connection.execute(\"PRAGMA foreign_keys = ON\")\n    with connection:\n        connection.execute(\"CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, customer_name TEXT NOT NULL UNIQUE)\")\n        connection.execute(\"CREATE TABLE orders (order_id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(customer_id), status TEXT NOT NULL, amount REAL NOT NULL CHECK(amount >= 0))\")\n        connection.executemany(\"INSERT INTO customers VALUES (?, ?)\",[(1,\"Asha\"),(2,\"Mira\"),(3,\"Noor\")])\n        connection.executemany(\"INSERT INTO orders VALUES (?, ?, ?, ?)\",[(101,1,\"paid\",120),(102,2,\"paid\",330),(103,3,\"pending\",90)])\n    return connection\ndef find_customer(connection,customer_name):\n    return connection.execute(\"SELECT customer_id, customer_name FROM customers WHERE customer_name = ?\",(customer_name,)).fetchone()\ndef add_order(connection,order_id,customer_id,status,amount):\n    if amount<0:\n        raise ValueError(\"Order amount cannot be negative\")\n    with connection:\n        connection.execute(\"INSERT INTO orders VALUES (?, ?, ?, ?)\",(order_id,customer_id,status,amount))\ndef make_report():\n    connection=build_connection()\n    try:\n        paid_orders=pd.read_sql_query(\"\"\"\n            SELECT o.order_id,c.customer_name,o.amount\n            FROM orders AS o JOIN customers AS c ON c.customer_id=o.customer_id\n            WHERE o.status = ? AND o.amount >= ?\n            ORDER BY o.order_id\n        \"\"\",connection,params=(\"paid\",100))\n        summary=paid_orders.groupby(\"customer_name\",as_index=False).agg(order_count=(\"order_id\",\"count\"),revenue=(\"amount\",\"sum\"))\n        summary.to_sql(\"customer_summary\",connection,if_exists=\"replace\",index=False)\n        saved_summary=pd.read_sql_query(\"SELECT * FROM customer_summary ORDER BY customer_name\",connection)\n        return paid_orders,saved_summary,connection\n    finally:\n        connection.close()\npaid_orders,summary,closed_connection=make_report()\nprint(\"Paid orders:\",len(paid_orders))\nprint(\"Paid revenue:\",int(paid_orders[\"amount\"].sum()))\nprint(\"Customers:\",paid_orders[\"customer_name\"].tolist())\nprint(\"Summary rows:\",len(summary))",
+    "exercise": {
+      "title": "Build a safe SQLite-to-pandas reporting workflow",
+      "prompt": "Complete the functions to create a relational database, safely query and insert records, produce a paid-order DataFrame, aggregate by customer, write the summary table back to SQLite and close the connection safely.",
+      "setup": "",
+      "starter": "import sqlite3\nimport pandas as pd\ndef build_connection():\n    connection=sqlite3.connect(\":memory:\")\n    connection.execute(\"PRAGMA foreign_keys = ON\")\n    with connection:\n        # TODO: create customer and order tables with key and amount constraints.\n        pass\n    return connection\ndef find_customer(connection,customer_name):\n    # TODO: use a bound ? parameter, not string interpolation.\n    return None\ndef add_order(connection,order_id,customer_id,status,amount):\n    # TODO: validate amount and insert inside a transaction.\n    pass\ndef make_report():\n    connection=build_connection()\n    try:\n        # TODO: read a filtered SQL join to pandas; aggregate and write back.\n        return None,None,connection\n    finally:\n        connection.close()\npaid_orders,summary,closed_connection=make_report()\nprint(\"Database exercise ready for your implementation.\")",
+      "hint": "Define primary keys, a foreign key and CHECK(amount >= 0). Bind values with ? placeholders, not string formatting. Group the query in pandas, write with to_sql(), read it back and close the connection in finally.",
+      "solution": "import sqlite3\nimport pandas as pd\ndef build_connection():\n    connection=sqlite3.connect(\":memory:\")\n    connection.execute(\"PRAGMA foreign_keys = ON\")\n    with connection:\n        connection.execute(\"CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, customer_name TEXT NOT NULL UNIQUE)\")\n        connection.execute(\"CREATE TABLE orders (order_id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(customer_id), status TEXT NOT NULL, amount REAL NOT NULL CHECK(amount >= 0))\")\n        connection.executemany(\"INSERT INTO customers VALUES (?, ?)\",[(1,\"Asha\"),(2,\"Mira\"),(3,\"Noor\")])\n        connection.executemany(\"INSERT INTO orders VALUES (?, ?, ?, ?)\",[(101,1,\"paid\",120),(102,2,\"paid\",330),(103,3,\"pending\",90)])\n    return connection\ndef find_customer(connection,customer_name):\n    return connection.execute(\"SELECT customer_id, customer_name FROM customers WHERE customer_name = ?\",(customer_name,)).fetchone()\ndef add_order(connection,order_id,customer_id,status,amount):\n    if amount<0:\n        raise ValueError(\"Order amount cannot be negative\")\n    with connection:\n        connection.execute(\"INSERT INTO orders VALUES (?, ?, ?, ?)\",(order_id,customer_id,status,amount))\ndef make_report():\n    connection=build_connection()\n    try:\n        paid_orders=pd.read_sql_query(\"\"\"\n            SELECT o.order_id,c.customer_name,o.amount\n            FROM orders AS o JOIN customers AS c ON c.customer_id=o.customer_id\n            WHERE o.status = ? AND o.amount >= ?\n            ORDER BY o.order_id\n        \"\"\",connection,params=(\"paid\",100))\n        summary=paid_orders.groupby(\"customer_name\",as_index=False).agg(order_count=(\"order_id\",\"count\"),revenue=(\"amount\",\"sum\"))\n        summary.to_sql(\"customer_summary\",connection,if_exists=\"replace\",index=False)\n        saved_summary=pd.read_sql_query(\"SELECT * FROM customer_summary ORDER BY customer_name\",connection)\n        return paid_orders,saved_summary,connection\n    finally:\n        connection.close()\npaid_orders,summary,closed_connection=make_report()\nprint(\"Paid orders:\",len(paid_orders))\nprint(\"Paid revenue:\",int(paid_orders[\"amount\"].sum()))\nprint(\"Customers:\",paid_orders[\"customer_name\"].tolist())\nprint(\"Summary rows:\",len(summary))",
+      "tests": [
+        {
+          "name": "Creates an isolated in-memory SQLite database",
+          "code": "test_connection=build_connection()\nassert test_connection.execute(\"PRAGMA database_list\").fetchone()[2]==\"\"\ntest_connection.close()",
+          "expected": "",
+          "actual": "test_connection.execute(\"PRAGMA database_list\").fetchone()[2]",
+          "failureMessage": "Use :memory: or a temporary database so practice never depends on a shared persistent database."
+        },
+        {
+          "name": "Creates relational tables and enables foreign keys",
+          "code": "test_connection=build_connection()\ntry:\n    names={row[0] for row in test_connection.execute(\"SELECT name FROM sqlite_master WHERE type='table'\")}\n    assert {\"customers\",\"orders\"}<=names and test_connection.execute(\"PRAGMA foreign_keys\").fetchone()[0]==1\nfinally:\n    test_connection.close()",
+          "expected": [
+            "customers",
+            "orders"
+          ],
+          "actual": "table names and PRAGMA foreign_keys",
+          "failureMessage": "Use primary keys, a foreign key and a database constraint to protect valid records."
+        },
+        {
+          "name": "Uses parameter placeholders for customer lookup",
+          "code": "test_connection=build_connection()\ntry:\n    assert find_customer(test_connection,\"Mira\")== (2,\"Mira\")\nfinally:\n    test_connection.close()\nassert any(isinstance(constant, str) and \"WHERE customer_name = ?\" in constant for constant in find_customer.__code__.co_consts)",
+          "expected": [
+            2,
+            "Mira"
+          ],
+          "actual": "find_customer(test_connection,\"Mira\")",
+          "failureMessage": "Bind the name separately with a ? placeholder instead of concatenating it into the SQL command."
+        },
+        {
+          "name": "Treats SQL-looking user text as data",
+          "code": "test_connection=build_connection()\ntry:\n    result=find_customer(test_connection,\"Mira' OR 1=1 --\")\n    remaining=test_connection.execute(\"SELECT COUNT(*) FROM customers\").fetchone()[0]\n    assert result is None and remaining==3\nfinally:\n    test_connection.close()",
+          "expected": [
+            null,
+            3
+          ],
+          "actual": "[result, remaining]",
+          "failureMessage": "A parameterised query must treat this input as a value, not as executable SQL."
+        },
+        {
+          "name": "Reads the filtered join into a pandas DataFrame",
+          "code": "assert list(paid_orders.columns)==[\"order_id\",\"customer_name\",\"amount\"] and len(paid_orders)==2",
+          "expected": [
+            "order_id",
+            "customer_name",
+            "amount"
+          ],
+          "actual": "list(paid_orders.columns)",
+          "failureMessage": "Use pandas.read_sql_query() to turn database result rows into an analysis table."
+        },
+        {
+          "name": "Reconciles the paid-order revenue",
+          "code": "assert int(paid_orders[\"amount\"].sum())==450",
+          "expected": 450,
+          "actual": "int(paid_orders[\"amount\"].sum())",
+          "failureMessage": "The two qualifying records total 120 + 330 = 450. Reconcile the extracted data."
+        },
+        {
+          "name": "Writes and reloads the pandas summary table",
+          "code": "assert len(summary)==2 and int(summary[\"revenue\"].sum())==450",
+          "expected": [
+            2,
+            450
+          ],
+          "actual": "[len(summary),int(summary[\"revenue\"].sum())]",
+          "failureMessage": "Write the transformed DataFrame with to_sql(), then read it back to verify the round trip."
+        },
+        {
+          "name": "Commits a valid insert in a transaction",
+          "code": "test_connection=build_connection()\ntry:\n    add_order(test_connection,104,1,\"paid\",50)\n    assert test_connection.execute(\"SELECT COUNT(*) FROM orders WHERE order_id=104\").fetchone()[0]==1\nfinally:\n    test_connection.close()",
+          "expected": 1,
+          "actual": "inserted order count",
+          "failureMessage": "Use a transaction context for the insert so a valid change is committed as a unit."
+        },
+        {
+          "name": "Rejects negative amounts before inserting",
+          "code": "test_connection=build_connection()\ntry:\n    try:\n        add_order(test_connection,105,1,\"paid\",-1)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(\"Negative amount accepted\")\n    assert test_connection.execute(\"SELECT COUNT(*) FROM orders WHERE order_id=105\").fetchone()[0]==0\nfinally:\n    test_connection.close()",
+          "expected": 0,
+          "actual": "negative order count",
+          "failureMessage": "Validate business values before writing; the table CHECK constraint is a second line of defence."
+        },
+        {
+          "name": "Rolls back a foreign-key violation",
+          "code": "test_connection=build_connection()\ntry:\n    before=test_connection.execute(\"SELECT COUNT(*) FROM orders\").fetchone()[0]\n    try:\n        add_order(test_connection,106,999,\"paid\",10)\n    except sqlite3.IntegrityError:\n        pass\n    else:\n        raise AssertionError(\"Unknown customer accepted\")\n    after=test_connection.execute(\"SELECT COUNT(*) FROM orders\").fetchone()[0]\n    assert before==after==3\nfinally:\n    test_connection.close()",
+          "expected": 3,
+          "actual": "after",
+          "failureMessage": "A foreign-key failure must roll back the transaction and leave the original three orders unchanged."
+        },
+        {
+          "name": "Closes the connection after report extraction",
+          "code": "try:\n    closed_connection.execute(\"SELECT 1\")\nexcept sqlite3.ProgrammingError:\n    connection_closed=True\nelse:\n    connection_closed=False\nassert connection_closed",
+          "expected": "closed",
+          "actual": "connection_closed",
+          "failureMessage": "Close the connection in finally. A connection context manager commits or rolls back, but does not itself guarantee closure."
+        },
+        {
+          "name": "Handles an empty SQL result without inventing rows",
+          "code": "test_connection=build_connection()\ntry:\n    empty=pd.read_sql_query(\"SELECT * FROM orders WHERE status = ?\",test_connection,params=(\"cancelled\",))\n    assert empty.empty and list(empty.columns)==[\"order_id\",\"customer_id\",\"status\",\"amount\"]\nfinally:\n    test_connection.close()",
+          "expected": "empty DataFrame with the selected columns",
+          "actual": "empty.shape",
+          "failureMessage": "A valid query with no matching records should return an empty DataFrame with the expected columns."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c19",
+    "curriculumId": "P1-C19",
+    "prerequisites": [
+      "p1-c18"
+    ],
+    "title": "Excel automation and repeatable reporting",
+    "level": "Intermediate",
+    "mins": 100,
+    "pypiPackages": [
+      "openpyxl"
+    ],
+    "plain": "A monthly report should not depend on someone copying cells by hand every time. Python can read a folder of incoming CSV files, validate their rows, combine the useful records, build a formatted Excel workbook and log what happened. Automation is valuable because the same rules run each month, and the report can be checked before it is sent.",
+    "definition": "openpyxl is a Python library for reading and writing Excel workbook files in the Office Open XML .xlsx format. A workbook contains worksheets, cells, styles and workbook-level calculation settings. A repeatable reporting pipeline separates ingestion, validation, transformation, presentation and reconciliation. A formula is stored as an expression in a cell; openpyxl does not calculate the formula result, so a spreadsheet application must recalculate it when opened.",
+    "analogy": "Think of a monthly reporting process as a small factory. Incoming CSV files are raw materials. Validation is the quality-control station that rejects damaged items and records why. The Summary and Details sheets are the finished product. Styles and number formats make the report readable, while totals and logs are the final inspection checklist. A reusable script is the factory procedure, so next month's run follows the same steps.",
+    "setupGuide": "This chapter installs openpyxl automatically in the browser Python runtime through the lesson's package declaration. The first run needs an internet connection to download the library. Practice files are created only in the browser's temporary Python filesystem; reference tests use a fresh temporary directory. openpyxl can write formulas but does not calculate them.",
+    "example": "import csv, logging\nfrom pathlib import Path\nfrom openpyxl import Workbook, load_workbook\nfrom openpyxl.styles import Font, PatternFill\nfrom openpyxl.utils import get_column_letter\nlogger=logging.getLogger(\"datatrail.reporting\")\ndef load_monthly_files(folder):\n    records=[]\n    skipped=0\n    required={\"month\",\"order_id\",\"revenue\"}\n    for path in sorted(Path(folder).glob(\"*.csv\")):\n        try:\n            with path.open(\"r\",encoding=\"utf-8\",newline=\"\") as handle:\n                reader=csv.DictReader(handle)\n                if not reader.fieldnames or not required.issubset(reader.fieldnames):\n                    raise ValueError(\"Required columns: month, order_id, revenue\")\n                for line_number,row in enumerate(reader,start=2):\n                    try:\n                        month=row[\"month\"].strip()\n                        order_id=row[\"order_id\"].strip()\n                        revenue=float(row[\"revenue\"])\n                        if len(month)!=7 or month[4]!=\"-\" or not order_id or revenue<0:\n                            raise ValueError(\"Invalid month, order ID or negative revenue\")\n                        records.append({\"month\":month,\"order_id\":order_id,\"revenue\":revenue})\n                    except (TypeError,ValueError):\n                        skipped+=1\n                        logger.warning(\"Skipped invalid row %s:%s\",path.name,line_number)\n        except (OSError,UnicodeError,ValueError) as error:\n            skipped+=1\n            logger.warning(\"Skipped file %s: %s\",path.name,error)\n    return sorted(records, key=lambda record: (record[\"month\"], record[\"order_id\"])), skipped\ndef build_report(records,destination):\n    if not records:\n        raise ValueError(\"No valid records are available for the workbook\")\n    destination=Path(destination)\n    destination.parent.mkdir(parents=True,exist_ok=True)\n    workbook=Workbook()\n    summary=workbook.active\n    summary.title=\"Summary\"\n    details=workbook.create_sheet(\"Details\")\n    summary.append([\"Month\",\"Order count\",\"Revenue\"])\n    details.append([\"Month\",\"Order ID\",\"Revenue\"])\n    for record in records:\n        details.append([record[\"month\"],record[\"order_id\"],record[\"revenue\"]])\n    monthly={}\n    for record in records:\n        values=monthly.setdefault(record[\"month\"],{\"orders\":0,\"revenue\":0.0})\n        values[\"orders\"]+=1\n        values[\"revenue\"]+=record[\"revenue\"]\n    for month in sorted(monthly):\n        values=monthly[month]\n        summary.append([month,values[\"orders\"],round(values[\"revenue\"],2)])\n    total_row=summary.max_row+1\n    summary.cell(total_row,1,\"Grand total\")\n    summary.cell(total_row,2,f\"=SUM(B2:B{total_row-1})\")\n    summary.cell(total_row,3,f\"=SUM(C2:C{total_row-1})\")\n    header_fill=PatternFill(\"solid\",fgColor=\"173F35\")\n    header_font=Font(bold=True,color=\"FFFFFF\")\n    for sheet in (summary,details):\n        sheet.freeze_panes=\"A2\"\n        sheet.auto_filter.ref=sheet.dimensions\n        for cell in sheet[1]:\n            cell.fill=header_fill\n            cell.font=header_font\n        for column_cells in sheet.columns:\n            width=min(max(len(str(cell.value or \"\")) for cell in column_cells)+2,32)\n            sheet.column_dimensions[get_column_letter(column_cells[0].column)].width=width\n    for row in summary.iter_rows(min_row=2,min_col=3,max_col=3):\n        row[0].number_format='₹#,##0.00'\n    for row in details.iter_rows(min_row=2,min_col=3,max_col=3):\n        row[0].number_format='₹#,##0.00'\n    for cell in summary[total_row]:\n        cell.font=Font(bold=True)\n    workbook.calculation.fullCalcOnLoad=True\n    workbook.calculation.forceFullCalc=True\n    workbook.save(destination)\n    workbook.close()\n    return destination\ndef run_pipeline(input_folder,output_file):\n    records,skipped=load_monthly_files(input_folder)\n    output_path=build_report(records,output_file)\n    logger.info(\"Accepted %s rows; skipped %s invalid rows\",len(records),skipped)\n    logger.info(\"Saved workbook to %s\",output_path.name)\n    return records,skipped,output_path\nincoming=Path(\"incoming\")\nincoming.mkdir(exist_ok=True)\n(incoming/\"2026-01.csv\").write_text(\"month,order_id,revenue\\n2026-01,101,1200\\n2026-01,102,800\\n\",encoding=\"utf-8\")\n(incoming/\"2026-02.csv\").write_text(\"month,order_id,revenue\\n2026-02,103,1500\\n2026-02,104,-25\\n\",encoding=\"utf-8\")\nlog_stream=__import__(\"io\").StringIO()\nhandler=logging.StreamHandler(log_stream)\nlogger.setLevel(logging.INFO)\nlogger.handlers.clear()\nlogger.addHandler(handler)\nrecords,skipped,report_path=run_pipeline(incoming,Path(\"reports/monthly_report.xlsx\"))\nworkbook=load_workbook(report_path,data_only=False)\nprint(\"Accepted rows:\",len(records))\nprint(\"Skipped rows:\",skipped)\nprint(\"Workbook sheets:\",workbook.sheetnames)\nprint(\"Report revenue:\",int(sum(row[\"revenue\"] for row in records)))\nprint(\"Grand total formula:\",workbook[\"Summary\"][\"C4\"].value)",
+    "expectedOutput": "Accepted rows: 3\nSkipped rows: 1\nWorkbook sheets: ['Summary', 'Details']\nReport revenue: 3500\nGrand total formula: =SUM(C2:C3)",
+    "prediction": "The workbook contains the formula =SUM(C2:C3), but is reopened with data_only=True immediately after openpyxl saves it. Should you expect openpyxl to have calculated and stored the total?",
+    "predictionAnswer": "No. openpyxl writes formula text but does not run Excel's calculation engine. The workbook can request recalculation when opened in a spreadsheet application. Inspect the formula with data_only=False; do not claim that openpyxl calculated a cached numeric result.",
+    "question": "Which statement about formulas in openpyxl is correct?",
+    "options": [
+      "openpyxl evaluates every Excel formula as it saves the file",
+      "openpyxl stores formula text; Excel or another calculation engine calculates the result",
+      "A formula cell must be replaced with a Python string to work"
+    ],
+    "answer": 1,
+    "why": "openpyxl is a workbook reader/writer, not a spreadsheet calculation engine. You can write a formula and request recalculation on workbook open, but must not mistake the formula string for a calculated value.",
+    "task": "Create a repeatable monthly reporting pipeline. Read every CSV in an incoming folder, validate headers and rows, log rejected records, combine accepted data, generate Summary and Details sheets, apply styles, currency formats, widths, filters and frozen headers, write a grand-total formula, and reconcile the source total to workbook detail rows.",
+    "hint": "Use pathlib.Path.glob('*.csv') in sorted order and csv.DictReader. Validate month, order_id and non-negative revenue. Create workbook sheets, style headers with Font and PatternFill, apply number_format and AutoFilter, freeze row one, calculate totals in Python for reconciliation and save. Inspect formula text with load_workbook(..., data_only=False).",
+    "solution": "import csv, logging\nfrom pathlib import Path\nfrom openpyxl import Workbook, load_workbook\nfrom openpyxl.styles import Font, PatternFill\nfrom openpyxl.utils import get_column_letter\nlogger=logging.getLogger(\"datatrail.reporting\")\ndef load_monthly_files(folder):\n    records=[]\n    skipped=0\n    required={\"month\",\"order_id\",\"revenue\"}\n    for path in sorted(Path(folder).glob(\"*.csv\")):\n        try:\n            with path.open(\"r\",encoding=\"utf-8\",newline=\"\") as handle:\n                reader=csv.DictReader(handle)\n                if not reader.fieldnames or not required.issubset(reader.fieldnames):\n                    raise ValueError(\"Required columns: month, order_id, revenue\")\n                for line_number,row in enumerate(reader,start=2):\n                    try:\n                        month=row[\"month\"].strip()\n                        order_id=row[\"order_id\"].strip()\n                        revenue=float(row[\"revenue\"])\n                        if len(month)!=7 or month[4]!=\"-\" or not order_id or revenue<0:\n                            raise ValueError(\"Invalid month, order ID or negative revenue\")\n                        records.append({\"month\":month,\"order_id\":order_id,\"revenue\":revenue})\n                    except (TypeError,ValueError):\n                        skipped+=1\n                        logger.warning(\"Skipped invalid row %s:%s\",path.name,line_number)\n        except (OSError,UnicodeError,ValueError) as error:\n            skipped+=1\n            logger.warning(\"Skipped file %s: %s\",path.name,error)\n    return sorted(records, key=lambda record: (record[\"month\"], record[\"order_id\"])), skipped\ndef build_report(records,destination):\n    if not records:\n        raise ValueError(\"No valid records are available for the workbook\")\n    destination=Path(destination)\n    destination.parent.mkdir(parents=True,exist_ok=True)\n    workbook=Workbook()\n    summary=workbook.active\n    summary.title=\"Summary\"\n    details=workbook.create_sheet(\"Details\")\n    summary.append([\"Month\",\"Order count\",\"Revenue\"])\n    details.append([\"Month\",\"Order ID\",\"Revenue\"])\n    for record in records:\n        details.append([record[\"month\"],record[\"order_id\"],record[\"revenue\"]])\n    monthly={}\n    for record in records:\n        values=monthly.setdefault(record[\"month\"],{\"orders\":0,\"revenue\":0.0})\n        values[\"orders\"]+=1\n        values[\"revenue\"]+=record[\"revenue\"]\n    for month in sorted(monthly):\n        values=monthly[month]\n        summary.append([month,values[\"orders\"],round(values[\"revenue\"],2)])\n    total_row=summary.max_row+1\n    summary.cell(total_row,1,\"Grand total\")\n    summary.cell(total_row,2,f\"=SUM(B2:B{total_row-1})\")\n    summary.cell(total_row,3,f\"=SUM(C2:C{total_row-1})\")\n    header_fill=PatternFill(\"solid\",fgColor=\"173F35\")\n    header_font=Font(bold=True,color=\"FFFFFF\")\n    for sheet in (summary,details):\n        sheet.freeze_panes=\"A2\"\n        sheet.auto_filter.ref=sheet.dimensions\n        for cell in sheet[1]:\n            cell.fill=header_fill\n            cell.font=header_font\n        for column_cells in sheet.columns:\n            width=min(max(len(str(cell.value or \"\")) for cell in column_cells)+2,32)\n            sheet.column_dimensions[get_column_letter(column_cells[0].column)].width=width\n    for row in summary.iter_rows(min_row=2,min_col=3,max_col=3):\n        row[0].number_format='₹#,##0.00'\n    for row in details.iter_rows(min_row=2,min_col=3,max_col=3):\n        row[0].number_format='₹#,##0.00'\n    for cell in summary[total_row]:\n        cell.font=Font(bold=True)\n    workbook.calculation.fullCalcOnLoad=True\n    workbook.calculation.forceFullCalc=True\n    workbook.save(destination)\n    workbook.close()\n    return destination\ndef run_pipeline(input_folder,output_file):\n    records,skipped=load_monthly_files(input_folder)\n    output_path=build_report(records,output_file)\n    logger.info(\"Accepted %s rows; skipped %s invalid rows\",len(records),skipped)\n    logger.info(\"Saved workbook to %s\",output_path.name)\n    return records,skipped,output_path\nincoming=Path(\"incoming\")\nincoming.mkdir(exist_ok=True)\n(incoming/\"2026-01.csv\").write_text(\"month,order_id,revenue\\n2026-01,101,1200\\n2026-01,102,800\\n\",encoding=\"utf-8\")\n(incoming/\"2026-02.csv\").write_text(\"month,order_id,revenue\\n2026-02,103,1500\\n2026-02,104,-25\\n\",encoding=\"utf-8\")\nlog_stream=__import__(\"io\").StringIO()\nhandler=logging.StreamHandler(log_stream)\nlogger.setLevel(logging.INFO)\nlogger.handlers.clear()\nlogger.addHandler(handler)\nrecords,skipped,report_path=run_pipeline(incoming,Path(\"reports/monthly_report.xlsx\"))\nworkbook=load_workbook(report_path,data_only=False)\nprint(\"Accepted rows:\",len(records))\nprint(\"Skipped rows:\",skipped)\nprint(\"Workbook sheets:\",workbook.sheetnames)\nprint(\"Report revenue:\",int(sum(row[\"revenue\"] for row in records)))\nprint(\"Grand total formula:\",workbook[\"Summary\"][\"C4\"].value)",
+    "exercise": {
+      "title": "Automate a monthly Excel reporting pipeline",
+      "prompt": "Finish CSV ingestion, row validation, logging and workbook generation. Produce a reloadable .xlsx with Summary and Details sheets, monthly totals, formats, styles, frozen headers, filters, a grand-total formula and reconciliation output. The invalid row must be skipped and logged.",
+      "setup": "",
+      "starter": "import csv, logging\nfrom pathlib import Path\nfrom openpyxl import Workbook, load_workbook\nfrom openpyxl.styles import Font, PatternFill\nfrom openpyxl.utils import get_column_letter\nlogger=logging.getLogger(\"datatrail.reporting\")\ndef load_monthly_files(folder):\n    records=[]\n    skipped=0\n    # TODO: read sorted CSV files, validate headers and values, log bad rows.\n    # Return accepted records in chronological month/order order.\n    return sorted(records, key=lambda record: (record[\"month\"], record[\"order_id\"])), skipped\ndef build_report(records,destination):\n    # TODO: create styled Summary and Details sheets, filters, formats, widths and a formula.\n    return Path(destination)\ndef run_pipeline(input_folder,output_file):\n    # TODO: load, reconcile and save the workbook; log the outcome.\n    return [],0,Path(output_file)\nincoming=Path(\"incoming\")\nincoming.mkdir(exist_ok=True)\n(incoming/\"2026-01.csv\").write_text(\"month,order_id,revenue\\n2026-01,101,1200\\n2026-01,102,800\\n\",encoding=\"utf-8\")\n(incoming/\"2026-02.csv\").write_text(\"month,order_id,revenue\\n2026-02,103,1500\\n2026-02,104,-25\\n\",encoding=\"utf-8\")\nlog_stream=__import__(\"io\").StringIO()\nhandler=logging.StreamHandler(log_stream)\nlogger.setLevel(logging.INFO)\nlogger.handlers.clear()\nlogger.addHandler(handler)\nrecords,skipped,report_path=run_pipeline(incoming,Path(\"reports/monthly_report.xlsx\"))\nworkbook=load_workbook(report_path,data_only=False)\nprint(\"Accepted rows:\",len(records))\nprint(\"Skipped rows:\",skipped)\nprint(\"Workbook sheets:\",workbook.sheetnames)\nprint(\"Report revenue:\",int(sum(row[\"revenue\"] for row in records)))\nprint(\"Grand total formula:\",workbook[\"Summary\"][\"C4\"].value)",
+      "hint": "Separate ingestion, validation, formatting and orchestration. Process source files in sorted order. Reject bad data with a useful log message. Remember openpyxl saves formula text but does not evaluate it.",
+      "solution": "import csv, logging\nfrom pathlib import Path\nfrom openpyxl import Workbook, load_workbook\nfrom openpyxl.styles import Font, PatternFill\nfrom openpyxl.utils import get_column_letter\nlogger=logging.getLogger(\"datatrail.reporting\")\ndef load_monthly_files(folder):\n    records=[]\n    skipped=0\n    required={\"month\",\"order_id\",\"revenue\"}\n    for path in sorted(Path(folder).glob(\"*.csv\")):\n        try:\n            with path.open(\"r\",encoding=\"utf-8\",newline=\"\") as handle:\n                reader=csv.DictReader(handle)\n                if not reader.fieldnames or not required.issubset(reader.fieldnames):\n                    raise ValueError(\"Required columns: month, order_id, revenue\")\n                for line_number,row in enumerate(reader,start=2):\n                    try:\n                        month=row[\"month\"].strip()\n                        order_id=row[\"order_id\"].strip()\n                        revenue=float(row[\"revenue\"])\n                        if len(month)!=7 or month[4]!=\"-\" or not order_id or revenue<0:\n                            raise ValueError(\"Invalid month, order ID or negative revenue\")\n                        records.append({\"month\":month,\"order_id\":order_id,\"revenue\":revenue})\n                    except (TypeError,ValueError):\n                        skipped+=1\n                        logger.warning(\"Skipped invalid row %s:%s\",path.name,line_number)\n        except (OSError,UnicodeError,ValueError) as error:\n            skipped+=1\n            logger.warning(\"Skipped file %s: %s\",path.name,error)\n    return sorted(records, key=lambda record: (record[\"month\"], record[\"order_id\"])), skipped\ndef build_report(records,destination):\n    if not records:\n        raise ValueError(\"No valid records are available for the workbook\")\n    destination=Path(destination)\n    destination.parent.mkdir(parents=True,exist_ok=True)\n    workbook=Workbook()\n    summary=workbook.active\n    summary.title=\"Summary\"\n    details=workbook.create_sheet(\"Details\")\n    summary.append([\"Month\",\"Order count\",\"Revenue\"])\n    details.append([\"Month\",\"Order ID\",\"Revenue\"])\n    for record in records:\n        details.append([record[\"month\"],record[\"order_id\"],record[\"revenue\"]])\n    monthly={}\n    for record in records:\n        values=monthly.setdefault(record[\"month\"],{\"orders\":0,\"revenue\":0.0})\n        values[\"orders\"]+=1\n        values[\"revenue\"]+=record[\"revenue\"]\n    for month in sorted(monthly):\n        values=monthly[month]\n        summary.append([month,values[\"orders\"],round(values[\"revenue\"],2)])\n    total_row=summary.max_row+1\n    summary.cell(total_row,1,\"Grand total\")\n    summary.cell(total_row,2,f\"=SUM(B2:B{total_row-1})\")\n    summary.cell(total_row,3,f\"=SUM(C2:C{total_row-1})\")\n    header_fill=PatternFill(\"solid\",fgColor=\"173F35\")\n    header_font=Font(bold=True,color=\"FFFFFF\")\n    for sheet in (summary,details):\n        sheet.freeze_panes=\"A2\"\n        sheet.auto_filter.ref=sheet.dimensions\n        for cell in sheet[1]:\n            cell.fill=header_fill\n            cell.font=header_font\n        for column_cells in sheet.columns:\n            width=min(max(len(str(cell.value or \"\")) for cell in column_cells)+2,32)\n            sheet.column_dimensions[get_column_letter(column_cells[0].column)].width=width\n    for row in summary.iter_rows(min_row=2,min_col=3,max_col=3):\n        row[0].number_format='₹#,##0.00'\n    for row in details.iter_rows(min_row=2,min_col=3,max_col=3):\n        row[0].number_format='₹#,##0.00'\n    for cell in summary[total_row]:\n        cell.font=Font(bold=True)\n    workbook.calculation.fullCalcOnLoad=True\n    workbook.calculation.forceFullCalc=True\n    workbook.save(destination)\n    workbook.close()\n    return destination\ndef run_pipeline(input_folder,output_file):\n    records,skipped=load_monthly_files(input_folder)\n    output_path=build_report(records,output_file)\n    logger.info(\"Accepted %s rows; skipped %s invalid rows\",len(records),skipped)\n    logger.info(\"Saved workbook to %s\",output_path.name)\n    return records,skipped,output_path\nincoming=Path(\"incoming\")\nincoming.mkdir(exist_ok=True)\n(incoming/\"2026-01.csv\").write_text(\"month,order_id,revenue\\n2026-01,101,1200\\n2026-01,102,800\\n\",encoding=\"utf-8\")\n(incoming/\"2026-02.csv\").write_text(\"month,order_id,revenue\\n2026-02,103,1500\\n2026-02,104,-25\\n\",encoding=\"utf-8\")\nlog_stream=__import__(\"io\").StringIO()\nhandler=logging.StreamHandler(log_stream)\nlogger.setLevel(logging.INFO)\nlogger.handlers.clear()\nlogger.addHandler(handler)\nrecords,skipped,report_path=run_pipeline(incoming,Path(\"reports/monthly_report.xlsx\"))\nworkbook=load_workbook(report_path,data_only=False)\nprint(\"Accepted rows:\",len(records))\nprint(\"Skipped rows:\",skipped)\nprint(\"Workbook sheets:\",workbook.sheetnames)\nprint(\"Report revenue:\",int(sum(row[\"revenue\"] for row in records)))\nprint(\"Grand total formula:\",workbook[\"Summary\"][\"C4\"].value)",
+      "tests": [
+        {
+          "name": "Processes multiple monthly CSV files in stable order",
+          "code": "assert [row[\"order_id\"] for row in records]==[\"101\",\"102\",\"103\"]",
+          "expected": [
+            "101",
+            "102",
+            "103"
+          ],
+          "actual": "[row[\"order_id\"] for row in records]",
+          "failureMessage": "Discover all monthly CSV files in a predictable sorted order before combining valid rows."
+        },
+        {
+          "name": "Skips and logs the invalid negative-revenue row",
+          "code": "assert skipped==1 and \"Skipped invalid row 2026-02.csv:3\" in log_stream.getvalue()",
+          "expected": [
+            1,
+            "warning with source row"
+          ],
+          "actual": "[skipped,log_stream.getvalue()]",
+          "failureMessage": "Reject negative revenue and log the source file and line so the analyst can investigate."
+        },
+        {
+          "name": "Creates a real workbook with summary and detail sheets",
+          "code": "assert workbook.sheetnames==[\"Summary\",\"Details\"] and workbook[\"Details\"].max_row==4",
+          "expected": [
+            "Summary",
+            "Details",
+            4
+          ],
+          "actual": "[workbook.sheetnames,workbook[\"Details\"].max_row]",
+          "failureMessage": "The deliverable must be a genuine multi-sheet .xlsx workbook, not a CSV renamed as Excel."
+        },
+        {
+          "name": "Reconciles detail rows to the accepted source total",
+          "code": "detail_total=sum(workbook[\"Details\"].cell(row,3).value for row in range(2,workbook[\"Details\"].max_row+1))\nassert detail_total==3500",
+          "expected": 3500,
+          "actual": "detail_total",
+          "failureMessage": "The accepted source rows total 3,500. Reconcile the workbook detail values to that total."
+        },
+        {
+          "name": "Builds the monthly summary correctly",
+          "code": "assert [(workbook[\"Summary\"].cell(row,1).value,workbook[\"Summary\"].cell(row,2).value,workbook[\"Summary\"].cell(row,3).value) for row in (2,3)]==[(\"2026-01\",2,2000.0),(\"2026-02\",1,1500.0)]",
+          "expected": [
+            [
+              "2026-01",
+              2,
+              2000
+            ],
+            [
+              "2026-02",
+              1,
+              1500
+            ]
+          ],
+          "actual": "summary month rows",
+          "failureMessage": "Aggregate every month separately and retain its order count and revenue."
+        },
+        {
+          "name": "Stores the grand-total formula and recalculation setting",
+          "code": "assert workbook[\"Summary\"][\"C4\"].value==\"=SUM(C2:C3)\" and workbook.calculation.fullCalcOnLoad",
+          "expected": "=SUM(C2:C3), fullCalcOnLoad=True",
+          "actual": "[workbook[\"Summary\"][\"C4\"].value,workbook.calculation.fullCalcOnLoad]",
+          "failureMessage": "openpyxl writes formula text but does not calculate it. Request recalculation when Excel opens the workbook."
+        },
+        {
+          "name": "Applies readable header styling",
+          "code": "assert workbook[\"Summary\"][\"A1\"].font.bold and workbook[\"Summary\"][\"A1\"].fill.fgColor.rgb.endswith(\"173F35\") and workbook[\"Details\"][\"A1\"].font.color.type==\"rgb\"",
+          "expected": "Bold white header on dark green fill",
+          "actual": "[workbook[\"Summary\"][\"A1\"].font.bold,workbook[\"Summary\"][\"A1\"].fill.fgColor.rgb]",
+          "failureMessage": "Use contrasting header formatting to distinguish column names from workbook data."
+        },
+        {
+          "name": "Sets currency number formats",
+          "code": "assert workbook[\"Summary\"][\"C2\"].number_format==\"₹#,##0.00\" and workbook[\"Details\"][\"C2\"].number_format==\"₹#,##0.00\"",
+          "expected": "₹#,##0.00",
+          "actual": "[workbook[\"Summary\"][\"C2\"].number_format,workbook[\"Details\"][\"C2\"].number_format]",
+          "failureMessage": "Apply an explicit currency number format so monetary cells are not unlabelled general numbers."
+        },
+        {
+          "name": "Adds frozen headers and filter ranges",
+          "code": "assert workbook[\"Summary\"].freeze_panes==\"A2\" and workbook[\"Details\"].freeze_panes==\"A2\" and workbook[\"Details\"].auto_filter.ref==\"A1:C4\"",
+          "expected": [
+            "A2",
+            "A2",
+            "A1:C4"
+          ],
+          "actual": "freeze panes and filter range",
+          "failureMessage": "Freeze the first row and enable filters so the workbook remains usable for larger data."
+        },
+        {
+          "name": "Sets usable column widths",
+          "code": "assert workbook[\"Details\"].column_dimensions[\"A\"].width>=8 and workbook[\"Details\"].column_dimensions[\"C\"].width>=9",
+          "expected": "width >= 8 and >= 9",
+          "actual": "Details column widths",
+          "failureMessage": "Set readable column widths instead of leaving narrow defaults."
+        },
+        {
+          "name": "Saves a reloadable XLSX file at the requested destination",
+          "code": "reloaded=load_workbook(report_path,read_only=True)\nassert report_path==Path(\"reports/monthly_report.xlsx\") and report_path.is_file() and reloaded.sheetnames==[\"Summary\",\"Details\"]\nreloaded.close()",
+          "expected": "reports/monthly_report.xlsx with two sheets",
+          "actual": "[str(report_path),report_path.is_file()]",
+          "failureMessage": "Save to the requested path and reopen the real XLSX file to prove the deliverable is valid."
+        },
+        {
+          "name": "Produces the documented reconciliation output",
+          "code": "assert __output__.splitlines()==[\n\"Accepted rows: 3\",\n\"Skipped rows: 1\",\n\"Workbook sheets: ['Summary', 'Details']\",\n\"Report revenue: 3500\",\n\"Grand total formula: =SUM(C2:C3)\"\n]",
+          "expected": "3 accepted, 1 skipped, two sheets and reconciled ₹3,500 total",
+          "actual": "__output__.strip()",
+          "failureMessage": "Show accepted/skipped counts and the workbook reconciliation so another analyst can check the handoff."
+        }
+      ]
+    }
   }
 ];
