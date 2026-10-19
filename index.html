@@ -420,9 +420,10 @@ function openLesson(track,id){
 
 function lessonPage(){
 let t=tracks.find(x=>x.name===activeTrack)||tracks[0],l=t.lessons.find(x=>x.id===activeLesson)||t.lessons[0],idx=t.lessons.indexOf(l),isDone=state.done.includes(l.id);
+const analyticsTrack=t.name==="Python for Data Analytics";
 let pythonExerciseIndex=t.name==="Python"?pythonLessonTaskMap[idx]:-1;
-let pythonExercisePassed=t.name!=="Python"||pythonExerciseIndex<0||(state.pythonTaskComplete||[]).includes(pythonExerciseIndex);
-let pythonTask=t.name==="Python"&&pythonExerciseIndex>=0?pythonChallenges[pythonExerciseIndex]:null;
+let pythonTask=t.name==="Python"&&pythonExerciseIndex>=0?pythonChallenges[pythonExerciseIndex]:analyticsTrack?l.exercise:null;
+let pythonExercisePassed=t.name==="Python"?(pythonExerciseIndex<0||(state.pythonTaskComplete||[]).includes(pythonExerciseIndex)):analyticsTrack?(state.analyticsTaskComplete||[]).includes(l.id):true;
 const names=["Understand","See an example","Your turn","Check yourself","Lock it in"];
 const icons=["01","02","03","04","05"];
 const pctStep=Math.round((tutorStep+1)/names.length*100);
@@ -436,6 +437,8 @@ else if(t.name==="Power BI"){labPage="powerbi";labLabel="Open the Power BI studi
 let practiceStudio;
 if(t.name==="Python"){
  practiceStudio='<div class="tutor-live-lab"><div><strong>Now write and test Python</strong><p>This lesson has its own coding exercise with named test cases. Your draft is saved as you work.</p></div><button class="btn primary small" id="openTutorLab">Open this Python exercise →</button></div>';
+}else if(analyticsTrack){
+ practiceStudio='<div class="tutor-live-lab"><div><strong>Work through the chapter exercise</strong><p>Run your code, inspect the named checks, use the hint when needed and retry until every requirement passes.</p></div></div>';
 }else if(t.name==="NumPy"||t.name==="pandas"){
  practiceStudio='<div class="tutor-live-lab later-phase"><div><strong>Scheduled after Python foundations</strong><p>The NumPy and pandas tracks will receive their own interactive coding lessons in a later phase. Finish the core Python sequence first.</p></div></div>';
 }else if(t.name==="SQL"){
@@ -446,11 +449,13 @@ if(t.name==="Python"){
 let inner="";
 if(tutorStep===0){
 inner='<div class="tutor-kicker">STEP 1 OF 5 · START WITH THE IDEA</div><h1>'+esc(l.title)+'</h1><p class="tutor-lead">'+esc(l.plain)+'</p><div class="tutor-example"><div class="fox-tip"><img src="assets/datatrail-mascot.webp" alt=""><div><strong>DataFox says</strong><p>We will understand the idea first. No memorising difficult words yet.</p></div></div><div class="tutor-label">PICTURE IT IN EVERYDAY LIFE</div><p>'+esc(l.analogy)+'</p></div><div class="tutor-goal"><span>BY THE END OF THIS LESSON</span><strong>You should be able to explain this idea and recognise when to use it.</strong></div>';
+if(l.setupGuide)inner+='<div class="tutor-example"><div class="tutor-label">WHERE TO RUN PYTHON</div><p>'+esc(l.setupGuide)+'</p></div>';
+if(l.prediction)inner+='<div class="tutor-example"><div class="tutor-label">PAUSE AND PREDICT</div><p>'+esc(l.prediction)+'</p><button class="btn small" id="showPrediction">Reveal the explanation</button><div id="predictionAnswer" class="tutor-feedback" hidden>'+esc(l.predictionAnswer||"")+'</div></div>';
 }else if(tutorStep===1){
-inner='<div class="tutor-kicker">STEP 2 OF 5 · WATCH THE IDEA WORK</div><h1>One example, slowly.</h1><p class="tutor-lead">Read the example from top to bottom. Notice what each part contributes before trying it yourself.</p><div class="tutor-example"><div class="tutor-label">WORKED EXAMPLE</div><pre class="tutor-code">'+esc(l.example.replace(/\\n/g,"\n"))+'</pre>'+(t.name==="Python"?'<div class="tutor-example-runbar"><button class="btn primary small" id="runWorkedExample">▶ Run this example</button><span class="tiny muted">See the actual result from Python</span></div><div class="tutor-label" style="margin-top:14px">OUTPUT</div><pre class="tutor-example-output" id="workedExampleOutput" aria-live="polite">Press “Run this example” to see what Python produces.</pre>':'<div class="tutor-example-output tutor-example-note">Example shown above. The lesson task below lets you apply the same idea.</div>')+'<div class="tutor-label" style="margin-top:18px">THE PROFESSIONAL EXPLANATION</div><p>'+esc(l.definition)+'</p></div><div class="fox-tip"><img src="assets/datatrail-mascot.webp" alt=""><div><strong>Learning tip</strong><p>Do not rush to memorise the syntax. First understand what problem the example solves.</p></div></div>';
+inner='<div class="tutor-kicker">STEP 2 OF 5 · WATCH THE IDEA WORK</div><h1>One example, slowly.</h1><p class="tutor-lead">Read the example from top to bottom. Notice what each part contributes before trying it yourself.</p><div class="tutor-example"><div class="tutor-label">WORKED EXAMPLE</div><pre class="tutor-code">'+esc(l.example.replace(/\\n/g,"\n"))+'</pre>'+((t.name==="Python"||analyticsTrack)?'<div class="tutor-example-runbar"><button class="btn primary small" id="runWorkedExample">▶ Run this example</button><span class="tiny muted">Compare Python\'s actual result with the expected output</span></div>'+(l.expectedOutput?'<div class="tutor-label" style="margin-top:14px">EXPECTED OUTPUT</div><pre class="tutor-example-output">'+esc(l.expectedOutput)+'</pre>':'')+'<div class="tutor-label" style="margin-top:14px">ACTUAL OUTPUT</div><pre class="tutor-example-output" id="workedExampleOutput" aria-live="polite">Press “Run this example” to see what Python produces.</pre>':'<div class="tutor-example-output tutor-example-note">Example shown above. The lesson task below lets you apply the same idea.</div>')+'<div class="tutor-label" style="margin-top:18px">THE PROFESSIONAL EXPLANATION</div><p>'+esc(l.definition)+'</p></div><div class="fox-tip"><img src="assets/datatrail-mascot.webp" alt=""><div><strong>Learning tip</strong><p>Do not rush to memorise the syntax. First understand what problem the example solves.</p></div></div>';
 }else if(tutorStep===2){
-if(t.name==="Python"&&pythonTask){
- const savedPythonDraft=(state.pythonDrafts||{})[pythonExerciseIndex];
+if(pythonTask&&(t.name==="Python"||analyticsTrack)){
+ const savedPythonDraft=analyticsTrack?(state.analyticsDrafts||{})[l.id]:(state.pythonDrafts||{})[pythonExerciseIndex];
  const starterCode=savedPythonDraft!==undefined?savedPythonDraft:pythonTask.starter;
  inner='<div class="tutor-kicker">STEP 3 OF 5 · YOUR TURN</div><h1>Write and run Python.</h1><p class="tutor-lead">'+esc(pythonTask.prompt)+'</p><div class="tutor-workspace"><div class="tutor-label">YOUR PYTHON EDITOR · '+esc(pythonTask.title)+'</div><textarea id="tutorPythonEditor" class="tutor-editor" spellcheck="false" aria-label="Write Python code">'+esc(starterCode)+'</textarea><div class="tutor-actions"><button class="btn" id="tutorPythonRun">▶ Run my code</button><button class="btn primary" id="tutorPythonCheck">✓ Check my answer</button><button class="btn" id="tutorPythonHint">Show me a hint</button><button class="btn" id="tutorPythonSolution">Show correct answer</button></div><div id="tutorPythonHintBox" class="tutor-feedback" hidden><strong>Hint</strong><p>'+esc(pythonTask.hint)+'</p></div><div id="tutorPythonSolutionBox" class="tutor-feedback" hidden><strong>Model answer</strong><pre class="tutor-code">'+esc(pythonTask.solution)+'</pre></div><div class="tutor-python-result"><div class="tutor-label">YOUR PROGRAM OUTPUT</div><pre id="tutorPythonOutput" class="tutor-example-output" aria-live="polite">Run your code to see what Python produces. Checking your answer will also run the tests.</pre><div id="tutorPythonFeedback" aria-live="polite"></div></div><p class="tutor-small" id="tutorPythonStatus">'+(pythonExercisePassed?"✓ This exercise has already passed. You can practise again.":"Your code is saved in this browser. Run it first, then check it against the exercise requirements.")+'</p></div><p class="tutor-small">A successful run means the code executes. Passing the checks means it also does what the task asks.</p>';
 }else{
@@ -463,10 +468,11 @@ inner='<div class="tutor-kicker">STEP 5 OF 5 · MAKE IT STICK</div><h1>Explain i
 }
 const lessonList=t.lessons.map((x,i)=>'<button class="tutor-course-item '+(x.id===l.id?"active ":"")+(state.done.includes(x.id)?"done":"")+'" data-jump="'+x.id+'"><span class="tutor-course-num">'+(state.done.includes(x.id)?"✓":String(i+1).padStart(2,"0"))+'</span><span><strong>'+esc(x.title)+'</strong><small>'+x.level+' · '+x.mins+' min</small></span></button>').join("");
 const interviewSidebarLink=t.name==="Python"?'<div class="python-interview-launch"><strong>AFTER ADVANCED · PYTHON INTERVIEW GYM</strong><p>Lowball · Core · Highball · Traps</p><button class="btn small" data-python-interviews>Open interview sets →</button></div>':"";
-view.innerHTML='<div class="tutor-heading"><div><div class="eyebrow">'+esc(t.name)+' · LESSON '+(idx+1)+' OF '+t.lessons.length+'</div><h1 class="h1">'+esc(l.title)+'</h1><p class="sub">A guided lesson. One small step at a time. You do not need to know anything that has not been taught yet.</p></div><div class="tutor-lesson-progress"><strong>'+pctStep+'%</strong><span>lesson steps</span><div class="progress"><span style="width:'+pctStep+'%"></span></div></div></div><div class="tutor-layout"><aside class="tutor-sidebar"><div class="tutor-side-title">THIS LESSON</div>'+names.map((n,i)=>'<button class="tutor-step-link '+(i===tutorStep?"active ":"")+(i<tutorStep?"passed":"")+'" data-step="'+i+'" '+(i>tutorStep?"disabled":"")+'><span>'+icons[i]+'</span>'+n+(i<tutorStep?" ✓":"")+'</button>').join("")+'<div class="tutor-course-divider"></div><div class="tutor-side-title">COURSE MAP · '+t.name.toUpperCase()+'</div><div class="tutor-course-list">'+lessonList+interviewSidebarLink+'</div></aside><main class="tutor-main"><div class="tutor-stage">'+inner+'</div><div class="tutor-footer"><button class="btn" id="tutorBack" '+(tutorStep===0?"disabled":"")+'>'+ (tutorStep===0?"← Course map":"← Previous step")+'</button><div class="tutor-footer-right">'+(tutorStep<4?'<button class="btn primary" id="tutorNext" '+(tutorStep===2&&(t.name==="Python"?!pythonExercisePassed:!savedAttempt.trim())?"disabled":"")+'>'+(tutorStep===2?"Continue to knowledge check →":"Continue →")+'</button>':(isDone?'<button class="btn primary" id="nextCourseLesson">Next lesson →</button>':'<button class="btn primary" id="completeTutorLesson" '+(!tutorQuizCorrect||!pythonExercisePassed?"disabled":"")+'>Complete lesson ✓</button>'))+'</div></div></main></div>';
+view.innerHTML='<div class="tutor-heading"><div><div class="eyebrow">'+esc(t.name)+' · LESSON '+(idx+1)+' OF '+t.lessons.length+'</div><h1 class="h1">'+esc(l.title)+'</h1><p class="sub">A guided lesson. One small step at a time. You do not need to know anything that has not been taught yet.</p></div><div class="tutor-lesson-progress"><strong>'+pctStep+'%</strong><span>lesson steps</span><div class="progress"><span style="width:'+pctStep+'%"></span></div></div></div><div class="tutor-layout"><aside class="tutor-sidebar"><div class="tutor-side-title">THIS LESSON</div>'+names.map((n,i)=>'<button class="tutor-step-link '+(i===tutorStep?"active ":"")+(i<tutorStep?"passed":"")+'" data-step="'+i+'" '+(i>tutorStep?"disabled":"")+'><span>'+icons[i]+'</span>'+n+(i<tutorStep?" ✓":"")+'</button>').join("")+'<div class="tutor-course-divider"></div><div class="tutor-side-title">COURSE MAP · '+t.name.toUpperCase()+'</div><div class="tutor-course-list">'+lessonList+interviewSidebarLink+'</div></aside><main class="tutor-main"><div class="tutor-stage">'+inner+'</div><div class="tutor-footer"><button class="btn" id="tutorBack" '+(tutorStep===0?"disabled":"")+'>'+ (tutorStep===0?"← Course map":"← Previous step")+'</button><div class="tutor-footer-right">'+(tutorStep<4?'<button class="btn primary" id="tutorNext" '+(tutorStep===2&&((t.name==="Python"||analyticsTrack)?!pythonExercisePassed:!savedAttempt.trim())?"disabled":"")+'>'+(tutorStep===2?"Continue to knowledge check →":"Continue →")+'</button>':(isDone?'<button class="btn primary" id="nextCourseLesson">Next lesson →</button>':'<button class="btn primary" id="completeTutorLesson" '+(!tutorQuizCorrect||!pythonExercisePassed?"disabled":"")+'>Complete lesson ✓</button>'))+'</div></div></main></div>';
 view.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{let n=Number(b.dataset.step);if(n<=tutorStep){tutorStep=n;lessonPage()}});
 view.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>openLesson(t.name,b.dataset.jump));
 view.querySelectorAll("[data-python-interviews]").forEach(b=>b.onclick=openPythonInterviews);
+const predictionBtn=document.getElementById("showPrediction");if(predictionBtn)predictionBtn.onclick=()=>{const answer=document.getElementById("predictionAnswer");if(answer)answer.hidden=!answer.hidden;predictionBtn.textContent=answer&&answer.hidden?"Reveal the explanation":"Hide the explanation"};
 const runExampleBtn=document.getElementById("runWorkedExample");
 if(runExampleBtn)runExampleBtn.onclick=async()=>{
  const output=document.getElementById("workedExampleOutput");
@@ -486,8 +492,8 @@ document.getElementById("tutorBack").onclick=()=>{if(tutorStep===0){go("paths")}
 const tutorPythonEditor=document.getElementById("tutorPythonEditor");
 if(tutorPythonEditor){
  tutorPythonEditor.addEventListener("input",()=>{
-  state.pythonDrafts=state.pythonDrafts||{};
-  state.pythonDrafts[pythonExerciseIndex]=tutorPythonEditor.value;
+  if(analyticsTrack){state.analyticsDrafts=state.analyticsDrafts||{};state.analyticsDrafts[l.id]=tutorPythonEditor.value;}
+  else{state.pythonDrafts=state.pythonDrafts||{};state.pythonDrafts[pythonExerciseIndex]=tutorPythonEditor.value;}
   save();
  });
  tutorPythonEditor.addEventListener("keydown",event=>{
@@ -514,8 +520,8 @@ async function executeTutorPython(checkTests){
   if(feedback)feedback.innerHTML='<div class="tutor-feedback retry"><strong>No code to run yet.</strong><p>Type your Python instruction in the editor, then try again.</p></div>';
   return;
  }
- state.pythonDrafts=state.pythonDrafts||{};
- state.pythonDrafts[pythonExerciseIndex]=code;
+ if(analyticsTrack){state.analyticsDrafts=state.analyticsDrafts||{};state.analyticsDrafts[l.id]=code;}
+ else{state.pythonDrafts=state.pythonDrafts||{};state.pythonDrafts[pythonExerciseIndex]=code;}
  save();
  if(runButton)runButton.disabled=true;
  if(checkButton)checkButton.disabled=true;
@@ -553,6 +559,14 @@ async function executeTutorPython(checkTests){
    '                tutor_test_results.append({"name": tutor_test["name"], "passed": True, "detail": "Passed"})',
    "            except Exception as exc:",
    '                detail = type(exc).__name__ + (": " + str(exc) if str(exc) else "")',
+   '                if tutor_test.get("expected") is not None and tutor_test.get("actual"):',
+   '                    try:',
+   '                        actual_value = eval(tutor_test["actual"], tutor_namespace)',
+   '                        detail = "Expected " + repr(tutor_test["expected"]) + "; received " + repr(actual_value) + "."',
+   '                    except Exception:',
+   '                        pass',
+   '                if tutor_test.get("failureMessage"):',
+   '                    detail += " " + tutor_test["failureMessage"]',
    '                tutor_test_results.append({"name": tutor_test["name"], "passed": False, "detail": detail})',
    'tutor_result_json = json.dumps({"output": tutor_stdout.getvalue(), "error": tutor_execution_error, "tests": tutor_test_results})'
   ].join("\n");
@@ -583,10 +597,12 @@ async function executeTutorPython(checkTests){
   }).join("");
   if(feedback)feedback.innerHTML='<div class="tutor-feedback '+(allPassed?"success":"retry")+'"><strong>'+(allPassed?"Correct — all "+passed+" checks passed.":"Not correct yet — "+passed+" of "+results.length+" checks passed.")+'</strong><p>'+(allPassed?"Your code meets the exercise requirements. You can continue to the knowledge check.":(result.error?"Python stopped before completing the tests. Read the error above, correct the code and check again.":"Your code executed, but one or more expected results were not produced. Read the failed checks, compare the output with the task, and try again. You can reveal the model answer when you are ready."))+'</p></div>'+testRows;
   if(allPassed){
-   state.pythonTaskComplete=state.pythonTaskComplete||[];
-   if(!state.pythonTaskComplete.includes(pythonExerciseIndex)){
-    state.pythonTaskComplete.push(pythonExerciseIndex);
-    state.xp+=20;
+   if(analyticsTrack){
+    state.analyticsTaskComplete=state.analyticsTaskComplete||[];
+    if(!state.analyticsTaskComplete.includes(l.id)){state.analyticsTaskComplete.push(l.id);state.xp+=20;}
+   }else{
+    state.pythonTaskComplete=state.pythonTaskComplete||[];
+    if(!state.pythonTaskComplete.includes(pythonExerciseIndex)){state.pythonTaskComplete.push(pythonExerciseIndex);state.xp+=20;}
    }
    save();
    if(status)status.textContent="✓ Exercise passed. Your next lesson step is unlocked.";
@@ -612,8 +628,9 @@ const tutorPythonSolutionButton=document.getElementById("tutorPythonSolution");
 if(tutorPythonSolutionButton)tutorPythonSolutionButton.onclick=()=>{const box=document.getElementById("tutorPythonSolutionBox");box.hidden=!box.hidden};
 let nextBtn=document.getElementById("tutorNext");if(nextBtn)nextBtn.onclick=()=>{
  if(tutorStep===2){
-  if(t.name==="Python"){
-   if(!(state.pythonTaskComplete||[]).includes(pythonExerciseIndex)){
+  if(t.name==="Python"||analyticsTrack){
+   const codingTaskPassed=analyticsTrack?(state.analyticsTaskComplete||[]).includes(l.id):(state.pythonTaskComplete||[]).includes(pythonExerciseIndex);
+   if(!codingTaskPassed){
     toast("Run your code and pass all the checks before continuing.");return
    }
   }else{
@@ -629,7 +646,7 @@ const hintBtn=document.getElementById("tutorHint");if(hintBtn)hintBtn.onclick=()
 const solutionBtn=document.getElementById("tutorSolution");if(solutionBtn)solutionBtn.onclick=()=>{let b=document.getElementById("tutorSolutionBox");b.hidden=!b.hidden};
 const saveAttemptBtn=document.getElementById("saveTutorAttempt");if(saveAttemptBtn)saveAttemptBtn.onclick=()=>{let val=document.getElementById("tutorAttempt").value.trim();if(val.length<3){toast("Try writing at least a few words or lines first.");return}state.practiceNotes=state.practiceNotes||{};state.practiceNotes[l.id]=val;save();tutorStep=3;lessonPage()};
 view.querySelectorAll("[data-option]").forEach(b=>b.onclick=()=>{let a=Number(b.dataset.option),ok=a===l.answer,previous=state.answers[l.id];view.querySelectorAll("[data-option]").forEach(x=>x.classList.remove("correct","wrong"));b.classList.add(ok?"correct":"wrong");document.getElementById("quizFeedback").innerHTML='<div class="tutor-feedback '+(ok?"success":"retry")+'">'+(ok?"✓ Correct. ":"Not quite — give it another try. ")+esc(l.why)+'</div>';state.answers[l.id]=ok?"correct":"review";tutorQuizCorrect=ok;if(ok&&previous!=="correct"&&!state.done.includes(l.id)){state.xp+=5;save()}});
-const completeBtn=document.getElementById("completeTutorLesson");if(completeBtn)completeBtn.onclick=()=>{if(!tutorQuizCorrect){toast("Pass the knowledge check first. You can retry it.");tutorStep=3;lessonPage();return}if(t.name==="Python"&&!pythonExercisePassed){toast("Pass the matching Python coding exercise before completing this lesson.");tutorStep=2;lessonPage();return}if(!state.done.includes(l.id)){state.done.push(l.id);state.xp+=20;recordStudy();toast("Lesson completed. Nicely done.");}if(document.getElementById("tutorTeachback")){state.teachbacks=state.teachbacks||{};state.teachbacks[l.id]=document.getElementById("tutorTeachback").value.trim()}save();lessonPage()};
+const completeBtn=document.getElementById("completeTutorLesson");if(completeBtn)completeBtn.onclick=()=>{if(!tutorQuizCorrect){toast("Pass the knowledge check first. You can retry it.");tutorStep=3;lessonPage();return}if((t.name==="Python"||analyticsTrack)&&!pythonExercisePassed){toast("Pass the matching Python coding exercise before completing this lesson.");tutorStep=2;lessonPage();return}if(!state.done.includes(l.id)){state.done.push(l.id);state.xp+=20;recordStudy();toast("Lesson completed. Nicely done.");}if(document.getElementById("tutorTeachback")){state.teachbacks=state.teachbacks||{};state.teachbacks[l.id]=document.getElementById("tutorTeachback").value.trim()}save();lessonPage()};
 const nextCourseBtn=document.getElementById("nextCourseLesson");if(nextCourseBtn)nextCourseBtn.onclick=()=>{let n=t.lessons[idx+1];if(n)openLesson(t.name,n.id);else go("paths")};
 const teachback=document.getElementById("tutorTeachback");if(teachback)teachback.onchange=()=>{state.teachbacks=state.teachbacks||{};state.teachbacks[l.id]=teachback.value.trim();save()};
 }
