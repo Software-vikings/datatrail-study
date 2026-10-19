@@ -279,7 +279,7 @@ def main() -> None:
     validate_readiness(readiness)
     require("data-p1-open-projects" in index_html and "data-p1-open-interviews" in index_html, "C20 must link to the project studio and 100-question interview bank")
     require("datatrail-p1-project-progress" in index_html, "Programme 1 project progress must use its own saved-progress key")
-    require("let interviewFilter" in index_html and "let interviewDifficultyFilter" in index_html and "let interviewQuery" in index_html, "Programme 1 interview filters need explicit initial state")
+    require('interviewFilter="All"' in index_html and 'interviewDifficultyFilter="All"' in index_html and 'interviewQuery=""' in index_html, "Programme 1 interview filters need explicit initial state")
     require("async function prepareProgrammePackages" in index_html, "Programme 1 needs a lesson-specific Python package loader")
     require(index_html.count("await prepareProgrammePackages(py,l);") >= 2, "Worked examples and coding exercises must load their declared Python packages")
     require("await micropip.install(programme_missing_pypi)" in index_html, "Programme 1 needs a PyPI package installation path")

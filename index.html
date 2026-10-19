@@ -288,9 +288,6 @@ const pythonLessonTaskMap=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
 const trackOrder=["Python for Data Analytics","Python","SQL","Excel","NumPy","pandas","Statistics","Power BI"];
 const tracks=trackOrder.map(name=>({name,icon:icons[name],lessons:name==="Python for Data Analytics"?(window.DataTrailPythonAnalyticsLessons||[]).map(lesson=>Object.assign({},lesson)):lessonRows[name].map((r,i)=>({id:name.toLowerCase().replace(/[^a-z]/g,"")+"-"+(i+1),title:r[0],level:r[1],mins:r[2],plain:r[3],definition:r[4],analogy:r[5],example:r[6],question:r[7],options:r[8],answer:r[9],why:r[10],task:r[11],hint:r[12],solution:r[13]}))}));
 let state=load();
-let interviewFilter="All";
-let interviewDifficultyFilter="All";
-let interviewQuery="";
 const P1_PROJECT_PROGRESS_KEY="datatrail-p1-project-progress";
 function loadP1ProjectProgress(){
 try{const saved=JSON.parse(localStorage.getItem(P1_PROJECT_PROGRESS_KEY)||"{}");return saved&&typeof saved==="object"?saved:{}}catch(e){return {}}
