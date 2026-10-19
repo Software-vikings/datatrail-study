@@ -11,7 +11,7 @@ Which source sales records are safe to use for revenue reporting, and what is th
 - Key: `transaction_id`.
 - Important fields: order date, customer, city, product, quantity and unit price.
 
-The source intentionally contains a duplicate transaction ID, a missing city, an invalid date, an invalid quantity and a non-numeric price. Some text fields contain inconsistent whitespace/capitalisation.
+The source intentionally contains a duplicate transaction ID, a missing city, an invalid date, an invalid quantity and a non-numeric price. Some text fields contain inconsistent whitespace/capitalisation. The workflow also rejects missing customer IDs and product names if those defects occur in another source extract.
 
 ## Method
 
@@ -19,7 +19,7 @@ The source intentionally contains a duplicate transaction ID, a missing city, an
 2. Normalize whitespace and category text without silently inventing missing values.
 3. Parse dates and numeric fields explicitly; invalid conversion becomes a recorded quality defect.
 4. Retain the first occurrence of a transaction ID and flag later duplicates.
-5. Reject records with a duplicate key, missing city, invalid date, non-positive quantity or invalid/negative unit price.
+5. Reject records with a duplicate key, missing customer ID/city/product, invalid date, non-positive quantity or invalid/negative unit price.
 6. Calculate revenue only for accepted rows.
 7. Export the cleaned records, rejected records, row-level decision log, monthly reconciliation and JSON quality summary.
 
