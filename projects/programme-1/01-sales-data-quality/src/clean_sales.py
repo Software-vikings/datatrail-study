@@ -60,6 +60,11 @@ def run(input_csv: Path, output_dir: Path) -> dict:
         if pd.isna(frame.loc[index, "transaction_id"]) or not str(frame.loc[index, "transaction_id"]).strip():
             reason_map[index].append("missing_transaction_id")
 
+    candidate_revenue = frame["quantity"] * frame["unit_price"]
+    for index in frame.index:
+        if not reason_map[index] and not np.isfinite(candidate_revenue.loc[index]):
+            reason_map[index].append("non_finite_revenue")
+
     valid_mask = pd.Series([not reason_map[index] for index in frame.index], index=frame.index)
     accepted = frame.loc[valid_mask].copy()
     rejected = frame.loc[~valid_mask].copy()
@@ -93,6 +98,7 @@ def run(input_csv: Path, output_dir: Path) -> dict:
         "missing_products": int(frame["product"].isna().sum() + frame["product"].eq("").sum()),
         "invalid_quantities": int((frame["quantity"].isna() | ~np.isfinite(frame["quantity"].fillna(0)) | (frame["quantity"] <= 0)).sum()),
         "invalid_unit_prices": int((frame["unit_price"].isna() | ~np.isfinite(frame["unit_price"].fillna(0)) | (frame["unit_price"] < 0)).sum()),
+        "non_finite_revenue_rows": int(sum("non_finite_revenue" in reasons for reasons in reason_map.values())),
         "accepted_revenue": round(float(accepted["revenue"].sum()), 2),
         "reconciliation_passed": int(len(frame)) == int(len(accepted) + len(rejected)),
     }
