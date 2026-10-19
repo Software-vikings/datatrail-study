@@ -9,10 +9,11 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 REQUIRED = {
-    "order_id", "order_date", "customer_id", "region", "category",
+    "order_line_id", "order_id", "order_date", "customer_id", "region", "category",
     "product", "quantity", "unit_price", "discount_pct"
 }
 
@@ -24,8 +25,13 @@ def analyze(input_csv: Path, output_dir: Path) -> dict:
     missing = REQUIRED - set(frame.columns)
     if missing:
         raise ValueError(f"Missing columns: {sorted(missing)}")
-    if frame["order_id"].duplicated().any():
-        raise ValueError("order_id must be unique at this order-line grain")
+    text_columns = ["order_line_id", "order_id", "customer_id", "region", "category", "product"]
+    for column in text_columns:
+        frame[column] = frame[column].astype("string").str.strip()
+        if frame[column].isna().any() or frame[column].eq("").any():
+            raise ValueError(f"{column} contains missing or blank values")
+    if frame["order_line_id"].duplicated().any():
+        raise ValueError("order_line_id must be unique at the one-row-per-order-line grain")
 
     frame["order_date"] = pd.to_datetime(frame["order_date"], errors="coerce")
     frame["quantity"] = pd.to_numeric(frame["quantity"], errors="coerce")
@@ -33,8 +39,9 @@ def analyze(input_csv: Path, output_dir: Path) -> dict:
     frame["discount_pct"] = pd.to_numeric(frame["discount_pct"], errors="coerce")
     if frame["order_date"].isna().any():
         raise ValueError("Invalid order_date values found")
-    if frame[["quantity", "unit_price", "discount_pct"]].isna().any().any():
-        raise ValueError("Invalid numeric values found")
+    numeric_values = frame[["quantity", "unit_price", "discount_pct"]].to_numpy(dtype=float)
+    if not np.isfinite(numeric_values).all():
+        raise ValueError("Numeric fields must contain finite, non-missing values")
     if (frame["quantity"] <= 0).any() or (frame["unit_price"] < 0).any():
         raise ValueError("Quantity must be positive and unit_price cannot be negative")
     if ((frame["discount_pct"] < 0) | (frame["discount_pct"] > 1)).any():
