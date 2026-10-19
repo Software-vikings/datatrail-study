@@ -20,6 +20,7 @@ Delivered and verified:
 - Separate legacy Python course preserved: 84 reference solutions and 205 named checks.
 - Legacy 51-question Python interview gym remains separate.
 - Project studio progress has its own storage key.
+- Progress JSON now includes Programme 1 project milestones, sanitises the imported milestone state, remains backward-compatible with older backups, and clears the separate store on Reset progress. This fix passed PR validation run [#171](https://github.com/Software-vikings/datatrail-study/actions/runs/39205041871).
 - Shared Pages release validator is exercised in feature CI and the deployment workflow.
 
 Do not describe the programme as 17/21 chapters, do not restart Phase 6 or Phase 7, and do not build a reduced MVP. All seven implementation phases have successful PR validation runs; the final Phase 7 head passed push run #132 and PR run #133.
@@ -44,7 +45,7 @@ The curriculum implementation is complete. Focus on **release readiness and genu
 
 1. Verify every PR's current head/base, mergeability, CI status and dependency order.
 2. Inspect new review feedback. A previous GitHub Codex review attempt was blocked by exhausted connected review quota; no actual review records or inline threads existed at the last check. Do not describe this as a completed code review.
-3. Perform an independent source audit of changed code and fix any reproducible defects on the correct feature branch, preserving the stacked PR structure.
+3. A source audit identified and fixed a Programme 1 project-progress backup/import/reset defect. Inspect the fix and continue the independent source audit for any other reproducible defects on the correct feature branch, preserving the stacked PR structure.
 4. Arrange or prepare a meaningful manual browser/device smoke-test checklist. Do not claim that human visual QA has happened unless it actually has.
 5. Keep the README, engineering handoff, new-chat prompt, development log and PR descriptions consistent with the real repository state.
 6. Run syntax checks, the shared Pages release gate, the curriculum validator, all 21 lesson solutions/155 named checks, all four project verifications, and all legacy 84/205 checks. Rerun GitHub Actions after every code or documentation update and record the exact final head/run links.
