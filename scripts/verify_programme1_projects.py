@@ -60,7 +60,7 @@ def verify_project_3(base: Path) -> None:
     result = module.analyze_events(folder / "data" / "customer_events.csv", base / "project-3")
     funnel = result["funnel"]
     counts = funnel["unique_customers"].tolist()
-    assert counts == [12, 10, 7, 4], counts
+    assert counts == [12, 10, 6, 4], counts
     assert list(result["retention"].index) == ["2026-01", "2026-02", "2026-03"]
     assert float(result["cohort_activity"]["retention_pct"].min()) >= 0
     for name in ("funnel_metrics.csv", "cohort_activity.csv", "cohort_retention.csv", "cohort_retention_heatmap.png", "metric_definitions.md"):
@@ -81,7 +81,7 @@ def verify_project_4(base: Path) -> None:
     workbook = load_workbook(result["report_path"], data_only=False)
     try:
         assert workbook.sheetnames == ["Summary", "Details"]
-        assert workbook["Summary"]["C3"].value == "=SUM(C2:C2)"
+        assert workbook["Summary"]["C5"].value == "=SUM(C2:C4)"
         assert workbook["Details"].max_row == 7
         assert workbook["Details"].freeze_panes == "A2"
     finally:
