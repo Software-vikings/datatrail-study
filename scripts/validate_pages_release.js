@@ -16,6 +16,7 @@ if (!Array.isArray(readiness.interviewQuestions) || readiness.interviewQuestions
 const tierCounts = readiness.interviewQuestions.reduce((counts, question) => { counts[question.tier] = (counts[question.tier] || 0) + 1; return counts; }, {});
 if (JSON.stringify(tierCounts) !== JSON.stringify({Lowball:20,Core:35,Highball:25,Trap:20})) throw new Error("Programme 1 interview tier allocation is incorrect");
 if (!html.includes('src="assets/programme1-readiness.js"')) throw new Error("Programme 1 readiness asset is not loaded");
+if (!html.includes("programme1ProjectProgress:p1ProjectProgress") || !html.includes("p1ProjectProgress=normalizeP1ProjectProgress(importedProjectProgress)") || !html.includes("localStorage.removeItem(P1_PROJECT_PROGRESS_KEY)")) throw new Error("Programme 1 project progress must be included in progress backup import/export and reset.");
 
 for (const [index, task] of tasks.entries()) {
   if (!task.title || !task.prompt || !task.starter || !task.solution || !Array.isArray(task.tests) || task.tests.length < 2) {
