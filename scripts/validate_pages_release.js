@@ -18,9 +18,11 @@ const tierCounts = readiness.interviewQuestions.reduce((counts, question) => { c
 if (JSON.stringify(tierCounts) !== JSON.stringify({Lowball:20,Core:35,Highball:25,Trap:20})) throw new Error("Programme 1 interview tier allocation is incorrect");
 if (!html.includes('src="assets/programme1-readiness.js"')) throw new Error("Programme 1 readiness asset is not loaded");
 if (!html.includes("programme1ProjectProgress:p1ProjectProgress") || !html.includes("p1ProjectProgress=normalizeP1ProjectProgress(importedProjectProgress)") || !html.includes("localStorage.removeItem(P1_PROJECT_PROGRESS_KEY)")) throw new Error("Programme 1 project progress must be included in progress backup import/export and reset.");
-const progressNormalizerMatch = html.match(/function normalizeP1ProjectProgress\\(value\\)\\{[\\s\\S]*?\\n\\}/);
-if (!progressNormalizerMatch) throw new Error("Programme 1 project progress sanitizer is missing.");
-const normalizeP1ProjectProgress = vm.runInNewContext(progressNormalizerMatch[0] + "; normalizeP1ProjectProgress", { window: { DataTrailProgramme1Readiness: readiness } });
+const normalizerStart = html.indexOf("function normalizeP1ProjectProgress(value){");
+const normalizerEnd = html.indexOf("\\n}", normalizerStart);
+if (normalizerStart < 0 || normalizerEnd < 0) throw new Error("Programme 1 project progress sanitizer is missing.");
+const normalizerSource = html.slice(normalizerStart, normalizerEnd + 2);
+const normalizeP1ProjectProgress = vm.runInNewContext(normalizerSource + "; normalizeP1ProjectProgress", { window: { DataTrailProgramme1Readiness: readiness } });
 const firstProject = readiness.projects[0];
 const progressFixture = normalizeP1ProjectProgress({ [firstProject.id]: [0, 0, -1, 1.5, 999, "1"], unknown_project: [0], [readiness.projects[1].id]: "invalid" });
 if (JSON.stringify(progressFixture) !== JSON.stringify({ [firstProject.id]: [0] })) throw new Error("Programme 1 project progress sanitizer failed to remove unknown projects, invalid indices or duplicates.");
