@@ -3,7 +3,7 @@
 **Last verified checkpoint:** 2026-10-19  
 **Repository:** https://github.com/Software-vikings/datatrail-study  
 **Completed feature branch:** `programme-1/phase-7-analyst-projects-interview-readiness`  
-**Current Phase 7 head:** `91c06bb0ffda7f9b680f4a6369b36f0893fc117a`  
+**Last fully verified Phase 7 implementation checkpoint (before the current handoff refresh):** `91c06bb0ffda7f9b680f4a6369b36f0893fc117a`  
 **Phase 6 base branch/head:** `programme-1/phase-6-analyst-workflows-readiness` / `34aa0303f0292b288bd748ac18a79a1b41aeb102`  
 **Current release truth:** Programme 1 implementation is complete: 21/21 interactive chapters, 155 named coding checks, four runnable portfolio projects and 100 interview questions. The feature stack is not merged into `main`; GitHub Pages has not been deployed.
 
