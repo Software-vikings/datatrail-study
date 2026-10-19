@@ -146,7 +146,11 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
     summary = paid.groupby("month", as_index=False).agg(
         paid_orders=("order_id", "count"), paid_revenue=("amount", "sum")
     ).sort_values("month")
-    if abs(float(summary["paid_revenue"].sum()) - float(paid["amount"].sum())) > 0.01:
+    summary_total = float(summary["paid_revenue"].sum())
+    detail_total = float(paid["amount"].sum())
+    if not math.isfinite(summary_total) or not math.isfinite(detail_total):
+        raise ValueError("Paid revenue aggregation overflowed; review extreme source amounts")
+    if abs(summary_total - detail_total) > 0.01:
         raise AssertionError("Monthly paid summary does not reconcile to database detail")
 
     snapshot = {"api_fixture_records": validated_api, "monthly_csv_records": validated_monthly}
