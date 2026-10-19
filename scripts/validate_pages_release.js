@@ -1,13 +1,13 @@
 global.window = {};
-require("./assets/python-exercises.js");
-require("./assets/python-data-analytics.js");
-require("./assets/python-data-analytics-lessons.js");
-require("./assets/programme1-readiness.js");
+require("../assets/python-exercises.js");
+require("../assets/python-data-analytics.js");
+require("../assets/python-data-analytics-lessons.js");
+require("../assets/programme1-readiness.js");
 const tasks = global.window.DataTrailPythonExercises;
 const programme = global.window.DataTrailPythonAnalytics;
 const programmeLessons = global.window.DataTrailPythonAnalyticsLessons;
 const readiness = global.window.DataTrailProgramme1Readiness;
-const html = require("fs").readFileSync("index.html", "utf8");
+const html = require("fs").readFileSync(require("path").join(__dirname, "..", "index.html"), "utf8");
 if (!programme || programme.status !== "in-progress" || !Array.isArray(programmeLessons) || programmeLessons.length !== 21) throw new Error("Programme 1 must have its all 21 Python analytics chapters available");
 if (programme.chapters.filter(x => x.status === "available").map(x => x.id).join(",") !== "P1-C00,P1-C01,P1-C02,P1-C03,P1-C04,P1-C05,P1-C06,P1-C07,P1-C08,P1-C09,P1-C10,P1-C11,P1-C12,P1-C13,P1-C14,P1-C15,P1-C16,P1-C17,P1-C18,P1-C19,P1-C20") throw new Error("Programme 1 available chapter states are incorrect");
 if (!Array.isArray(tasks) || tasks.length !== 84) throw new Error("Expected 84 Python exercises");
