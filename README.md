@@ -67,6 +67,8 @@ No sign-in, paid API key or backend is required.
 
 - [Programme 1 development log](docs/PROGRAMME_1_DEVELOPMENT_LOG.md) — delivered phases, current availability and verification commands.
 - [Programme 1 lesson authoring standard](docs/PROGRAMME_1_LESSON_AUTHORING.md) — required lesson structure, teaching rules, test model and release checklist.
+- [Programme 1 engineering handoff](docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md) — full curriculum status, technical architecture, branch/PR chain, CI requirements and exact next implementation scope.
+- [New-chat continuation prompt](docs/CHATGPT_NEW_CHAT_PROMPT.md) — ready-to-paste instructions to continue implementation in a fresh ChatGPT conversation.
 
 ## Run locally
 
