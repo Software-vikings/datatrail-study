@@ -63,6 +63,18 @@ def verify_project_2(base: Path) -> None:
     module = load_module("retail_performance_project", folder / "src" / "analyze_retail.py")
     result = module.analyze(folder / "data" / "retail_orders.csv", base / "project-2")
     assert len(result["orders"]) == 20
+    assert result["orders"]["order_line_id"].is_unique
+    assert result["orders"]["order_id"].duplicated().any(), "The sample must demonstrate multiple lines in one order"
+    invalid_retail = pd.read_csv(folder / "data" / "retail_orders.csv")
+    invalid_retail.loc[0, "customer_id"] = " "
+    invalid_retail_path = base / "project-2-missing-customer.csv"
+    invalid_retail.to_csv(invalid_retail_path, index=False)
+    try:
+        module.analyze(invalid_retail_path, base / "project-2-invalid")
+    except ValueError as exc:
+        assert "customer_id" in str(exc)
+    else:
+        raise AssertionError("Project 2 must reject blank customer identifiers")
     assert abs(float(result["monthly"]["net_revenue"].sum()) - result["net_revenue"]) < 0.01
     assert len(result["region"]) == 4 and len(result["category"]) == 3
     for name in ("monthly_performance.csv", "region_performance.csv", "category_performance.csv", "customer_performance.csv", "monthly_net_revenue.png", "region_performance.png", "category_performance.png", "insights.md"):
