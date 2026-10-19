@@ -193,6 +193,7 @@ Once those checks are satisfied and approval is given, merge PRs in dependency o
 - `README.md` — product overview, learner tracks, local run instructions and release/publish guidance.
 - `docs/PROGRAMME_1_DEVELOPMENT_LOG.md` — chronological implementation record and CI evidence.
 - `docs/PROGRAMME_1_LESSON_AUTHORING.md` — lesson schema, instructional standard and Phase 6/7 authoring/test rules.
+- `docs/PROGRAMME_1_RELEASE_QA_CHECKLIST.md` — manual browser/device acceptance checklist and release sign-off record; no manual pass is claimed yet.
 - `docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md` — this current engineering/release handoff.
 - `docs/CHATGPT_NEW_CHAT_PROMPT.md` — prompt to continue from the actual completed state.
 
