@@ -1418,17 +1418,17 @@ window.DataTrailPythonAnalyticsLessons = [
         },
         {
           "name": "Creates both wide and long city-by-month report shapes",
-          "code": "assert wide.shape == (3, 3) and long.shape == (9, 3) and wide.loc['Chennai', '2026-01'] == 1200 and long['revenue'].sum() == 13800",
+          "code": "assert wide.shape == (3, 3) and long.shape == (9, 3) and wide.loc['Chennai', '2026-01'] == 1200 and long['revenue'].sum() == 12400",
           "expected": [
             3,
             3,
             9,
             3,
             1200,
-            13800
+            12400
           ],
           "actual": "[list(wide.shape), list(long.shape), wide.loc['Chennai', '2026-01'], int(long['revenue'].sum())]",
-          "failureMessage": "The pivot table has three cities by three months; melt turns its nine cells into nine long-form rows."
+          "failureMessage": "The matched order revenue totals 12,400. The unmatched March order must not enter the customer-linked revenue table."
         }
       ]
     }
