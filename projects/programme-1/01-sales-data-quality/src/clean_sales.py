@@ -86,6 +86,11 @@ def run(input_csv: Path, output_dir: Path) -> dict:
         .agg(order_count=("transaction_id", "count"), revenue=("revenue", "sum"))
         .sort_values("order_month")
     )
+    accepted_revenue = float(accepted["revenue"].sum())
+    monthly_revenue = float(monthly["revenue"].sum())
+    if not np.isfinite(accepted_revenue) or not np.isfinite(monthly_revenue):
+        raise ValueError("Accepted sales revenue totals overflowed; review extreme source amounts")
+
     quality = {
         "input_file": input_csv.name,
         "raw_rows": int(len(frame)),
@@ -99,7 +104,7 @@ def run(input_csv: Path, output_dir: Path) -> dict:
         "invalid_quantities": int((frame["quantity"].isna() | ~np.isfinite(frame["quantity"].fillna(0)) | (frame["quantity"] <= 0)).sum()),
         "invalid_unit_prices": int((frame["unit_price"].isna() | ~np.isfinite(frame["unit_price"].fillna(0)) | (frame["unit_price"] < 0)).sum()),
         "non_finite_revenue_rows": int(sum("non_finite_revenue" in reasons for reasons in reason_map.values())),
-        "accepted_revenue": round(float(accepted["revenue"].sum()), 2),
+        "accepted_revenue": round(accepted_revenue, 2),
         "reconciliation_passed": int(len(frame)) == int(len(accepted) + len(rejected)),
     }
 
