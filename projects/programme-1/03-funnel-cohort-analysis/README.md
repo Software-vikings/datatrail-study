@@ -6,14 +6,14 @@ Where do prospects leave the customer journey, and how does observed customer ac
 
 ## Event model
 
-Input is synthetic event-level data at one event per row. A customer can generate multiple event rows. The main stages are visit, signup, trial_start and purchase. Funnel counts are distinct customers at each stage; conversion from the previous stage uses the previous stage's distinct-customer count as its denominator.
+Input is synthetic event-level data at one event per row. A customer can generate multiple event rows. The main stages are visit, signup, trial_start and purchase. A customer advances only when each next stage occurs at or after the qualifying previous stage for that same customer. For repeated events, the earliest event after the previous stage is selected. This is a sequential funnel, so stage counts cannot increase as the journey progresses.
 
 A signup cohort is the month of a customer's first signup event. A customer is active in a later month when at least one recorded event occurs on or after that signup timestamp. Retention is active unique customers divided by the cohort's signup size.
 
 ## Workflow
 
 1. Validate unique event IDs, timestamps, customers and known event types.
-2. Build distinct-customer funnel counts and stage-to-stage conversion.
+2. Build a sequential distinct-customer funnel, excluding out-of-order stages and using each preceding stage as the conversion denominator.
 3. Identify each customer's first signup month.
 4. Count unique active customers by cohort and activity month, calculate cohort age and retention percentage.
 5. Export funnel, cohort activity and retention matrices, plus a heatmap and metric-definition note.
