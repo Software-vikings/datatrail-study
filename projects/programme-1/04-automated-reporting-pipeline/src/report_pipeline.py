@@ -112,6 +112,9 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
     try:
         connection.execute("PRAGMA foreign_keys = ON")
         with connection:
+            # Replace this pipeline-managed table inside the same transaction so
+            # repeated runs are idempotent and failed loads roll back cleanly.
+            connection.execute("DROP TABLE IF EXISTS orders")
             connection.execute("""
                 CREATE TABLE orders (
                     order_id TEXT PRIMARY KEY,
