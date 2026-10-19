@@ -6,12 +6,12 @@ This log records the implemented state of Programme 1 and the checks run for eac
 
 - Curriculum: all 21 chapters (P1-C00 through P1-C20) are implemented and released in the Phase 7 feature branch; manifest version 1.6.0.
 - Available interactive chapters: **21 of 21**.
-- Available coding exercises: **21**, with **155 named automated checks**.
+- Available coding exercises: **21**, with **162 named automated checks**.
 - Portfolio: **four runnable projects** with synthetic data/deterministic fixtures and isolated project verification.
 - Interview readiness: **100 Programme 1 questions** — Lowball 20, Core 35, Highball 25 and Trap 20.
 - Existing Python course: the separate **84-lesson** track, **84 reference solutions** and **205 named test cases** remain preserved. Its separate 51-question interview gym is not merged into Programme 1.
 - Progress: Programme 1 chapter completion/drafts and project-studio progress use separate keys; legacy Python progress is not reset or reused.
-- Branch/release state: the final Phase 7 feature branch is `programme-1/phase-7-analyst-projects-interview-readiness`, head `91c06bb0ffda7f9b680f4a6369b36f0893fc117a` at the last verified checkpoint. PRs #1–#7 remain a stacked sequence, open and unmerged.
+- Branch/release state: the final Phase 7 feature branch is `programme-1/phase-7-analyst-projects-interview-readiness`, last successful source-audit code/test head `cfc34de3d5ef04c62707771eb166781525bec53c`. PRs #1–#7 remain a stacked sequence, open and unmerged.
 - Deployment: no GitHub Pages deployment has been performed for this feature stack. Do not claim the current production site contains these changes until the PRs merge in order and the Pages workflow succeeds.
 - Remaining release tasks: independent code review and manual browser/device QA, followed by explicit owner approval for merge/deploy. GitHub's previous Codex review attempt was blocked by exhausted review quota; no submitted review records or inline threads were present at the checkpoint.
 ## 2026-10-19 — Phase 2: First beginner learning slice
@@ -238,3 +238,24 @@ The final hardening regression run on feature PR #7, run [#171](https://github.c
 - Legacy verifier: all **84 reference solutions and 205 named checks** passed.
 
 The run validates the feature PR; it does not merge the PR or publish GitHub Pages. Independent code review and human browser/device acceptance testing remain outstanding.
+
+
+## 2026-10-19 — Final source-audit pass 2
+
+### Verified hardening
+- Programme 1 now has **162 named lesson checks** across its 21 available chapters.
+- Project 1 rejects missing customer/product identifiers, empty input, non-finite values, calculated line-revenue overflow and monthly total overflow.
+- Project 2 enforces a unique `order_line_id` while allowing repeated `order_id` values, validates dimensions and finite source values, and rejects row/segment/month aggregate overflow.
+- Project 3 computes a sequence-aware distinct-customer funnel and rejects missing/duplicate event identifiers.
+- Project 4 validates canonical months, allowed statuses and nonblank IDs, uses an explicitly begun transaction for idempotent SQLite table replacement, preflights paid aggregates before touching the last successful outputs, and tests rollback/preservation after an injected insert failure.
+- C18 rejects infinite/NaN monetary amounts; C19 validates real calendar months, finite revenue and cross-file duplicate order IDs; C20 rejects empty narrative evidence and malformed deliverable collections.
+- The manual QA checklist includes these edge cases; human browser/device testing is still not claimed complete.
+
+### GitHub Actions verification
+The full PR validation [run #265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350) passed on code/test head `cfc34de3d5ef04c62707771eb166781525bec53c`:
+- Syntax checks, shared Pages gate and semantic curriculum validation: passed.
+- 21 Programme 1 lessons and **162 named checks**: passed.
+- Four project verifiers: passed.
+- Legacy Python 84 reference solutions / 205 named checks: passed.
+
+The feature stack remains unmerged and unpublished. Independent review, human browser/device QA and explicit owner approval for merge/deployment remain outstanding.
