@@ -172,3 +172,27 @@ After Phase 6 is fully complete and verified, implement P1-C20, **Analyst projec
 - The README links both documents.
 
 **Important:** The Phase 6 branch was created for continuity, but no Phase 6 lesson or runtime implementation has been committed at this checkpoint. Start the next session by verifying the branch and repository state, then implement; do not report Phase 6 as complete.
+
+
+## 2026-10-19 — Phase 6 implementation: Analyst workflows (P1-C17–P1-C19)
+
+### Implementation delivered
+1. P1-C17 — **APIs and external data collection**: GET query construction, JSON parsing and schema checks, HTTP status handling, finite timeout, bounded retry/backoff, 4xx versus 429/5xx handling, pagination stop condition and maximum-page guard, environment-variable credentials and reproducible JSON storage. The fake transport is deterministic; examples and automated checks do not call the public internet or require secrets.
+2. P1-C18 — **Python and database integration**: in-memory SQLite, keys and constraints, parameterised queries, SQL-injection resistance, transaction commit/rollback, explicit connection close, pandas read_sql_query/to_sql and reconciliation.
+3. P1-C19 — **Excel automation and repeatable reporting**: openpyxl batch ingestion from monthly CSVs, invalid-row logging, Summary and Details sheets, styling, number formats, column widths, frozen headers, filters, grand-total formula, recalculation settings and real save/reopen validation.
+4. Manifest release advanced to 1.5.0; C00–C19 available; C20 remains planned. The validator, CI installation and independent Pages deployment gate now require the exact first 20 chapters.
+5. Programme 1 progress keys and the separate legacy 84-lesson Python course remain unchanged.
+
+### Validation commands
+```bash
+python3 -m pip install numpy pandas scipy matplotlib seaborn plotly openpyxl
+node --check assets/python-data-analytics.js
+node --check assets/python-data-analytics-lessons.js
+python3 -m py_compile scripts/validate_programme1.py scripts/verify_programme1_lessons.py scripts/verify_python_exercises.py
+python3 scripts/validate_programme1.py
+python3 scripts/verify_programme1_lessons.py
+python3 scripts/verify_python_exercises.py
+```
+
+### CI evidence
+Phase 6 remains unverified until a fresh GitHub Actions run on the implementation commit succeeds. The historical Phase 5 run #83 must not be used as Phase 6 evidence.
