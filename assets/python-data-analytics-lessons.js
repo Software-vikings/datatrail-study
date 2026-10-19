@@ -1897,7 +1897,7 @@ window.DataTrailPythonAnalyticsLessons = [
         },
         {
           "name": "Uses parameter placeholders for customer lookup",
-          "code": "test_connection=build_connection()\ntry:\n    assert find_customer(test_connection,\"Mira\")== (2,\"Mira\")\nfinally:\n    test_connection.close()\nassert \"WHERE customer_name = ?\" in find_customer.__code__.co_consts",
+          "code": "test_connection=build_connection()\ntry:\n    assert find_customer(test_connection,\"Mira\")== (2,\"Mira\")\nfinally:\n    test_connection.close()\nassert any(\"WHERE customer_name = ?\" in constant for constant in find_customer.__code__.co_consts)",
           "expected": [
             2,
             "Mira"
