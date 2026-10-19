@@ -86,6 +86,24 @@ def verify_project_2(base: Path) -> None:
         assert "customer_id" in str(exc)
     else:
         raise AssertionError("Project 2 must reject blank customer identifiers")
+    nonfinite_retail = pd.read_csv(folder / "data" / "retail_orders.csv")
+    nonfinite_retail.loc[0, "unit_price"] = float("inf")
+    nonfinite_path = base / "project-2-infinite-price.csv"
+    nonfinite_retail.to_csv(nonfinite_path, index=False)
+    try:
+        module.analyze(nonfinite_path, base / "project-2-nonfinite")
+    except ValueError as exc:
+        assert "finite" in str(exc)
+    else:
+        raise AssertionError("Project 2 must reject non-finite monetary values")
+    empty_retail = base / "project-2-empty.csv"
+    pd.DataFrame(columns=pd.read_csv(folder / "data" / "retail_orders.csv").columns).to_csv(empty_retail, index=False)
+    try:
+        module.analyze(empty_retail, base / "project-2-empty-output")
+    except ValueError as exc:
+        assert "no order lines" in str(exc)
+    else:
+        raise AssertionError("Project 2 must reject an empty retail extract")
     assert abs(float(result["monthly"]["net_revenue"].sum()) - result["net_revenue"]) < 0.01
     assert len(result["region"]) == 4 and len(result["category"]) == 3
     for name in ("monthly_performance.csv", "region_performance.csv", "category_performance.csv", "customer_performance.csv", "monthly_net_revenue.png", "region_performance.png", "category_performance.png", "insights.md"):
