@@ -51,6 +51,8 @@ def analyze(input_csv: Path, output_dir: Path) -> dict:
 
     frame["gross_revenue"] = frame["quantity"] * frame["unit_price"]
     frame["net_revenue"] = frame["gross_revenue"] * (1 - frame["discount_pct"])
+    if not np.isfinite(frame[["gross_revenue", "net_revenue"]].to_numpy(dtype=float)).all():
+        raise ValueError("Calculated gross/net revenue must be finite")
     frame["month"] = frame["order_date"].dt.to_period("M").astype(str)
 
     monthly = frame.groupby("month", as_index=False).agg(
