@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sqlite3
 from pathlib import Path
 
@@ -13,9 +14,14 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+REQUIRED_ORDER_FIELDS = {"order_id", "month", "customer_id", "status", "amount"}
+ALLOWED_STATUSES = {"paid", "pending", "cancelled", "refunded"}
+
 
 def load_api_fixture(path: Path) -> list[dict]:
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("API fixture must contain a JSON object")
     records = payload.get("results")
     if not isinstance(records, list):
         raise ValueError("API fixture must contain a results list")
@@ -24,22 +30,63 @@ def load_api_fixture(path: Path) -> list[dict]:
 
 def load_monthly_csvs(folder: Path) -> list[dict]:
     folder = Path(folder)
+    if not folder.is_dir():
+        raise ValueError(f"Monthly CSV folder does not exist: {folder}")
     records = []
-    required = {"order_id", "month", "customer_id", "status", "amount"}
     for path in sorted(folder.glob("*.csv")):
-        frame = pd.read_csv(path)
-        missing = required - set(frame.columns)
+        frame = pd.read_csv(path, dtype="string")
+        missing = REQUIRED_ORDER_FIELDS - set(frame.columns)
         if missing:
             raise ValueError(f"{path.name} is missing columns: {sorted(missing)}")
-        if frame["order_id"].isna().any() or frame["order_id"].duplicated().any():
-            raise ValueError(f"{path.name} contains a missing or duplicate order_id")
-        frame["amount"] = pd.to_numeric(frame["amount"], errors="coerce")
-        if frame["amount"].isna().any() or (frame["amount"] < 0).any():
-            raise ValueError(f"{path.name} contains an invalid amount")
-        if not frame["month"].astype(str).str.match(r"^\d{4}-\d{2}$").all():
-            raise ValueError(f"{path.name} contains an invalid month")
         records.extend(frame.to_dict(orient="records"))
     return records
+
+
+def validate_order_records(records: list[dict], source_label: str) -> list[dict]:
+    """Validate and normalise source rows before database insertion."""
+    if not isinstance(records, list):
+        raise ValueError(f"{source_label} records must be a list")
+
+    cleaned = []
+    for row_number, source_row in enumerate(records, start=1):
+        if not isinstance(source_row, dict):
+            raise ValueError(f"{source_label} row {row_number} must be an object")
+        missing = REQUIRED_ORDER_FIELDS - set(source_row)
+        if missing:
+            raise ValueError(f"{source_label} row {row_number} is missing fields: {sorted(missing)}")
+
+        row = dict(source_row)
+        for field in ("order_id", "month", "customer_id", "status"):
+            value = row[field]
+            if value is None or pd.isna(value):
+                raise ValueError(f"{source_label} row {row_number} has a missing {field}")
+            row[field] = str(value).strip()
+            if not row[field]:
+                raise ValueError(f"{source_label} row {row_number} has a blank {field}")
+
+        try:
+            period = pd.Period(row["month"], freq="M")
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{source_label} row {row_number} has an invalid month") from exc
+        if str(period) != row["month"]:
+            raise ValueError(f"{source_label} row {row_number} month must use YYYY-MM format")
+
+        row["status"] = row["status"].lower()
+        if row["status"] not in ALLOWED_STATUSES:
+            raise ValueError(
+                f"{source_label} row {row_number} has an unsupported status: {row['status']!r}"
+            )
+
+        try:
+            amount = float(row["amount"])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{source_label} row {row_number} has an invalid amount") from exc
+        if not math.isfinite(amount) or amount < 0:
+            raise ValueError(f"{source_label} row {row_number} amount must be finite and non-negative")
+        row["amount"] = amount
+        cleaned.append(row)
+
+    return cleaned
 
 
 def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> dict:
@@ -47,18 +94,16 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
     output_dir.mkdir(parents=True, exist_ok=True)
     api_records = load_api_fixture(api_fixture)
     monthly_records = load_monthly_csvs(monthly_folder)
-    all_rows = []
-    for row in api_records:
-        all_rows.append({**row, "source": "api_fixture"})
-    for row in monthly_records:
-        all_rows.append({**row, "source": "monthly_csv"})
 
-    required = {"order_id", "month", "customer_id", "status", "amount", "source"}
-    if any(required - set(row) for row in all_rows):
-        raise ValueError("A source record is missing a required field")
-    amounts = [float(row["amount"]) for row in all_rows]
-    if any(value < 0 for value in amounts):
-        raise ValueError("Order amounts cannot be negative")
+    validated_api = validate_order_records(api_records, "API fixture")
+    validated_monthly = validate_order_records(monthly_records, "Monthly CSV")
+    all_rows = [
+        {**row, "source": "api_fixture"} for row in validated_api
+    ] + [
+        {**row, "source": "monthly_csv"} for row in validated_monthly
+    ]
+    if not all_rows:
+        raise ValueError("No order records were found in the API fixture or monthly CSV files")
     if len({row["order_id"] for row in all_rows}) != len(all_rows):
         raise ValueError("Order IDs must be unique across all sources")
 
@@ -80,7 +125,7 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
             connection.executemany(
                 "INSERT INTO orders (order_id, month, customer_id, status, amount, source) VALUES (?, ?, ?, ?, ?, ?)",
                 [
-                    (row["order_id"], row["month"], row["customer_id"], row["status"], float(row["amount"]), row["source"])
+                    (row["order_id"], row["month"], row["customer_id"], row["status"], row["amount"], row["source"])
                     for row in all_rows
                 ],
             )
@@ -98,7 +143,7 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
     if abs(float(summary["paid_revenue"].sum()) - float(paid["amount"].sum())) > 0.01:
         raise AssertionError("Monthly paid summary does not reconcile to database detail")
 
-    snapshot = {"api_fixture_records": api_records, "monthly_csv_records": monthly_records}
+    snapshot = {"api_fixture_records": validated_api, "monthly_csv_records": validated_monthly}
     (output_dir / "source_snapshot.json").write_text(json.dumps(snapshot, indent=2, sort_keys=True), encoding="utf-8")
     paid.to_csv(output_dir / "paid_order_extract.csv", index=False)
     summary.to_csv(output_dir / "monthly_paid_summary.csv", index=False)
@@ -115,8 +160,13 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
         summary_sheet.append([row.month, int(row.paid_orders), float(row.paid_revenue)])
     total_row = summary_sheet.max_row + 1
     summary_sheet.cell(total_row, 1, "Grand total")
-    summary_sheet.cell(total_row, 2, f"=SUM(B2:B{total_row - 1})")
-    summary_sheet.cell(total_row, 3, f"=SUM(C2:C{total_row - 1})")
+    if not summary.empty:
+        summary_sheet.cell(total_row, 2, f"=SUM(B2:B{total_row - 1})")
+        summary_sheet.cell(total_row, 3, f"=SUM(C2:C{total_row - 1})")
+    else:
+        summary_sheet.cell(total_row, 2, "=0")
+        summary_sheet.cell(total_row, 3, "=0")
+
     header_fill = PatternFill("solid", fgColor="173F35")
     for sheet in (summary_sheet, detail_sheet):
         sheet.freeze_panes = "A2"
@@ -141,8 +191,8 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
 
     total_paid = float(paid["amount"].sum())
     run_log = (
-        f"API fixture records: {len(api_records)}\n"
-        f"Monthly CSV records: {len(monthly_records)}\n"
+        f"API fixture records: {len(validated_api)}\n"
+        f"Monthly CSV records: {len(validated_monthly)}\n"
         f"Database rows: {len(all_rows)}\n"
         f"Paid orders: {len(paid)}\n"
         f"Paid revenue: {total_paid:.2f}\n"
@@ -151,7 +201,7 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
     )
     (output_dir / "run.log").write_text(run_log, encoding="utf-8")
     return {
-        "api_records": api_records, "monthly_records": monthly_records, "all_rows": all_rows,
+        "api_records": validated_api, "monthly_records": validated_monthly, "all_rows": all_rows,
         "paid": paid, "summary": summary, "report_path": report_path, "db_path": db_path,
         "paid_revenue": total_paid, "run_log": run_log,
     }
