@@ -1432,5 +1432,276 @@ window.DataTrailPythonAnalyticsLessons = [
         }
       ]
     }
+  },
+  {
+    "id": "p1-c15",
+    "curriculumId": "P1-C15",
+    "prerequisites": [
+      "p1-c14"
+    ],
+    "title": "Statistics for working analysts",
+    "level": "Intermediate",
+    "mins": 80,
+    "packages": [
+      "numpy",
+      "pandas",
+      "scipy"
+    ],
+    "plain": "A report says sales increased after a new campaign. Is the increase large, or could it be ordinary sample variation? Statistics helps an analyst describe the data, quantify uncertainty and choose a fair comparison. It also teaches you when the evidence is not strong enough to make the claim a business decision might tempt you to make.",
+    "definition": "Descriptive statistics summarise observed data using counts, rates, central tendency and spread. Inferential statistics use a sample to estimate or test claims about a wider population. The sample standard deviation uses n−1 degrees of freedom; the standard error measures variability of a sample statistic. A confidence interval describes the long-run coverage of an interval procedure. A p-value is the probability, under a specified null model and assumptions, of data at least as extreme as the observed result. Effect size quantifies magnitude. Test choice depends on variable type, study design, independence and assumptions.",
+    "analogy": "Imagine tasting one spoonful from a large pot. The spoonful describes what you tasted, but it may not represent the entire pot if you sampled only the top. Taking a fair sample, recording how varied the spoonfuls are and explaining how uncertain your estimate is gives a more responsible picture. A statistical test asks whether the observed difference would be surprising under a specific no-effect assumption; it does not prove why the difference happened.",
+    "example": "import numpy as np\nfrom scipy import stats\n\ncontrol = np.array([12, 14, 15, 13, 16, 14, 15, 13])\nvariant = np.array([15, 16, 17, 14, 18, 16, 17, 15])\n\nresult = stats.ttest_ind(variant, control, equal_var=False)\nprint(\"Control mean:\", control.mean())\nprint(\"Variant mean:\", variant.mean())\nprint(\"Welch p-value:\", round(float(result.pvalue), 4))",
+    "expectedOutput": "Control mean: 14.0\nVariant mean: 16.0\nWelch p-value: 0.0086",
+    "prediction": "The variant average is higher. Does that alone prove the campaign caused the difference?",
+    "predictionAnswer": "No. An observed difference may reflect sampling variation, selection bias, confounding or a real effect. A test quantifies compatibility with a specified null model; it does not remove design flaws or establish causation. A fair randomised experiment and a useful effect-size estimate are important.",
+    "question": "The same customers have their satisfaction scores measured before and after a change. Which test is designed for the paired measurements?",
+    "options": [
+      "Independent-samples Welch t-test",
+      "Paired t-test",
+      "Chi-square test of independence"
+    ],
+    "answer": 1,
+    "why": "The two scores belong to the same customers, so each before value is naturally paired with its after value. A paired t-test analyses the within-customer differences rather than pretending the two sets are independent.",
+    "task": "Create a statistics report from the supplied datasets. Summarise a skewed sample and flag IQR outliers; calculate sample standard deviation, standard error and a 95% t confidence interval; compare two independent groups with Welch's t-test and Cohen's d; analyse paired before/after measurements; choose chi-square for conversion counts and one-way ANOVA for three independent groups; calculate a Pearson correlation and two common probabilities. Interpret the results without claiming that correlation or a low p-value proves causation.",
+    "hint": "Use Series.describe(), median() and quantile([.25, .75]) for the distribution. Use ddof=1 for sample standard deviation, stats.sem() for standard error and stats.t.interval() for the confidence interval. Welch uses ttest_ind(..., equal_var=False); paired data use ttest_rel(); categorical counts use chi2_contingency(); three independent means use f_oneway(). Calculate Cohen's d using the pooled sample standard deviation. Use pearsonr(), binom.pmf() and norm.cdf() for the remaining questions.",
+    "solution": "import numpy as np\nimport pandas as pd\nfrom scipy import stats\n\nobservations = pd.Series([12, 14, 15, 16, 17, 18, 18, 20, 21, 65])\nq1, q3 = observations.quantile([0.25, 0.75])\niqr = q3 - q1\nlower_fence = q1 - 1.5 * iqr\nupper_fence = q3 + 1.5 * iqr\noutliers = observations[(observations < lower_fence) | (observations > upper_fence)]\n\ngroup_a = np.array([12, 14, 15, 13, 16, 14, 15, 13], dtype=float)\ngroup_b = np.array([15, 16, 17, 14, 18, 16, 17, 15], dtype=float)\nmean_b = float(group_b.mean())\nstandard_error_b = float(stats.sem(group_b))\nconfidence_interval_b = stats.t.interval(\n    0.95,\n    df=len(group_b) - 1,\n    loc=mean_b,\n    scale=standard_error_b\n)\n\nwelch_result = stats.ttest_ind(group_b, group_a, equal_var=False)\npooled_sd = np.sqrt(\n    ((len(group_a) - 1) * group_a.var(ddof=1)\n     + (len(group_b) - 1) * group_b.var(ddof=1))\n    / (len(group_a) + len(group_b) - 2)\n)\ncohens_d = float((group_b.mean() - group_a.mean()) / pooled_sd)\n\nbefore = np.array([42, 45, 40, 48, 43, 41, 46, 44], dtype=float)\nafter = np.array([45, 48, 43, 52, 44, 44, 48, 47], dtype=float)\npaired_result = stats.ttest_rel(after, before)\nmean_paired_change = float(np.mean(after - before))\n\nconversion_table = np.array([[30, 70], [42, 58]])\nchi_square_result = stats.chi2_contingency(conversion_table, correction=False)\n\ntraining_groups = [\n    np.array([70, 72, 68, 74, 71], dtype=float),\n    np.array([76, 78, 75, 77, 79], dtype=float),\n    np.array([82, 80, 84, 83, 81], dtype=float)\n]\nanova_result = stats.f_oneway(*training_groups)\n\ncorrelation_result = stats.pearsonr(\n    [10, 12, 14, 16, 18, 20],\n    [18, 19, 23, 24, 28, 29]\n)\nexactly_two_successes = float(stats.binom.pmf(2, n=5, p=0.4))\nnormal_below_70 = float(stats.norm.cdf(70, loc=65, scale=5))\n\nprint(\"Median and IQR:\", observations.median(), iqr)\nprint(\"Flagged outliers:\", outliers.tolist())\nprint(\"95% interval for variant mean:\", [round(float(x), 2) for x in confidence_interval_b])\nprint(\"Welch test significant at 5%:\", bool(welch_result.pvalue < 0.05))\nprint(\"Paired mean change:\", mean_paired_change)\nprint(\"Conversion chi-square p-value:\", round(float(chi_square_result.pvalue), 4))\nprint(\"Three-group ANOVA significant:\", bool(anova_result.pvalue < 0.05))\nprint(\"Pearson correlation:\", round(float(correlation_result.statistic), 3))\nprint(\"P(exactly two successes):\", round(exactly_two_successes, 4))\nprint(\"P(normal value at or below 70):\", round(normal_below_70, 4))",
+    "exercise": {
+      "title": "Build an evidence-aware statistics report",
+      "prompt": "Complete the statistical workflow with the supplied data. Keep descriptive summaries, outlier fences, inferential test results and probability calculations in separate named variables. Use the test that matches each study design. Report the size and uncertainty of an effect and do not treat p < 0.05 as proof of causation.",
+      "setup": "",
+      "starter": "import numpy as np\nimport pandas as pd\nfrom scipy import stats\n\nobservations = pd.Series([12, 14, 15, 16, 17, 18, 18, 20, 21, 65])\n\n# Descriptive statistics and the 1.5 × IQR outlier rule.\nq1, q3 = None, None\niqr = None\nlower_fence, upper_fence = None, None\noutliers = None\n\ngroup_a = np.array([12, 14, 15, 13, 16, 14, 15, 13], dtype=float)\ngroup_b = np.array([15, 16, 17, 14, 18, 16, 17, 15], dtype=float)\n\n# Estimate the variant mean and a 95% t confidence interval.\nmean_b = None\nstandard_error_b = None\nconfidence_interval_b = None\n\n# Independent samples: Welch's t-test and pooled-SD Cohen's d.\nwelch_result = None\npooled_sd = None\ncohens_d = None\n\n# Paired measurements: compare the same customers before and after.\nbefore = np.array([42, 45, 40, 48, 43, 41, 46, 44], dtype=float)\nafter = np.array([45, 48, 43, 52, 44, 44, 48, 47], dtype=float)\npaired_result = None\nmean_paired_change = None\n\n# Categorical conversion counts: rows are groups, columns are outcomes.\nconversion_table = np.array([[30, 70], [42, 58]])\nchi_square_result = None\n\n# Three independent groups: one-way ANOVA.\ntraining_groups = [\n    np.array([70, 72, 68, 74, 71], dtype=float),\n    np.array([76, 78, 75, 77, 79], dtype=float),\n    np.array([82, 80, 84, 83, 81], dtype=float)\n]\nanova_result = None\n\n# Relationship and probability calculations.\ncorrelation_result = None\nexactly_two_successes = None\nnormal_below_70 = None\n\nprint(\"Median and IQR:\", observations.median(), iqr)\nprint(\"Flagged outliers:\", outliers.tolist())\nprint(\"95% interval for variant mean:\", [round(float(x), 2) for x in confidence_interval_b])\nprint(\"Welch test significant at 5%:\", bool(welch_result.pvalue < 0.05))\nprint(\"Paired mean change:\", mean_paired_change)\nprint(\"Conversion chi-square p-value:\", round(float(chi_square_result.pvalue), 4))\nprint(\"Three-group ANOVA significant:\", bool(anova_result.pvalue < 0.05))\nprint(\"Pearson correlation:\", round(float(correlation_result.statistic), 3))\nprint(\"P(exactly two successes):\", round(exactly_two_successes, 4))\nprint(\"P(normal value at or below 70):\", round(normal_below_70, 4))",
+      "hint": "Start with observations.quantile([0.25, 0.75]) and the 1.5 × IQR fences. Use sample variance (ddof=1) for pooled SD. The CI uses stats.t.interval(0.95, df=n-1, loc=mean, scale=stats.sem(sample)). Then choose ttest_ind(equal_var=False), ttest_rel, chi2_contingency and f_oneway for the four different designs. Finish with pearsonr, binom.pmf and norm.cdf.",
+      "solution": "import numpy as np\nimport pandas as pd\nfrom scipy import stats\n\nobservations = pd.Series([12, 14, 15, 16, 17, 18, 18, 20, 21, 65])\nq1, q3 = observations.quantile([0.25, 0.75])\niqr = q3 - q1\nlower_fence = q1 - 1.5 * iqr\nupper_fence = q3 + 1.5 * iqr\noutliers = observations[(observations < lower_fence) | (observations > upper_fence)]\n\ngroup_a = np.array([12, 14, 15, 13, 16, 14, 15, 13], dtype=float)\ngroup_b = np.array([15, 16, 17, 14, 18, 16, 17, 15], dtype=float)\nmean_b = float(group_b.mean())\nstandard_error_b = float(stats.sem(group_b))\nconfidence_interval_b = stats.t.interval(\n    0.95,\n    df=len(group_b) - 1,\n    loc=mean_b,\n    scale=standard_error_b\n)\n\nwelch_result = stats.ttest_ind(group_b, group_a, equal_var=False)\npooled_sd = np.sqrt(\n    ((len(group_a) - 1) * group_a.var(ddof=1)\n     + (len(group_b) - 1) * group_b.var(ddof=1))\n    / (len(group_a) + len(group_b) - 2)\n)\ncohens_d = float((group_b.mean() - group_a.mean()) / pooled_sd)\n\nbefore = np.array([42, 45, 40, 48, 43, 41, 46, 44], dtype=float)\nafter = np.array([45, 48, 43, 52, 44, 44, 48, 47], dtype=float)\npaired_result = stats.ttest_rel(after, before)\nmean_paired_change = float(np.mean(after - before))\n\nconversion_table = np.array([[30, 70], [42, 58]])\nchi_square_result = stats.chi2_contingency(conversion_table, correction=False)\n\ntraining_groups = [\n    np.array([70, 72, 68, 74, 71], dtype=float),\n    np.array([76, 78, 75, 77, 79], dtype=float),\n    np.array([82, 80, 84, 83, 81], dtype=float)\n]\nanova_result = stats.f_oneway(*training_groups)\n\ncorrelation_result = stats.pearsonr(\n    [10, 12, 14, 16, 18, 20],\n    [18, 19, 23, 24, 28, 29]\n)\nexactly_two_successes = float(stats.binom.pmf(2, n=5, p=0.4))\nnormal_below_70 = float(stats.norm.cdf(70, loc=65, scale=5))\n\nprint(\"Median and IQR:\", observations.median(), iqr)\nprint(\"Flagged outliers:\", outliers.tolist())\nprint(\"95% interval for variant mean:\", [round(float(x), 2) for x in confidence_interval_b])\nprint(\"Welch test significant at 5%:\", bool(welch_result.pvalue < 0.05))\nprint(\"Paired mean change:\", mean_paired_change)\nprint(\"Conversion chi-square p-value:\", round(float(chi_square_result.pvalue), 4))\nprint(\"Three-group ANOVA significant:\", bool(anova_result.pvalue < 0.05))\nprint(\"Pearson correlation:\", round(float(correlation_result.statistic), 3))\nprint(\"P(exactly two successes):\", round(exactly_two_successes, 4))\nprint(\"P(normal value at or below 70):\", round(normal_below_70, 4))",
+      "tests": [
+        {
+          "name": "Uses quartiles and the IQR rule to identify the extreme observation",
+          "code": "assert q1 == 15.25 and q3 == 19.5 and iqr == 4.25 and outliers.tolist() == [65]",
+          "expected": [
+            15.25,
+            19.5,
+            4.25,
+            [
+              65
+            ]
+          ],
+          "actual": "[q1, q3, iqr, outliers.tolist()]",
+          "failureMessage": "Use the 25th and 75th percentiles. The 65 value is above the upper 1.5 × IQR fence."
+        },
+        {
+          "name": "Calculates the sample mean and standard error correctly",
+          "code": "assert mean_b == 16.0 and np.isclose(standard_error_b, 0.46291004988627565)",
+          "expected": [
+            16,
+            0.46291
+          ],
+          "actual": "[mean_b, standard_error_b]",
+          "failureMessage": "Use the sample standard error, not the population standard deviation or the standard deviation itself."
+        },
+        {
+          "name": "Builds a 95 percent t confidence interval for the variant mean",
+          "code": "assert np.allclose(confidence_interval_b, [14.9053916697, 17.0946083303], atol=1e-6)",
+          "expected": [
+            14.9054,
+            17.0946
+          ],
+          "actual": "[float(confidence_interval_b[0]), float(confidence_interval_b[1])]",
+          "failureMessage": "Use the t distribution with n−1 degrees of freedom and standard error as the scale."
+        },
+        {
+          "name": "Uses Welch's independent-samples test and reports effect size",
+          "code": "assert welch_result.pvalue < 0.01 and np.isclose(cohens_d, 1.52752523165)",
+          "expected": [
+            "p < 0.01",
+            "Cohen's d ≈ 1.53"
+          ],
+          "actual": "[float(welch_result.pvalue), cohens_d]",
+          "failureMessage": "The groups are independent, and Welch's test does not assume equal population variances. Report the effect size as well as the p-value."
+        },
+        {
+          "name": "Uses a paired t-test for repeated measurements",
+          "code": "assert np.isclose(mean_paired_change, 2.75) and paired_result.pvalue < 0.001",
+          "expected": [
+            2.75,
+            "p < 0.001"
+          ],
+          "actual": "[mean_paired_change, float(paired_result.pvalue)]",
+          "failureMessage": "The same customers were measured twice. Test the paired differences instead of treating the two lists as independent."
+        },
+        {
+          "name": "Uses chi-square for the categorical conversion table",
+          "code": "assert np.isclose(chi_square_result.pvalue, 0.07709987174354202) and chi_square_result.pvalue > 0.05",
+          "expected": [
+            0.0771,
+            "not below 0.05"
+          ],
+          "actual": "[float(chi_square_result.pvalue), bool(chi_square_result.pvalue < 0.05)]",
+          "failureMessage": "The outcome is categorical. Here the observed conversion difference does not cross the 5% significance threshold; do not call it a proven lift."
+        },
+        {
+          "name": "Uses one-way ANOVA to compare three independent group means",
+          "code": "assert anova_result.statistic > 45 and anova_result.pvalue < 0.001",
+          "expected": [
+            "F > 45",
+            "p < 0.001"
+          ],
+          "actual": "[float(anova_result.statistic), float(anova_result.pvalue)]",
+          "failureMessage": "One-way ANOVA compares the means of three independent groups. A significant result says at least one mean differs; it does not identify which pair without follow-up analysis."
+        },
+        {
+          "name": "Calculates correlation without making a causal claim",
+          "code": "assert correlation_result.statistic > 0.98 and correlation_result.pvalue < 0.001",
+          "expected": [
+            "> 0.98",
+            "p < 0.001"
+          ],
+          "actual": "[float(correlation_result.statistic), float(correlation_result.pvalue)]",
+          "failureMessage": "Pearson correlation describes linear association. It does not show that marketing spend caused revenue to rise."
+        },
+        {
+          "name": "Calculates binomial and normal-distribution probabilities",
+          "code": "assert np.isclose(exactly_two_successes, 0.3456) and np.isclose(normal_below_70, 0.8413447460685429)",
+          "expected": [
+            0.3456,
+            0.8413
+          ],
+          "actual": "[exactly_two_successes, normal_below_70]",
+          "failureMessage": "Use binom.pmf for an exact success count and norm.cdf for the cumulative probability below a value."
+        }
+      ]
+    }
+  },
+  {
+    "id": "p1-c16",
+    "curriculumId": "P1-C16",
+    "prerequisites": [
+      "p1-c15"
+    ],
+    "title": "Visualisation and analytical communication",
+    "level": "Intermediate",
+    "mins": 85,
+    "packages": [
+      "numpy",
+      "pandas",
+      "matplotlib"
+    ],
+    "pypiPackages": [
+      "seaborn",
+      "plotly"
+    ],
+    "plain": "A chart is not decoration. It is a way to answer a specific question quickly and fairly. A line chart can reveal a trend, a bar chart can compare categories, a box plot can compare distributions, and a scatter plot can show whether two numeric measures move together. Clear labels, sensible scales and an honest explanation help another person understand what the data actually supports.",
+    "definition": "Matplotlib provides figure and axes objects for building static charts; Seaborn builds statistical visualisations on top of Matplotlib; Plotly creates interactive figures. Chart selection should follow variable types and the analytical question. Visual integrity requires meaningful scales, units, labels, accessible colour and uncertainty cues. A defensible analytical narrative states the question, method, result, limitation and possible action without converting association into causation.",
+    "analogy": "Think of a chart as the signboard outside a shop. It should answer the visitor's question at a glance. A title explains what the picture measures, the axes explain the units, and the legend explains the groups. If the scale starts at a misleading point or a key group is hidden, the signboard gives the wrong impression even when every number is technically present.",
+    "example": "import matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\nimport plotly.express as px\n\nsales = pd.DataFrame({\n    \"month\": [\"Jan\", \"Feb\", \"Mar\", \"Apr\"],\n    \"revenue\": [120, 150, 135, 180]\n})\n\nfig, ax = plt.subplots()\nax.bar(sales[\"month\"], sales[\"revenue\"])\nax.set(title=\"Monthly revenue\", xlabel=\"Month\", ylabel=\"Revenue (₹ thousands)\")\nax.set_ylim(0, 200)\n\ndistribution = pd.DataFrame({\n    \"campaign\": [\"A\", \"A\", \"A\", \"B\", \"B\", \"B\"],\n    \"conversion\": [2.1, 2.4, 2.0, 2.6, 2.8, 2.7]\n})\nsns.boxplot(data=distribution, x=\"campaign\", y=\"conversion\")\n\ninteractive_figure = px.line(\n    sales, x=\"month\", y=\"revenue\", markers=True,\n    title=\"Monthly revenue trend\"\n)\nprint(\"Bar chart baseline:\", ax.get_ylim()[0])\nprint(\"Interactive points:\", len(interactive_figure.data[0].x))",
+    "expectedOutput": "Bar chart baseline: 0.0\nInteractive points: 4",
+    "prediction": "A bar chart compares revenue across cities. Why can starting its vertical axis at ₹9,000 instead of zero exaggerate small differences?",
+    "predictionAnswer": "The visible bar lengths represent magnitude from the baseline. A truncated zero baseline can make a small difference look enormous. A line chart may use a tighter scale when appropriate, but the axis must be labelled and the choice must not mislead.",
+    "question": "A manager wants to compare the distribution and spread of delivery times across four regions. Which chart is a strong first choice?",
+    "options": [
+      "A box plot",
+      "A pie chart",
+      "A 3D decorative surface"
+    ],
+    "answer": 0,
+    "why": "A box plot shows median, quartiles, spread and potential outliers for each region, making it useful for distribution comparisons. A pie chart is not designed to show the shape and spread of a numeric variable.",
+    "task": "Create a concise sales visualisation pack from the supplied monthly data. Build a Matplotlib bar chart with asymmetric uncertainty intervals, a Seaborn box plot to compare two campaign distributions, and an interactive Plotly line chart. Use meaningful titles, units, labels, a zero baseline for the bars and an annotation. Write an evidence-aware chart story with a question, method, result, limitation and action.",
+    "hint": "For the Matplotlib chart, pass asymmetric yerr as [revenue - lower, upper - revenue] and label the y-axis with its units. For Seaborn, use sns.boxplot(data=campaign, x='campaign', y='conversion_rate', ax=box_ax). For Plotly, use px.line(..., markers=True) and update its axis titles. Generate HTML with plotly_figure.to_html(...). Check that every chart has a clear question and avoids a misleading scale.",
+    "solution": "import matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\nimport plotly.express as px\n\nmonthly = pd.DataFrame({\n    \"month\": [\"Jan\", \"Feb\", \"Mar\", \"Apr\"],\n    \"revenue\": [120, 150, 135, 180],\n    \"lower\": [110, 140, 125, 165],\n    \"upper\": [130, 160, 145, 195]\n})\n\nfig, ax = plt.subplots(figsize=(7, 4))\ny_errors = [\n    monthly[\"revenue\"] - monthly[\"lower\"],\n    monthly[\"upper\"] - monthly[\"revenue\"]\n]\nax.bar(\n    monthly[\"month\"],\n    monthly[\"revenue\"],\n    yerr=y_errors,\n    capsize=4,\n    label=\"Revenue\"\n)\nax.set_title(\"Monthly revenue with uncertainty range\")\nax.set_xlabel(\"Month\")\nax.set_ylabel(\"Revenue (₹ thousands)\")\nax.set_ylim(0, 210)\nax.legend()\nax.annotate(\n    \"Highest observed month\",\n    xy=(\"Apr\", 180),\n    xytext=(\"Mar\", 200),\n    arrowprops={\"arrowstyle\": \"->\"}\n)\nfig.tight_layout()\n\ncampaign = pd.DataFrame({\n    \"campaign\": [\"A\"] * 5 + [\"B\"] * 5,\n    \"conversion_rate\": [2.1, 2.4, 2.0, 2.3, 2.2, 2.6, 2.8, 2.7, 2.5, 2.9]\n})\nbox_fig, box_ax = plt.subplots(figsize=(6, 4))\nsns.boxplot(data=campaign, x=\"campaign\", y=\"conversion_rate\", ax=box_ax)\nbox_ax.set_title(\"Conversion-rate distribution by campaign\")\nbox_ax.set_xlabel(\"Campaign\")\nbox_ax.set_ylabel(\"Conversion rate (%)\")\nbox_fig.tight_layout()\n\nplotly_figure = px.line(\n    monthly,\n    x=\"month\",\n    y=\"revenue\",\n    markers=True,\n    title=\"Interactive monthly revenue trend\"\n)\nplotly_figure.update_layout(\n    xaxis_title=\"Month\",\n    yaxis_title=\"Revenue (₹ thousands)\"\n)\nplotly_html = plotly_figure.to_html(full_html=True, include_plotlyjs=\"cdn\")\n\nchart_story = {\n    \"question\": \"How did monthly revenue change from January to April?\",\n    \"method\": \"Compare monthly totals with a labelled bar chart and show the supplied lower and upper uncertainty bounds.\",\n    \"result\": \"April has the highest observed revenue at ₹180 thousand.\",\n    \"limitation\": \"Four monthly totals do not establish a seasonal pattern or explain why revenue changed.\",\n    \"action\": \"Check the underlying order mix and campaign calendar before attributing the increase to a cause.\"\n}\n\nprint(\"Matplotlib bar baseline:\", ax.get_ylim()[0])\nprint(\"Uncertainty ranges:\", len(ax.containers[0].errorbar.lines))\nprint(\"Seaborn distributions:\", campaign[\"campaign\"].nunique())\nprint(\"Plotly points:\", len(plotly_figure.data[0].x))\nprint(\"Chart story fields:\", len(chart_story))",
+    "exercise": {
+      "title": "Build and explain a three-chart sales visualisation pack",
+      "prompt": "Use the monthly table to build a labelled Matplotlib bar chart with asymmetric lower/upper uncertainty intervals and an annotated highest month. Create a Seaborn box plot comparing campaigns A and B. Create a Plotly line chart with markers and labelled axes, then convert it to standalone HTML. Finish with a five-part chart story. Do not imply that the visual trend proves a cause.",
+      "setup": "",
+      "starter": "import matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\nimport plotly.express as px\n\nmonthly = pd.DataFrame({\n    \"month\": [\"Jan\", \"Feb\", \"Mar\", \"Apr\"],\n    \"revenue\": [120, 150, 135, 180],\n    \"lower\": [110, 140, 125, 165],\n    \"upper\": [130, 160, 145, 195]\n})\n\n# Matplotlib: use the lower and upper columns as asymmetric error bars.\nfig, ax = plt.subplots(figsize=(7, 4))\ny_errors = None\nbars = None\n# Add title, axis labels with units, zero baseline, legend and annotation.\n\ncampaign = pd.DataFrame({\n    \"campaign\": [\"A\"] * 5 + [\"B\"] * 5,\n    \"conversion_rate\": [2.1, 2.4, 2.0, 2.3, 2.2, 2.6, 2.8, 2.7, 2.5, 2.9]\n})\n\n# Seaborn: compare the distribution of conversion_rate by campaign.\nbox_fig, box_ax = plt.subplots(figsize=(6, 4))\n# Create and label the box plot.\n\n# Plotly: create a marker-enabled monthly line chart with axis titles.\nplotly_figure = None\nplotly_html = None\n\n# Tell the reader the question, method, result, limitation and action.\nchart_story = {\n    \"question\": \"\",\n    \"method\": \"\",\n    \"result\": \"\",\n    \"limitation\": \"\",\n    \"action\": \"\"\n}\n\nprint(\"Matplotlib bar baseline:\", ax.get_ylim()[0])\nprint(\"Uncertainty ranges:\", len(ax.containers[0].errorbar.lines))\nprint(\"Seaborn distributions:\", campaign[\"campaign\"].nunique())\nprint(\"Plotly points:\", len(plotly_figure.data[0].x))\nprint(\"Chart story fields:\", len(chart_story))",
+      "hint": "Build y_errors with two rows: monthly['revenue'] - monthly['lower'], then monthly['upper'] - monthly['revenue']. Pass this to bar(..., yerr=y_errors, capsize=4). Label both axes and include units. Use sns.boxplot() for the two distributions. Use px.line(..., markers=True), update_layout() for axis titles and to_html() for the interactive chart. Fill each chart_story value with a specific and appropriately cautious statement.",
+      "solution": "import matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\nimport plotly.express as px\n\nmonthly = pd.DataFrame({\n    \"month\": [\"Jan\", \"Feb\", \"Mar\", \"Apr\"],\n    \"revenue\": [120, 150, 135, 180],\n    \"lower\": [110, 140, 125, 165],\n    \"upper\": [130, 160, 145, 195]\n})\n\nfig, ax = plt.subplots(figsize=(7, 4))\ny_errors = [\n    monthly[\"revenue\"] - monthly[\"lower\"],\n    monthly[\"upper\"] - monthly[\"revenue\"]\n]\nbars = ax.bar(\n    monthly[\"month\"],\n    monthly[\"revenue\"],\n    yerr=y_errors,\n    capsize=4,\n    label=\"Revenue\"\n)\nax.set_title(\"Monthly revenue with uncertainty range\")\nax.set_xlabel(\"Month\")\nax.set_ylabel(\"Revenue (₹ thousands)\")\nax.set_ylim(0, 210)\nax.legend()\nax.annotate(\n    \"Highest observed month\",\n    xy=(\"Apr\", 180),\n    xytext=(\"Mar\", 200),\n    arrowprops={\"arrowstyle\": \"->\"}\n)\nfig.tight_layout()\n\ncampaign = pd.DataFrame({\n    \"campaign\": [\"A\"] * 5 + [\"B\"] * 5,\n    \"conversion_rate\": [2.1, 2.4, 2.0, 2.3, 2.2, 2.6, 2.8, 2.7, 2.5, 2.9]\n})\nbox_fig, box_ax = plt.subplots(figsize=(6, 4))\nsns.boxplot(data=campaign, x=\"campaign\", y=\"conversion_rate\", ax=box_ax)\nbox_ax.set_title(\"Conversion-rate distribution by campaign\")\nbox_ax.set_xlabel(\"Campaign\")\nbox_ax.set_ylabel(\"Conversion rate (%)\")\nbox_fig.tight_layout()\n\nplotly_figure = px.line(\n    monthly,\n    x=\"month\",\n    y=\"revenue\",\n    markers=True,\n    title=\"Interactive monthly revenue trend\"\n)\nplotly_figure.update_layout(\n    xaxis_title=\"Month\",\n    yaxis_title=\"Revenue (₹ thousands)\"\n)\nplotly_html = plotly_figure.to_html(full_html=True, include_plotlyjs=\"cdn\")\n\nchart_story = {\n    \"question\": \"How did monthly revenue change from January to April?\",\n    \"method\": \"Compare monthly totals with a labelled bar chart and show the supplied lower and upper uncertainty bounds.\",\n    \"result\": \"April has the highest observed revenue at ₹180 thousand.\",\n    \"limitation\": \"Four monthly totals do not establish a seasonal pattern or explain why revenue changed.\",\n    \"action\": \"Check the underlying order mix and campaign calendar before attributing the increase to a cause.\"\n}\n\nprint(\"Matplotlib bar baseline:\", ax.get_ylim()[0])\nprint(\"Uncertainty ranges:\", len(ax.containers[0].errorbar.lines))\nprint(\"Seaborn distributions:\", campaign[\"campaign\"].nunique())\nprint(\"Plotly points:\", len(plotly_figure.data[0].x))\nprint(\"Chart story fields:\", len(chart_story))",
+      "tests": [
+        {
+          "name": "Builds a labelled Matplotlib figure and axes",
+          "code": "assert ax.get_title() == 'Monthly revenue with uncertainty range' and ax.get_xlabel() == 'Month' and ax.get_ylabel() == 'Revenue (₹ thousands)' and ax.get_legend() is not None",
+          "expected": [
+            "title",
+            "Month",
+            "Revenue (₹ thousands)",
+            "legend"
+          ],
+          "actual": "[ax.get_title(), ax.get_xlabel(), ax.get_ylabel(), ax.get_legend() is not None]",
+          "failureMessage": "Give the reader the chart question, category and measure with units, and explain the bar series in a legend."
+        },
+        {
+          "name": "Keeps the bar-chart baseline at zero",
+          "code": "assert ax.get_ylim()[0] == 0",
+          "expected": 0,
+          "actual": "ax.get_ylim()[0]",
+          "failureMessage": "A magnitude comparison using bars should normally start at zero so the visual lengths do not exaggerate differences."
+        },
+        {
+          "name": "Displays the asymmetric uncertainty intervals and annotation",
+          "code": "assert len(ax.containers) >= 1 and len(ax.collections) >= 1 and len(ax.texts) >= 1",
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "actual": "[len(ax.containers) >= 1, len(ax.collections) >= 1, len(ax.texts) >= 1]",
+          "failureMessage": "Pass the lower and upper deviations as asymmetric yerr and annotate the highest month."
+        },
+        {
+          "name": "Creates a Seaborn distribution comparison with axis labels",
+          "code": "assert box_ax.get_title() == 'Conversion-rate distribution by campaign' and box_ax.get_xlabel() == 'Campaign' and box_ax.get_ylabel() == 'Conversion rate (%)' and len(box_ax.lines) > 0",
+          "expected": [
+            "title",
+            "Campaign",
+            "Conversion rate (%)",
+            "box plot"
+          ],
+          "actual": "[box_ax.get_title(), box_ax.get_xlabel(), box_ax.get_ylabel(), len(box_ax.lines)]",
+          "failureMessage": "Use Seaborn's boxplot for the campaign distributions and label the percentage measure."
+        },
+        {
+          "name": "Creates an interactive Plotly line chart with four data points",
+          "code": "assert plotly_figure.data[0].type == 'scatter' and 'markers' in plotly_figure.data[0].mode and len(plotly_figure.data[0].x) == 4",
+          "expected": [
+            "scatter",
+            "markers",
+            4
+          ],
+          "actual": "[plotly_figure.data[0].type, plotly_figure.data[0].mode, len(plotly_figure.data[0].x)]",
+          "failureMessage": "Use px.line with markers=True so each monthly observation can be inspected."
+        },
+        {
+          "name": "Exports the interactive Plotly figure as HTML",
+          "code": "assert 'plotly-graph-div' in plotly_html and 'Monthly revenue' in plotly_html",
+          "expected": [
+            "plotly-graph-div",
+            "Monthly revenue"
+          ],
+          "actual": "['plotly-graph-div' in plotly_html, 'Monthly revenue' in plotly_html]",
+          "failureMessage": "to_html should produce a reusable HTML representation of the interactive chart."
+        },
+        {
+          "name": "Provides the full analytical communication structure",
+          "code": "assert set(chart_story) == {'question', 'method', 'result', 'limitation', 'action'} and all(len(value.strip()) > 20 for value in chart_story.values())",
+          "expected": [
+            "question",
+            "method",
+            "result",
+            "limitation",
+            "action"
+          ],
+          "actual": "sorted(chart_story.keys())",
+          "failureMessage": "A useful chart explanation states the question, method, finding, limitation and responsible next action."
+        },
+        {
+          "name": "States the observed result without claiming causation",
+          "code": "assert 'April' in chart_story['result'] and ('not establish' in chart_story['limitation'] or 'does not establish' in chart_story['limitation']) and 'before attributing' in chart_story['action']",
+          "expected": [
+            "April result",
+            "cautious limitation",
+            "evidence-based action"
+          ],
+          "actual": "[chart_story['result'], chart_story['limitation'], chart_story['action']]",
+          "failureMessage": "Do not infer seasonality or campaign causation from just four monthly totals."
+        }
+      ]
+    }
   }
 ];
