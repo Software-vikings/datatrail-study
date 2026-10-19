@@ -123,3 +123,5 @@ python3 scripts/verify_python_exercises.py
 ```
 
 Phase 5 adds 17 named checks across two lessons. Programme 1 now contains 17 released lessons and 106 named exercise checks. The CI suite continues to execute all 84 reference solutions and 205 named checks in the separate legacy Python course.
+
+**Phase 5 CI result:** GitHub Actions run [#81](https://github.com/Software-vikings/datatrail-study/actions/runs/39196416889) completed successfully. All 17 released Programme 1 lessons passed their 106 named checks; all 84 legacy Python reference solutions passed their 205 named checks. Dependency installation, JavaScript/Python syntax, curriculum validation, runtime package declarations and chart preview integration also passed.
