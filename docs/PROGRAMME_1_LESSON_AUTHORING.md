@@ -4,14 +4,15 @@ Every released Programme 1 chapter must be a complete, teachable unit. A chapter
 
 ## Required lesson structure
 
-Each lesson in \`assets/python-data-analytics-lessons.js\` maps to one chapter in \`assets/python-data-analytics.js\` through \`curriculumId\`. It must include:
+Each lesson in `assets/python-data-analytics-lessons.js` maps to one chapter in `assets/python-data-analytics.js` through `curriculumId`. It must include:
 
-- A stable lesson \`id\`, matching \`curriculumId\`, title, level, duration and prerequisite IDs.
+- A stable lesson ID matching `curriculumId`, a title, level, duration and prerequisite IDs.
 - A plain-English explanation, a familiar analogy and a technically accurate definition.
 - A small, self-contained Python example and its exact expected output.
-- A short knowledge-check question, answer options, correct option index and explanation.
-- A practical task, a useful hint and a complete reference solution.
-- An exercise with a starter, optional setup code, hint, reference solution and at least two uniquely named tests.
+- A prediction prompt and explanation where useful.
+- A knowledge-check question, answer options, correct option index and explanation.
+- A practical task, a specific hint and a complete reference solution.
+- An exercise with starter code, optional setup code, hint, reference solution and at least four independent, uniquely named tests for core foundation chapters.
 
 ## Teaching requirements
 
@@ -20,30 +21,32 @@ Each lesson in \`assets/python-data-analytics-lessons.js\` maps to one chapter i
 3. Keep examples small enough for a beginner to predict before running.
 4. Show expected output separately from actual output. A successful run does not count as a correct answer.
 5. Keep the learner's code editable. Save drafts locally and distinguish execution errors from failed requirements.
-6. Failed tests should name the requirement and, where meaningful, show expected and actual values. Give a useful hint and allow another attempt.
-7. The reference solution must pass every test in \`scripts/verify_programme1_lessons.py\`.
-8. The learner must pass the coding exercise and the knowledge check before the chapter can be marked complete.
-9. Do not use elapsed time, XP or typing speed as a substitute for demonstrated understanding.
-10. A chapter may be marked \`available\` only after its content, lesson flow, progress behaviour and automated checks are complete. All other chapters remain \`planned\`.
+6. Failed tests should name the requirement and, where meaningful, show expected and actual values. Add a useful failure explanation and allow another attempt.
+7. Use meaningful business examples without hiding the Python concept behind excessive domain complexity.
+8. The reference solution must pass every test in `scripts/verify_programme1_lessons.py`.
+9. File-based exercises must run inside a clean temporary working directory in automated verification. Tests must not create artifacts in the repository.
+10. The learner must pass the coding exercise and knowledge check before the chapter can be marked complete.
+11. Do not use elapsed time, XP or typing speed as a substitute for demonstrated understanding.
+12. A chapter may be marked `available` only after its content, lesson flow, progress behaviour and automated checks are complete. All other chapters remain `planned`.
 
 ## Data model and tests
 
 The lesson file is a JSON-compatible JavaScript assignment:
 
-\`\`\`js
+```js
 window.DataTrailPythonAnalyticsLessons = [
   {
     "id": "p1-c00",
     "curriculumId": "P1-C00",
     "prerequisites": [],
     "title": "Example chapter",
-    "example": "print(\\"Hello\\")",
+    "example": "print(\"Hello\")",
     "expectedOutput": "Hello",
     "exercise": {
       "setup": "",
-      "starter": "print(\\"Replace me\\")",
+      "starter": "print(\"Replace me\")",
       "hint": "A useful nudge.",
-      "solution": "print(\\"Hello\\")",
+      "solution": "print(\"Hello\")",
       "tests": [
         {
           "name": "Displays the requested result",
@@ -60,19 +63,21 @@ window.DataTrailPythonAnalyticsLessons = [
     }
   }
 ];
-\`\`\`
+```
 
-Tests execute with the learner's namespace. The harness also provides \`__output__\` (captured standard output) and \`__source__\` (the submitted code). When a test provides \`expected\`, \`actual\` and \`failureMessage\`, the interface displays concrete comparison feedback after a failure.
+Tests execute with the learner's namespace. The harness also provides `__output__` (captured standard output) and `__source__` (the submitted code). When a test provides `expected`, `actual` and `failureMessage`, the interface displays concrete comparison feedback after a failure.
 
 ## Release checklist
 
 - [ ] Manifest chapter exists, has correct prerequisites and is marked available only after completion.
 - [ ] Lesson object exists and links to the correct manifest chapter.
 - [ ] All required lesson fields are present.
-- [ ] Example runs and the displayed expected output is correct.
+- [ ] Every example runs and its displayed expected output is correct.
 - [ ] Starter code is genuinely incomplete but runnable or intentionally explainable.
-- [ ] Reference solution passes all named tests.
-- [ ] At least one incorrect attempt produces understandable feedback.
+- [ ] Reference solution passes every named test.
+- [ ] Incorrect attempts produce understandable feedback.
 - [ ] Chapter locking, lesson completion and saved drafts behave as documented.
-- [ ] README and development log are updated.
-- [ ] GitHub Actions validation passes.
+- [ ] File exercises leave no test artifacts in the repository.
+- [ ] README and development log are updated in the same development batch.
+- [ ] CI checks both Programme 1 and the existing Python course.
+- [ ] Production deployment remains gated until the validated pull request is merged to `main`.
