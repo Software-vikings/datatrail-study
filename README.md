@@ -134,3 +134,16 @@ The final Phase 7 head `2b82e58b92661639898d8f8e6e4be653bfb734b3` passed both fr
 - [Pull-request run #131](https://github.com/Software-vikings/datatrail-study/actions/runs/39202835462) — success.
 
 Both runs passed the shared Pages release gate, the 21-chapter curriculum validator, all 155 Programme 1 checks, all four project executions and the 84/205 legacy regression suite. This verifies the feature branch; it does not publish the site.
+
+
+### Latest source-audit verification — 2026-10-19
+
+After the portfolio and learner-readiness hardening pass, the current code/test head `cfc34de3d5ef04c62707771eb166781525bec53c` passed [GitHub Actions PR run #265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350).
+
+- 21 interactive Programme 1 lessons and **162 named coding checks** passed.
+- All four portfolio project verifiers passed, including sequential funnel, correct order-line grain, missing-ID/non-finite validation, aggregate-overflow rejection, idempotent SQLite reload, rollback and preservation of prior outputs.
+- C18, C19 and C20 lesson checks passed for finite monetary values, strict calendar months/cross-file duplicates and non-empty portfolio evidence.
+- The separate legacy Python course passed all **84 reference solutions and 205 named checks**.
+- Shared Pages release gate, curriculum alignment and JavaScript/Python syntax checks passed.
+
+This remains a feature-branch validation. The stacked PR chain has not been merged and GitHub Pages has not been deployed.
