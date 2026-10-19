@@ -147,3 +147,5 @@ After the portfolio and learner-readiness hardening pass, the current code/test 
 - Shared Pages release gate, curriculum alignment and JavaScript/Python syntax checks passed.
 
 This remains a feature-branch validation. The stacked PR chain has not been merged and GitHub Pages has not been deployed.
+
+After the documentation was brought into sync, the final branch head `e067107b62846d400078c976645d6bfea8b453e5` also passed [push run #276](https://github.com/Software-vikings/datatrail-study/actions/runs/39209512107) and [pull-request run #277](https://github.com/Software-vikings/datatrail-study/actions/runs/39209518453). Both reran the full 162-check lesson suite, all four project verifiers and the legacy 84/205 regression suite.
