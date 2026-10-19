@@ -1,0 +1,44 @@
+name: Validate DataTrail Programme 1
+
+on:
+  push:
+    branches:
+      - "programme-1/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: programme-1-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Check Python validator syntax
+        run: python3 -m py_compile scripts/validate_programme1.py scripts/verify_python_exercises.py
+      - name: Check JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>([\\s\\S]*?)</script>", html)
+          if not scripts:
+              raise SystemExit("No inline application script found")
+          Path("/tmp/datatrail-app.js").write_text(scripts[-1], encoding="utf-8")
+          PY
+          node --check /tmp/datatrail-app.js
+          node --check assets/python-exercises.js
+          node --check assets/python-data-analytics.js
+      - name: Validate Programme 1 curriculum and semantic lesson alignment
+        run: python3 scripts/validate_programme1.py
+      - name: Execute every Python reference solution
+        run: python3 scripts/verify_python_exercises.py
