@@ -10,11 +10,11 @@ Also read: `docs/PROGRAMME_1_LESSON_AUTHORING.md`, `docs/PROGRAMME_1_DEVELOPMENT
 
 Programme 1 is fully implemented on the feature branch `programme-1/phase-7-analyst-projects-interview-readiness`, with last fully verified implementation checkpoint before the release-readiness documentation refresh:
 
-`91c06bb0ffda7f9b680f4a6369b36f0893fc117a`
+`cfc34de3d5ef04c62707771eb166781525bec53c`
 
 Delivered and verified:
 - 21/21 interactive chapters, P1-C00 through P1-C20.
-- 155 named Programme 1 coding checks.
+- 162 named Programme 1 coding checks.
 - Four runnable analyst portfolio projects with synthetic data/deterministic fixtures.
 - 100 interview questions: Lowball 20, Core 35, Highball 25, Trap 20.
 - Separate legacy Python course preserved: 84 reference solutions and 205 named checks.
@@ -22,6 +22,7 @@ Delivered and verified:
 - Project studio progress has its own storage key.
 - Progress JSON now includes Programme 1 project milestones, sanitises the imported milestone state, remains backward-compatible with older backups, and clears the separate store on Reset progress. This fix passed PR validation run [#171](https://github.com/Software-vikings/datatrail-study/actions/runs/39205041871).
 - Shared Pages release validator is exercised in feature CI and the deployment workflow.
+- The source audit hardened ordered funnel calculations, IDs/table grain, empty/non-finite inputs, row and aggregate overflow, transactional/idempotent reporting reloads with rollback, C18/C19 validation exercises and C20 narrative/deliverable readiness rules. Run #265 passed on the code/test head with all 162 lesson checks and all project/legacy verifiers.
 
 Do not describe the programme as 17/21 chapters, do not restart Phase 6 or Phase 7, and do not build a reduced MVP. All seven implementation phases have successful PR validation runs; the final Phase 7 head passed push run #132 and PR run #133.
 
@@ -48,7 +49,7 @@ The curriculum implementation is complete. Focus on **release readiness and genu
 3. A source audit identified and fixed a Programme 1 project-progress backup/import/reset defect. Inspect the fix and continue the independent source audit for any other reproducible defects on the correct feature branch, preserving the stacked PR structure.
 4. Arrange or prepare a meaningful manual browser/device smoke-test checklist. Do not claim that human visual QA has happened unless it actually has.
 5. Keep the README, engineering handoff, new-chat prompt, development log and PR descriptions consistent with the real repository state.
-6. Run syntax checks, the shared Pages release gate, the curriculum validator, all 21 lesson solutions/155 named checks, all four project verifications, and all legacy 84/205 checks. Rerun GitHub Actions after every code or documentation update and record the exact final head/run links.
+6. Run syntax checks, the shared Pages release gate, the curriculum validator, all 21 lesson solutions/162 named checks, all four project verifications, and all legacy 84/205 checks. Rerun GitHub Actions after every code or documentation update and record the exact final head/run links.
 
 ## Safeguards
 
