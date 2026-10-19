@@ -16,6 +16,7 @@ After the full PR chain has been reviewed and merged in order (#1 → #2 → #3 
 4. Confirm the deployment workflow succeeds, then use the site URL shown in its workflow summary.
 
 The expected project-site URL is `https://software-vikings.github.io/datatrail-study/`, but a URL existing does not prove that the latest feature stack has been deployed. Verify the deployment run before treating it as live.
+
 ## How DataTrail teaches
 
 Every lesson follows the same five-stage learning loop:
