@@ -58,3 +58,5 @@ python3 scripts/verify_python_exercises.py
 ```
 
 The phase is considered verified only when the matching GitHub Actions run completes successfully. The checks validate lesson-to-curriculum alignment, required topic coverage, reference solutions, named exercise checks, the entire legacy exercise bank and JavaScript/Python syntax. They do not replace manual browser and device review.
+
+**Phase 3 CI result:** GitHub Actions run [#50](https://github.com/Software-vikings/datatrail-study/actions/runs/39192611471) completed successfully. All nine released Programme 1 lessons passed their 45 named checks; all 84 legacy Python reference solutions passed their 205 named checks. JavaScript/Python syntax and curriculum/topic validation also passed.
