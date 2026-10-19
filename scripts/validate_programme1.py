@@ -144,7 +144,7 @@ def validate_released_lessons(programme: dict[str, Any], lessons: list[dict[str,
             if test.get("expected") is not None:
                 require(test.get("actual"), f"{chapter['id']} test {test['name']} has expected but no actual expression")
             if test.get("actual") is not None:
-                require(test.get("expected") is not None, f"{chapter['id']} test {test['name']} has actual but no expected value")
+                require("expected" in test, f"{chapter['id']} test {test['name']} has actual but no expected value")
             if test.get("failureMessage"):
                 require(bool(test["failureMessage"].strip()), f"{chapter['id']} has an empty failure message")
 
