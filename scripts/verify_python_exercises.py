@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Execute every Python exercise reference solution against its named checks."""
 
-from __future__ import annotations
-
 import contextlib
 import io
 import json
@@ -27,20 +25,23 @@ def main() -> None:
     for task_index, task in enumerate(tasks, start=1):
         namespace = {"__name__": "__main__"}
         captured = io.StringIO()
+        active_test = "setup or reference solution"
         try:
             with contextlib.redirect_stdout(captured):
                 if task.get("setup", "").strip():
-                    exec(compile(task["setup"], "<setup>", "exec"), namespace)
-                exec(compile(task["solution"], "<reference solution>", "exec"), namespace)
+                    exec(compile(task["setup"], "<setup>", "exec", dont_inherit=True), namespace)
+                exec(compile(task["solution"], "<reference solution>", "exec", dont_inherit=True), namespace)
 
             namespace["__output__"] = captured.getvalue()
             namespace["__source__"] = task["solution"]
             for test in task["tests"]:
-                exec(compile(test["code"], "<" + test["name"] + ">", "exec"), namespace)
+                active_test = test["name"]
+                exec(compile(test["code"], "<" + test["name"] + ">", "exec", dont_inherit=True), namespace)
                 passed += 1
         except Exception as exc:
             raise SystemExit(
                 f"Exercise {task_index:02d} failed: {task.get('title', 'untitled')}\n"
+                f"Named check: {active_test}\n"
                 f"Error: {type(exc).__name__}: {exc}"
             ) from exc
 
