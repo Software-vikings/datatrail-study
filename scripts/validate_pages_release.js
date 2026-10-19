@@ -18,6 +18,7 @@ const tierCounts = readiness.interviewQuestions.reduce((counts, question) => { c
 if (JSON.stringify(tierCounts) !== JSON.stringify({Lowball:20,Core:35,Highball:25,Trap:20})) throw new Error("Programme 1 interview tier allocation is incorrect");
 if (!html.includes('src="assets/programme1-readiness.js"')) throw new Error("Programme 1 readiness asset is not loaded");
 if (!html.includes("programme1ProjectProgress:p1ProjectProgress") || !html.includes("p1ProjectProgress=normalizeP1ProjectProgress(importedProjectProgress)") || !html.includes("localStorage.removeItem(P1_PROJECT_PROGRESS_KEY)")) throw new Error("Programme 1 project progress must be included in progress backup import/export and reset.");
+if (!html.includes("let pyReady=false,pyodide=null,pyLoadingPromise=null") || !html.includes("if(pyLoadingPromise)return pyLoadingPromise")) throw new Error("Concurrent tutor actions must share one in-flight Pyodide runtime load.");
 const normalizerStart = html.indexOf("function normalizeP1ProjectProgress(value){");
 const normalizerBodyStart = html.indexOf("{", normalizerStart);
 let normalizerDepth = 0;
