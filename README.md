@@ -97,12 +97,19 @@ Run these checks from the repository root before submitting curriculum changes:
 
 ```bash
 python3 -m pip install numpy pandas scipy matplotlib seaborn plotly openpyxl
+node --check assets/python-data-analytics.js
+node --check assets/python-data-analytics-lessons.js
+node --check assets/programme1-readiness.js
+node --check scripts/validate_pages_release.js
+node scripts/validate_pages_release.js
+python3 -m py_compile scripts/validate_programme1.py scripts/verify_programme1_lessons.py scripts/verify_programme1_projects.py scripts/verify_python_exercises.py
 python3 scripts/validate_programme1.py
 python3 scripts/verify_programme1_lessons.py
+python3 scripts/verify_programme1_projects.py
 python3 scripts/verify_python_exercises.py
 ```
 
-The first check validates chapter order, release states, prerequisites, references, projects, interview targets, topic coverage and the existing lesson-to-exercise mapping. The second executes all released Programme 1 lesson solutions and named tests in isolated temporary working directories. The third executes all 84 reference solutions in the separate Python course. The `Validate DataTrail Programme 1` GitHub Actions workflow runs these checks on Programme 1 feature branches and stacked pull requests; it does not deploy feature branches to GitHub Pages.
+The Pages release script checks the exact production chapter set, project and question counts, legacy exercise inventory and UI-to-asset wiring. The Python curriculum validator checks chapter order, release states, prerequisites, references, project folders and interview allocation. The lesson and project verifiers execute the released examples in isolated temporary working directories; the legacy verifier runs all 84 reference solutions. The `Validate DataTrail Programme 1` workflow runs these checks on feature branches and stacked pull requests. It does not deploy feature branches to GitHub Pages.
 
 
 ## Programme 1 portfolio and analyst interview readiness
@@ -117,3 +124,12 @@ python3 scripts/verify_programme1_projects.py
 ```
 
 The Programme 1 interview bank contains **100 questions**: Lowball 20, Core 35, Highball 25 and Trap 20. Each includes a model answer, interviewer rationale and follow-up. The separate 51-question Python interview gym remains distinct.
+
+
+### Phase 7 verification evidence
+
+The final Phase 7 head `2b82e58b92661639898d8f8e6e4be653bfb734b3` passed both fresh GitHub Actions validations:
+- [Push run #130](https://github.com/Software-vikings/datatrail-study/actions/runs/39202830859) — success.
+- [Pull-request run #131](https://github.com/Software-vikings/datatrail-study/actions/runs/39202835462) — success.
+
+Both runs passed the shared Pages release gate, the 21-chapter curriculum validator, all 155 Programme 1 checks, all four project executions and the 84/205 legacy regression suite. This verifies the feature branch; it does not publish the site.

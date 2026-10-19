@@ -228,5 +228,16 @@ python3 scripts/verify_programme1_projects.py
 python3 scripts/verify_python_exercises.py
 ```
 
-### Verification status
-Phase 7 remains unverified until fresh GitHub Actions checks pass on the final branch head. No merge or deployment is performed by this implementation phase.
+### GitHub Actions verification — success
+
+Final verified feature head: `2b82e58b92661639898d8f8e6e4be653bfb734b3`.
+
+- [Push validation #130](https://github.com/Software-vikings/datatrail-study/actions/runs/39202830859) — success.
+- [Pull-request validation #131](https://github.com/Software-vikings/datatrail-study/actions/runs/39202835462) — success.
+- JavaScript syntax, Python syntax, shared Pages release gate and curriculum/semantic validation all passed.
+- Programme 1: **21 released lessons and 155 named coding checks — all passed**.
+- Portfolio: **all four projects executed**; row-quality audit, retail analysis/charts, funnel/cohort outputs and API-fixture → SQLite → pandas → Excel pipeline verified in temporary directories.
+- Legacy Python: **84 reference solutions and 205 named checks — all passed**.
+- The Pages workflow now calls the same shared `scripts/validate_pages_release.js` gate that feature CI executes. The Pages workflow also runs the lesson verifier, project verifier and legacy suite before publishing.
+- PR #7 remains stacked on Phase 6. No PR was merged and no GitHub Pages deployment was triggered.
+

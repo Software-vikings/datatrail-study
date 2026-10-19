@@ -374,3 +374,21 @@ The Phase 7 continuation branch includes the final C20 capstone lesson, four exe
 Manifest v1.6.0 releases C00–C20 (21 chapters). The curriculum validator enforces all 21 lesson packages, four portfolio projects, unique interview question IDs and exact 20/35/25/20 tier allocation. Feature CI and the independent GitHub Pages deployment gate also execute the portfolio verifier. The deployment workflow remains limited to the main branch/manual dispatch; no deployment is performed from this feature branch.
 
 Current branch: `programme-1/phase-7-analyst-projects-interview-readiness`, stacked on Phase 6. Keep PR #7 separate and unmerged unless explicit authorisation is given.
+
+
+## 2026-10-19 — Phase 7 verified release checkpoint
+
+**Phase 7 is implemented and CI-verified.** Final verified code head: `2b82e58b92661639898d8f8e6e4be653bfb734b3`.
+
+- PR #7: [Phase 7 — Analyst projects and interview readiness](https://github.com/Software-vikings/datatrail-study/pull/7), stacked on `programme-1/phase-6-analyst-workflows-readiness`, open and unmerged.
+- Push validation [run #130](https://github.com/Software-vikings/datatrail-study/actions/runs/39202830859) — success.
+- PR validation [run #131](https://github.com/Software-vikings/datatrail-study/actions/runs/39202835462) — success.
+- Programme 1: **21 released lessons and all 155 named checks passed**.
+- Four portfolio projects: **all four executed successfully** in isolated temporary directories. The retail sample schema was corrected to match its nine-column header; all strict numeric validation and reconciliation checks passed after correction.
+- Interview bank: **100 unique questions**, allocated Lowball 20, Core 35, Highball 25 and Trap 20; each has a model answer, rationale and follow-up.
+- Legacy Python: **84 reference solutions and 205 named checks — all passed**.
+- Shared Pages release validator now runs in feature CI and deployment. Production deployment workflow additionally executes the curriculum validator, lesson verifier, portfolio verifier and legacy regression suite before uploading/deploying.
+- The learner project progress uses its own storage key; the legacy project progress and 51-question Python gym remain separate.
+- PR #6 (Phase 6) remains an open prerequisite; PR #7 remains stacked on it. Neither was merged. No Pages deployment was performed.
+
+The stack is ready for review in dependency order. Merge Phase 1 through Phase 6 in order before considering Phase 7. Do not bypass the stacked PR sequence or deploy without explicit authorisation.

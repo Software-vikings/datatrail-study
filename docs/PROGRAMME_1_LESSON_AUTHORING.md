@@ -119,3 +119,11 @@ Tests execute with the learner's namespace. The harness also provides `__output_
 - The interview bank must have exactly 100 unique questions in the Lowball/Core/Highball/Trap allocation 20/35/25/20. Every question needs a technical topic, model answer, interviewer rationale and follow-up prompt.
 - Project progress uses its own localStorage key and must not reset or overwrite lesson completion or the legacy project list.
 - Keep the existing 51-question Python interview gym separate.
+
+
+## Phase 7 release verification rules
+
+- The exact Pages release assertions live in `scripts/validate_pages_release.js`; the Pages deployment workflow and feature CI must call the same script rather than duplicate release logic.
+- The release gate is executed on feature branches without deploying. It verifies 21 released chapters, 4 project definitions, 100 interview questions and the legacy 84-exercise bank.
+- Feature CI and the production deployment workflow must both run the Programme 1 lesson verifier, four-project verifier and legacy Python regression suite. Production publication remains restricted to the workflow's main-branch/manual-dispatch trigger.
+- Record the full head SHA and both push/PR Actions run URLs in the development log and handoff before marking the phase verified.
