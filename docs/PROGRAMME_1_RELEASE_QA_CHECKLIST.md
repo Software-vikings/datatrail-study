@@ -124,6 +124,10 @@ Open the Programme 1 project studio and inspect all four projects.
 - [ ] **Progress interaction:** marking project milestones updates the displayed completion state correctly.
 - [ ] **Progress persistence:** refresh and confirm project milestone state is retained.
 - [ ] **Storage isolation:** project progress uses `datatrail-p1-project-progress`; it must not reset or overwrite Programme 1 lesson completion, legacy project prompts or legacy Python progress.
+- [ ] **Progress export:** after completing at least one Programme 1 project milestone, export the DataTrail progress JSON and confirm it includes `programme1ProjectProgress` with the selected project/milestone state.
+- [ ] **Progress import:** import that backup into a disposable browser profile and confirm the Programme 1 project milestone state is restored alongside lesson and legacy progress.
+- [ ] **Backward-compatible import:** import an older backup without `programme1ProjectProgress` and confirm the app does not crash or silently wipe already-saved Programme 1 project progress.
+- [ ] **Reset behavior:** use the clearly labelled, confirmation-protected Reset progress action in a disposable profile and confirm both the regular DataTrail store and `datatrail-p1-project-progress` are cleared.
 - [ ] **Navigation:** project shortcuts from P1-C20 open the corresponding project content.
 
 ---
