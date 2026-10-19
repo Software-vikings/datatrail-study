@@ -58,7 +58,9 @@ window.DataTrailPythonAnalyticsLessons = [
   {
     "id": "p1-c01",
     "curriculumId": "P1-C01",
-    "prerequisites": ["p1-c00"],
+    "prerequisites": [
+      "p1-c00"
+    ],
     "title": "First instructions and calculations",
     "level": "Beginner",
     "mins": 20,
@@ -66,7 +68,7 @@ window.DataTrailPythonAnalyticsLessons = [
     "definition": "An expression is a combination of values and operators that Python evaluates to produce a value. Assignment uses = to store the result on the right in a variable named on the left. A variable is a name that refers to a value. print() displays values in the output area.",
     "analogy": "Imagine a shopkeeper writing a small calculation on a bill. The number of items and the price are written once. The shopkeeper multiplies them to get revenue, subtracts the cost to get profit, and writes both answers on the bill. Variables are the labelled spaces that keep those numbers easy to reuse.",
     "example": "units_sold = 12\\nprice_per_unit = 250\\ncost = 1800\\n\\nrevenue = units_sold * price_per_unit\\nprofit = revenue - cost\\n\\nprint(\"Revenue:\", revenue)\\nprint(\"Profit:\", profit)",
-    "expectedOutput": "Revenue: 3000\\nProfit: 1200",
+    "expectedOutput": "Revenue: 3000\nProfit: 1200",
     "prediction": "Without running the code, what will revenue and profit be?",
     "predictionAnswer": "Revenue is 12 × 250 = 3,000. Profit is 3,000 − 1,800 = 1,200. The variable names let us read the calculation like a small business formula.",
     "question": "What does this instruction do: units_sold = 12?",
@@ -79,14 +81,14 @@ window.DataTrailPythonAnalyticsLessons = [
     "why": "A single = assigns a value to a variable. It does not print the value, and it is not the equality comparison operator.",
     "task": "A shop sells 8 items for ₹150 each. The total cost is ₹700. Create revenue and profit variables, then print two lines exactly: Revenue: 1200 and Profit: 500.",
     "hint": "First multiply units_sold by price_per_unit. Store the result in revenue. Then subtract total_cost from revenue to get profit. Use print(\"Revenue:\", revenue) and print(\"Profit:\", profit).",
-    "solution": "units_sold = 8\\nprice_per_unit = 150\\ntotal_cost = 700\\n\\nrevenue = units_sold * price_per_unit\\nprofit = revenue - total_cost\\n\\nprint(\"Revenue:\", revenue)\\nprint(\"Profit:\", profit)",
+    "solution": "units_sold = 8\nprice_per_unit = 150\ntotal_cost = 700\n\nrevenue = units_sold * price_per_unit\nprofit = revenue - total_cost\n\nprint(\"Revenue:\", revenue)\nprint(\"Profit:\", profit)",
     "exercise": {
       "title": "Calculate shop revenue and profit",
       "prompt": "The shop sells 8 items for ₹150 each and has a total cost of ₹700. Use the supplied variables to calculate revenue and profit. Print exactly two lines: Revenue: 1200, then Profit: 500.",
       "setup": "",
-      "starter": "units_sold = 8\\nprice_per_unit = 150\\ntotal_cost = 700\\n\\n# Calculate revenue and profit below\\n",
+      "starter": "units_sold = 8\nprice_per_unit = 150\ntotal_cost = 700\n\n# Calculate revenue and profit below\n",
       "hint": "Revenue = units_sold * price_per_unit. Profit = revenue - total_cost. Use print(\"Revenue:\", revenue) and print(\"Profit:\", profit) to display the values.",
-      "solution": "units_sold = 8\\nprice_per_unit = 150\\ntotal_cost = 700\\n\\nrevenue = units_sold * price_per_unit\\nprofit = revenue - total_cost\\n\\nprint(\"Revenue:\", revenue)\\nprint(\"Profit:\", profit)",
+      "solution": "units_sold = 8\nprice_per_unit = 150\ntotal_cost = 700\n\nrevenue = units_sold * price_per_unit\nprofit = revenue - total_cost\n\nprint(\"Revenue:\", revenue)\nprint(\"Profit:\", profit)",
       "tests": [
         {
           "name": "Calculates revenue correctly",
@@ -105,7 +107,10 @@ window.DataTrailPythonAnalyticsLessons = [
         {
           "name": "Prints the two requested results",
           "code": "assert __output__.splitlines() == ['Revenue: 1200', 'Profit: 500']",
-          "expected": ["Revenue: 1200", "Profit: 500"],
+          "expected": [
+            "Revenue: 1200",
+            "Profit: 500"
+          ],
           "actual": "__output__.splitlines()",
           "failureMessage": "The output must contain the two requested labels and values, in the correct order."
         }
