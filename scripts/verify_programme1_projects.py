@@ -139,6 +139,8 @@ def verify_project_4(base: Path) -> None:
     folder = PROJECTS / "04-automated-reporting-pipeline"
     module = load_module("automated_reporting_project", folder / "src" / "report_pipeline.py")
     result = module.run_pipeline(folder / "fixtures" / "api_response.json", folder / "monthly", base / "project-4")
+    rerun = module.run_pipeline(folder / "fixtures" / "api_response.json", folder / "monthly", base / "project-4")
+    assert rerun["paid_revenue"] == result["paid_revenue"] and len(rerun["all_rows"]) == len(result["all_rows"])
     assert len(result["api_records"]) == 3 and len(result["monthly_records"]) == 5
     assert len(result["all_rows"]) == 8 and len(result["paid"]) == 6
     assert abs(result["paid_revenue"] - 10200.0) < 0.01
