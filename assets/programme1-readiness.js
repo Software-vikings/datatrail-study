@@ -4,7 +4,7 @@ window.DataTrailProgramme1Readiness = {
     {
       "id": "sales-quality",
       "title": "Sales Data Cleaning and Quality Audit",
-      "summary": "Turn a defective sales extract into a documented, reconciled dataset with a row-level decision log.",
+      "summary": "Turn a defective sales extract into a documented, reconciled dataset with row-level decisions and explicit identifier validation.",
       "folder": "projects/programme-1/01-sales-data-quality",
       "skills": [
         "pandas cleaning",
@@ -32,7 +32,7 @@ window.DataTrailProgramme1Readiness = {
     {
       "id": "retail-performance",
       "title": "Retail Performance Analysis",
-      "summary": "Analyse monthly and segment performance, build charts and produce a business insight brief.",
+      "summary": "Analyse order-line and monthly performance with validated keys, build charts and produce a business insight brief.",
       "folder": "projects/programme-1/02-retail-performance",
       "skills": [
         "pandas aggregation",
@@ -89,7 +89,7 @@ window.DataTrailProgramme1Readiness = {
     {
       "id": "automated-reporting",
       "title": "Automated Reporting Pipeline",
-      "summary": "Ingest an offline API fixture and monthly files into SQLite, analyse them with pandas and deliver a validated Excel workbook.",
+      "summary": "Validate an offline API fixture and monthly files, load SQLite safely, analyse with pandas and deliver a reconciled Excel workbook.",
       "folder": "projects/programme-1/04-automated-reporting-pipeline",
       "skills": [
         "API ingestion contract",
