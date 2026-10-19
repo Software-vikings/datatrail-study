@@ -74,6 +74,7 @@ Test one foundation lesson, one NumPy/pandas lesson, one statistics/visualisatio
 - [ ] **Error handling:** a Python syntax/runtime error is distinguished from a failed business requirement.
 - [ ] **C17 API lesson:** examples run without live credentials or depending on an external API endpoint.
 - [ ] **C18 database lesson:** SQLite operations complete in the browser runtime and teach bound SQL values.
+- [ ] **C18 monetary validation:** try positive infinity and NaN as order amounts; confirm both are rejected before SQL insertion.
 - [ ] **C19 Excel lesson:** openpyxl installs/loads as documented; workbook generation/reload behavior is usable and errors are presented clearly.
 - [ ] **C20 capstone:** its task, named checks and links to the project/interview workspaces open correctly.
 
@@ -134,12 +135,14 @@ Open the Programme 1 project studio and inspect all four projects.
 - [ ] **Retail grain:** inspect the sample containing multiple order lines for one order; confirm order_line_id is unique while repeated order_id values are accepted.
 - [ ] **Retail validation:** test a blank customer/region/product and an infinite numeric value; confirm the workflow stops with a useful validation message rather than silently dropping a summary group.
 - [ ] **Retail aggregate overflow:** test finite line amounts whose monthly/segment sum exceeds the finite numeric range; confirm the report is rejected before CSV/chart outputs are trusted.
+- [ ] **Retail line versus aggregate:** distinguish an overflowing line calculation from a finite line value whose segment/month total overflows; confirm both are rejected at the correct stage.
 - [ ] **Ordered funnel:** confirm a customer only advances when visit → signup → trial_start → purchase occurs in order; an out-of-order event is not counted, but a later qualifying repeat can be.
 - [ ] **Funnel identity:** try an event with a blank customer_id or event_id; confirm the input is rejected instead of silently excluding the record.
 - [ ] **Reporting pipeline schema:** test an impossible month (for example, 2026-13), an unsupported status and a non-finite amount; confirm each is rejected.
 - [ ] **Reporting repeatability:** run Project 4 twice into the same output folder; confirm the second run succeeds, replaces the managed SQLite orders table transactionally and produces the same reconciled totals.
 - [ ] **Reporting rollback:** inject a database insert failure during replacement; confirm the old committed SQLite orders table and rows remain intact after rollback.
 - [ ] **Reporting aggregate overflow:** load multiple individually finite high-value paid amounts that overflow when summed; confirm no workbook or run log is emitted as reconciled.
+- [ ] **Reporting preservation:** after a successful report, trigger an aggregate-overflow input into the same output folder; confirm the previous committed database table and workbook remain the last successful output.
 - [ ] **Empty paid set:** supply a valid batch with no paid orders; confirm the workbook has a zero-valued grand total and no circular or reversed SUM range.
 
 ---
