@@ -4,7 +4,7 @@ We are continuing an existing repository project, not starting from scratch.
 
 Repository: https://github.com/Software-vikings/datatrail-study  
 Read first: `docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md`  
-Also read: `docs/PROGRAMME_1_LESSON_AUTHORING.md` and `docs/PROGRAMME_1_DEVELOPMENT_LOG.md`.
+Also read: `docs/PROGRAMME_1_LESSON_AUTHORING.md`, `docs/PROGRAMME_1_DEVELOPMENT_LOG.md` and `docs/PROGRAMME_1_RELEASE_QA_CHECKLIST.md`.
 
 ## Actual completed state
 
