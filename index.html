@@ -452,12 +452,12 @@ inner='<div class="tutor-kicker">STEP 1 OF 5 · START WITH THE IDEA</div><h1>'+e
 if(l.setupGuide)inner+='<div class="tutor-example"><div class="tutor-label">WHERE TO RUN PYTHON</div><p>'+esc(l.setupGuide)+'</p></div>';
 if(l.prediction)inner+='<div class="tutor-example"><div class="tutor-label">PAUSE AND PREDICT</div><p>'+esc(l.prediction)+'</p><button class="btn small" id="showPrediction">Reveal the explanation</button><div id="predictionAnswer" class="tutor-feedback" hidden>'+esc(l.predictionAnswer||"")+'</div></div>';
 }else if(tutorStep===1){
-inner='<div class="tutor-kicker">STEP 2 OF 5 · WATCH THE IDEA WORK</div><h1>One example, slowly.</h1><p class="tutor-lead">Read the example from top to bottom. Notice what each part contributes before trying it yourself.</p><div class="tutor-example"><div class="tutor-label">WORKED EXAMPLE</div><pre class="tutor-code">'+esc(l.example.replace(/\\n/g,"\n"))+'</pre>'+((t.name==="Python"||analyticsTrack)?'<div class="tutor-example-runbar"><button class="btn primary small" id="runWorkedExample">▶ Run this example</button><span class="tiny muted">Compare Python\'s actual result with the expected output</span></div>'+(l.expectedOutput?'<div class="tutor-label" style="margin-top:14px">EXPECTED OUTPUT</div><pre class="tutor-example-output">'+esc(l.expectedOutput)+'</pre>':'')+'<div class="tutor-label" style="margin-top:14px">ACTUAL OUTPUT</div><pre class="tutor-example-output" id="workedExampleOutput" aria-live="polite">Press “Run this example” to see what Python produces.</pre>':'<div class="tutor-example-output tutor-example-note">Example shown above. The lesson task below lets you apply the same idea.</div>')+'<div class="tutor-label" style="margin-top:18px">THE PROFESSIONAL EXPLANATION</div><p>'+esc(l.definition)+'</p></div><div class="fox-tip"><img src="assets/datatrail-mascot.webp" alt=""><div><strong>Learning tip</strong><p>Do not rush to memorise the syntax. First understand what problem the example solves.</p></div></div>';
+inner='<div class="tutor-kicker">STEP 2 OF 5 · WATCH THE IDEA WORK</div><h1>One example, slowly.</h1><p class="tutor-lead">Read the example from top to bottom. Notice what each part contributes before trying it yourself.</p><div class="tutor-example"><div class="tutor-label">WORKED EXAMPLE</div><pre class="tutor-code">'+esc(l.example.replace(/\\n/g,"\n"))+'</pre>'+((t.name==="Python"||analyticsTrack)?'<div class="tutor-example-runbar"><button class="btn primary small" id="runWorkedExample">▶ Run this example</button><span class="tiny muted">Compare Python\'s actual result with the expected output</span></div>'+(l.expectedOutput?'<div class="tutor-label" style="margin-top:14px">EXPECTED OUTPUT</div><pre class="tutor-example-output">'+esc(l.expectedOutput)+'</pre>':'')+'<div class="tutor-label" style="margin-top:14px">ACTUAL OUTPUT</div><pre class="tutor-example-output" id="workedExampleOutput" aria-live="polite">Press “Run this example” to see what Python produces.</pre><div id="workedExampleChart" class="tutor-chart-preview" hidden aria-live="polite"></div>':'<div class="tutor-example-output tutor-example-note">Example shown above. The lesson task below lets you apply the same idea.</div>')+'<div class="tutor-label" style="margin-top:18px">THE PROFESSIONAL EXPLANATION</div><p>'+esc(l.definition)+'</p></div><div class="fox-tip"><img src="assets/datatrail-mascot.webp" alt=""><div><strong>Learning tip</strong><p>Do not rush to memorise the syntax. First understand what problem the example solves.</p></div></div>';
 }else if(tutorStep===2){
 if(pythonTask&&(t.name==="Python"||analyticsTrack)){
  const savedPythonDraft=analyticsTrack?(state.analyticsDrafts||{})[l.id]:(state.pythonDrafts||{})[pythonExerciseIndex];
  const starterCode=savedPythonDraft!==undefined?savedPythonDraft:pythonTask.starter;
- inner='<div class="tutor-kicker">STEP 3 OF 5 · YOUR TURN</div><h1>Write and run Python.</h1><p class="tutor-lead">'+esc(pythonTask.prompt)+'</p><div class="tutor-workspace"><div class="tutor-label">YOUR PYTHON EDITOR · '+esc(pythonTask.title)+'</div><textarea id="tutorPythonEditor" class="tutor-editor" spellcheck="false" aria-label="Write Python code">'+esc(starterCode)+'</textarea><div class="tutor-actions"><button class="btn" id="tutorPythonRun">▶ Run my code</button><button class="btn primary" id="tutorPythonCheck">✓ Check my answer</button><button class="btn" id="tutorPythonHint">Show me a hint</button><button class="btn" id="tutorPythonSolution">Show correct answer</button></div><div id="tutorPythonHintBox" class="tutor-feedback" hidden><strong>Hint</strong><p>'+esc(pythonTask.hint)+'</p></div><div id="tutorPythonSolutionBox" class="tutor-feedback" hidden><strong>Model answer</strong><pre class="tutor-code">'+esc(pythonTask.solution)+'</pre></div><div class="tutor-python-result"><div class="tutor-label">YOUR PROGRAM OUTPUT</div><pre id="tutorPythonOutput" class="tutor-example-output" aria-live="polite">Run your code to see what Python produces. Checking your answer will also run the tests.</pre><div id="tutorPythonFeedback" aria-live="polite"></div></div><p class="tutor-small" id="tutorPythonStatus">'+(pythonExercisePassed?"✓ This exercise has already passed. You can practise again.":"Your code is saved in this browser. Run it first, then check it against the exercise requirements.")+'</p></div><p class="tutor-small">A successful run means the code executes. Passing the checks means it also does what the task asks.</p>';
+ inner='<div class="tutor-kicker">STEP 3 OF 5 · YOUR TURN</div><h1>Write and run Python.</h1><p class="tutor-lead">'+esc(pythonTask.prompt)+'</p><div class="tutor-workspace"><div class="tutor-label">YOUR PYTHON EDITOR · '+esc(pythonTask.title)+'</div><textarea id="tutorPythonEditor" class="tutor-editor" spellcheck="false" aria-label="Write Python code">'+esc(starterCode)+'</textarea><div class="tutor-actions"><button class="btn" id="tutorPythonRun">▶ Run my code</button><button class="btn primary" id="tutorPythonCheck">✓ Check my answer</button><button class="btn" id="tutorPythonHint">Show me a hint</button><button class="btn" id="tutorPythonSolution">Show correct answer</button></div><div id="tutorPythonHintBox" class="tutor-feedback" hidden><strong>Hint</strong><p>'+esc(pythonTask.hint)+'</p></div><div id="tutorPythonSolutionBox" class="tutor-feedback" hidden><strong>Model answer</strong><pre class="tutor-code">'+esc(pythonTask.solution)+'</pre></div><div class="tutor-python-result"><div class="tutor-label">YOUR PROGRAM OUTPUT</div><pre id="tutorPythonOutput" class="tutor-example-output" aria-live="polite">Run your code to see what Python produces. Checking your answer will also run the tests.</pre><div id="tutorPythonChart" class="tutor-chart-preview" hidden aria-live="polite"></div><div id="tutorPythonFeedback" aria-live="polite"></div></div><p class="tutor-small" id="tutorPythonStatus">'+(pythonExercisePassed?"✓ This exercise has already passed. You can practise again.":"Your code is saved in this browser. Run it first, then check it against the exercise requirements.")+'</p></div><p class="tutor-small">A successful run means the code executes. Passing the checks means it also does what the task asks.</p>';
 }else{
  inner='<div class="tutor-kicker">STEP 3 OF 5 · YOUR TURN</div><h1>Try a small task.</h1><p class="tutor-lead">'+esc(l.task)+'</p><div class="tutor-workspace"><div class="tutor-label">YOUR WORKING AREA</div><textarea id="tutorAttempt" class="tutor-editor" placeholder="Write your formula, query, code or explanation here...">'+esc(savedAttempt)+'</textarea><div class="tutor-actions"><button class="btn" id="tutorHint">Show me a hint</button><button class="btn" id="tutorSolution">Reveal worked solution</button><button class="btn primary" id="saveTutorAttempt">I have tried it →</button></div><div id="tutorHintBox" class="tutor-feedback" hidden><strong>Hint</strong><p>'+esc(l.hint)+'</p></div><div id="tutorSolutionBox" class="tutor-feedback" hidden><strong>One possible solution</strong><p>'+esc(l.solution)+'</p></div></div>'+practiceStudio+'<p class="tutor-small">This practice note is saved only in this browser. The next step checks your understanding with an auto-marked question.</p>';
 }
@@ -482,10 +482,11 @@ if(runExampleBtn)runExampleBtn.onclick=async()=>{
   const py=await ensurePy();
   await prepareProgrammePackages(py,l);
   py.globals.set("worked_example_code",l.example.replace(/\\n/g,"\n"));
-  await py.runPythonAsync("import io, contextlib\nworked_example_stdout = io.StringIO()\nworked_example_error = ''\ntry:\n    with contextlib.redirect_stdout(worked_example_stdout):\n        exec(compile(worked_example_code, '<worked example>', 'exec'), {'__name__': '__main__'})\nexcept Exception as exc:\n    worked_example_error = type(exc).__name__ + (': ' + str(exc) if str(exc) else '')");
+  await py.runPythonAsync("import io, contextlib\nworked_example_stdout = io.StringIO()\nworked_example_error = ''\nworked_example_namespace = {'__name__': '__main__'}\ntry:\n    with contextlib.redirect_stdout(worked_example_stdout):\n        exec(compile(worked_example_code, '<worked example>', 'exec'), worked_example_namespace)\nexcept Exception as exc:\n    worked_example_error = type(exc).__name__ + (': ' + str(exc) if str(exc) else '')");
   const stdout=py.runPython("worked_example_stdout.getvalue()");
   const error=py.runPython("worked_example_error");
   if(output)output.textContent=error?("Python error: "+error):(stdout||"The code ran successfully, but it did not print anything. Assignments create values silently; add print(variable) to display one.");
+  if(!error&&(l.packages||[]).includes("matplotlib"))await capturePythonVisuals(py,"worked_example_namespace","workedExampleChart");
  }catch(error){if(output)output.textContent="Could not run this example: "+error.message}
  finally{runExampleBtn.disabled=false;runExampleBtn.textContent="▶ Run this example"}
 };
@@ -510,6 +511,59 @@ if(tutorPythonEditor){
   }
  });
 }
+function renderPythonVisualPayload(targetId,payload){
+ const host=document.getElementById(targetId);
+ if(!host)return;
+ host.replaceChildren();
+ const images=Array.isArray(payload.images)?payload.images:[];
+ images.forEach((source,index)=>{
+  const image=document.createElement("img");
+  image.src="data:image/png;base64,"+source;
+  image.alt="Matplotlib chart "+(index+1)+" produced by the Python exercise";
+  image.loading="lazy";
+  image.style.cssText="display:block;width:100%;height:auto;max-width:100%;margin:12px auto;border-radius:10px;background:#fff";
+  host.appendChild(image);
+ });
+ if(payload.plotly_html){
+  const frame=document.createElement("iframe");
+  frame.title="Interactive Plotly chart produced by the Python exercise";
+  frame.setAttribute("sandbox","allow-scripts");
+  frame.loading="lazy";
+  frame.style.cssText="display:block;width:100%;height:460px;border:1px solid var(--line,#ddd);border-radius:10px;margin:12px 0;background:#fff";
+  frame.srcdoc=payload.plotly_html;
+  host.appendChild(frame);
+ }
+ host.hidden=host.childElementCount===0;
+}
+async function capturePythonVisuals(py,namespaceName,targetId){
+ const host=document.getElementById(targetId);
+ if(!host)return;
+ host.replaceChildren();
+ host.hidden=true;
+ try{
+  const namespaceExpression=namespaceName==="worked_example_namespace"?"worked_example_namespace":"tutor_namespace";
+  const code=[
+   "import base64, io, json",
+   "import matplotlib.pyplot as _programme_plt",
+   "_programme_namespace = "+namespaceExpression,
+   "_programme_images = []",
+   "for _programme_number in _programme_plt.get_fignums():",
+   "    _programme_buffer = io.BytesIO()",
+   "    _programme_plt.figure(_programme_number).savefig(_programme_buffer, format='png', dpi=100, bbox_inches='tight')",
+   "    _programme_images.append(base64.b64encode(_programme_buffer.getvalue()).decode('ascii'))",
+   "_programme_plotly_html = ''",
+   "if 'plotly_figure' in _programme_namespace:",
+   "    _programme_plotly_html = _programme_namespace['plotly_figure'].to_html(full_html=True, include_plotlyjs='cdn')",
+   "programme_visual_payload_json = json.dumps({'images': _programme_images, 'plotly_html': _programme_plotly_html})"
+  ].join("\n");
+  await py.runPythonAsync(code);
+  const payload=JSON.parse(py.runPython("programme_visual_payload_json"));
+  renderPythonVisualPayload(targetId,payload);
+ }catch(error){
+  host.hidden=false;
+  host.textContent="Your Python code ran, but its chart preview could not be prepared: "+error.message;
+ }
+}
 async function executeTutorPython(checkTests){
  const runButton=document.getElementById("tutorPythonRun");
  const checkButton=document.getElementById("tutorPythonCheck");
@@ -528,6 +582,8 @@ async function executeTutorPython(checkTests){
  if(checkButton)checkButton.disabled=true;
  if(status)status.textContent=checkTests?"Running Python and checking your answer…":"Running your Python code…";
  if(output)output.textContent="Starting Python…";
+ const chartHost=document.getElementById("tutorPythonChart");
+ if(chartHost){chartHost.replaceChildren();chartHost.hidden=true;}
  if(feedback)feedback.innerHTML="";
  try{
   const py=await ensurePy();
@@ -574,6 +630,7 @@ async function executeTutorPython(checkTests){
   ].join("\n");
   await py.runPythonAsync(harness);
   const result=JSON.parse(py.runPython("tutor_result_json"));
+  if(!result.error&&(l.packages||[]).includes("matplotlib"))await capturePythonVisuals(py,"tutor_namespace","tutorPythonChart");
   if(output)output.textContent=result.error?("Python error: "+result.error):(result.output||"Your code ran successfully, but it did not print anything. Assignments store values silently; use print(variable) when you want to display a value.");
   if(!checkTests){
    if(status)status.textContent=result.error?"Code needs fixing. Read the error above.":"Code ran. Now choose “Check my answer” to test whether it meets the task.";
@@ -971,6 +1028,13 @@ async function prepareProgrammePackages(py,lesson){
   const status=document.getElementById("pyStatus");
   if(status)status.textContent="Loading "+missing.join(" + ")+"…";
   await py.loadPackage(missing)
+ }
+ const pypiPackages=Array.isArray(lesson&&lesson.pypiPackages)?lesson.pypiPackages:[];
+ if(pypiPackages.length){
+  py.globals.set("programme_pypi_packages_json",JSON.stringify(pypiPackages));
+  const status=document.getElementById("pyStatus");
+  if(status)status.textContent="Checking additional visualisation packages…";
+  await py.runPythonAsync("import importlib.util, json, micropip\nprogramme_missing_pypi = [name for name in json.loads(programme_pypi_packages_json) if importlib.util.find_spec(name) is None]\nif programme_missing_pypi:\n    await micropip.install(programme_missing_pypi)");
  }
 }
 async function loadPyData(){
