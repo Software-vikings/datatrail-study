@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sqlite3
 import tempfile
 from pathlib import Path
 
@@ -184,6 +185,36 @@ def verify_project_4(base: Path) -> None:
     result = module.run_pipeline(folder / "fixtures" / "api_response.json", folder / "monthly", base / "project-4")
     rerun = module.run_pipeline(folder / "fixtures" / "api_response.json", folder / "monthly", base / "project-4")
     assert rerun["paid_revenue"] == result["paid_revenue"] and len(rerun["all_rows"]) == len(result["all_rows"])
+    original_connection = sqlite3.connect(result["db_path"])
+    try:
+        original_rows = original_connection.execute("SELECT order_id, amount FROM orders ORDER BY order_id").fetchall()
+    finally:
+        original_connection.close()
+    original_connect = module.sqlite3.connect
+    def connection_that_rejects_order_insert(*args, **kwargs):
+        connection = original_connect(*args, **kwargs)
+        def authorizer(action, arg1, arg2, database_name, trigger_name):
+            if action == sqlite3.SQLITE_INSERT and arg1 == "orders":
+                return sqlite3.SQLITE_DENY
+            return sqlite3.SQLITE_OK
+        connection.set_authorizer(authorizer)
+        return connection
+    module.sqlite3.connect = connection_that_rejects_order_insert
+    try:
+        try:
+            module.run_pipeline(folder / "fixtures" / "api_response.json", folder / "monthly", base / "project-4")
+        except sqlite3.DatabaseError:
+            pass
+        else:
+            raise AssertionError("Injected SQLite insert failure must abort the replacement load")
+    finally:
+        module.sqlite3.connect = original_connect
+    preserved_connection = sqlite3.connect(result["db_path"])
+    try:
+        preserved_rows = preserved_connection.execute("SELECT order_id, amount FROM orders ORDER BY order_id").fetchall()
+        assert preserved_rows == original_rows, "A failed replacement must preserve the previously committed orders table"
+    finally:
+        preserved_connection.close()
     assert len(result["api_records"]) == 3 and len(result["monthly_records"]) == 5
     assert len(result["all_rows"]) == 8 and len(result["paid"]) == 6
     assert abs(result["paid_revenue"] - 10200.0) < 0.01
