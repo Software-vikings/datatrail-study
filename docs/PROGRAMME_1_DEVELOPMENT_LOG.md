@@ -212,3 +212,29 @@ After refreshing the engineering handoff and new-chat continuation prompt, the d
 - [Pull-request validation #133](https://github.com/Software-vikings/datatrail-study/actions/runs/39202963594) — success.
 
 Both runs passed the shared Pages release gate, Programme 1 curriculum/semantic validation, all 21 lesson packages and 155 named checks, all four portfolio project verifications, and the legacy Python suite (84 reference solutions / 205 named checks). These are feature-branch validation runs; they do not publish the website.
+
+
+## 2026-10-19 — Release hardening: Programme 1 project-progress backup lifecycle
+
+### Defect found and fixed
+A source audit found that the four-project studio stored milestone progress in the separate `datatrail-p1-project-progress` localStorage key, but the existing DataTrail progress JSON export/import and Reset progress action did not include that independent store. This could omit portfolio milestones from a learner's backup and leave them behind after a full reset.
+
+### Implementation
+1. Added a shared normalizer for Programme 1 project milestone state. It accepts only known project IDs and valid integer milestone indices, removes duplicates and ignores malformed values.
+2. Added `programme1ProjectProgress` to the existing progress JSON export.
+3. Updated import to restore and normalise this state when present. Older backup files without this field remain valid and do not erase already-saved Programme 1 project milestones.
+4. Updated Reset progress to clear both the main DataTrail progress key and the separate Programme 1 project-progress key.
+5. Updated the progress-export help text, README and handoff documentation.
+6. Extended `scripts/validate_pages_release.js` to assert that export/import/reset are wired and to execute the actual normalizer against duplicate, negative, fractional, out-of-range and unknown-project values.
+7. Extended the manual QA checklist with export, import, backwards-compatibility and reset scenarios. These browser tests remain not yet executed.
+
+### GitHub Actions verification — success
+The final hardening regression run on feature PR #7, run [#171](https://github.com/Software-vikings/datatrail-study/actions/runs/39205041871), completed successfully on the branch snapshot containing application commit `041f93df0000de1058d0b1792177f8e9579d9b41` and sanitizer-test commit `7df406556807e731163897e102e8438ab54cdb7e`.
+
+- JavaScript syntax and the shared Pages release validator: passed, including the runtime sanitizer regression.
+- Curriculum alignment: passed for all 21 available chapters.
+- Programme 1 lesson verifier: all **155 named checks** passed.
+- Project verifier: all **four portfolio projects** executed successfully.
+- Legacy verifier: all **84 reference solutions and 205 named checks** passed.
+
+The run validates the feature PR; it does not merge the PR or publish GitHub Pages. Independent code review and human browser/device acceptance testing remain outstanding.
