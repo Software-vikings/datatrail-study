@@ -2,7 +2,7 @@
 
 A browser-based data analytics learning studio for beginners progressing toward analyst-level work. The existing Python course contains 84 lessons, 84 executable coding exercises and 205 named test cases, with explicit Basic, Intermediate and Advanced boundaries and a dedicated Python interview gym with 51 questions. Programme 1, Python for Data Analytics, is the new beginner-to-analyst curriculum being released separately in verified chapters. SQL and the other subject tracks remain in the site; their teaching redesign is staged separately.
 
-Programme 1 — **Python for Data Analytics** — is being built and released in verified phases. Its versioned 21-chapter curriculum lives in `assets/python-data-analytics.js`; the first 15 interactive chapters are available in the feature release: nine core Python chapters (P1-C00–P1-C08), NumPy foundations (P1-C09) and five pandas chapters (P1-C10–P1-C14). The remaining six chapters stay marked as planned. The separate 84-lesson Python course remains available alongside Programme 1.
+Programme 1 — **Python for Data Analytics** — is being built and released in verified phases. Its versioned 21-chapter curriculum lives in `assets/python-data-analytics.js`; the first 17 interactive chapters are available in the feature release: nine core Python chapters (P1-C00–P1-C08), NumPy foundations (P1-C09), five pandas chapters (P1-C10–P1-C14), statistics (P1-C15) and visualisation (P1-C16). The remaining four chapters stay marked as planned. The separate 84-lesson Python course remains available alongside Programme 1.
 
 ## Publish the study site
 
@@ -33,7 +33,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 - Excel: datasets, clean table structure, cell references, sorting and filtering, formulas, conditional logic, SUMIFS, lookups and PivotTables.
 - SQL: relational tables, rows and keys, query structure, SELECT, filtering, sorting, aggregation, joins, CASE, CTEs and window functions.
-- Python for Data Analytics (Programme 1): a 21-chapter path from beginner Python to analyst workflows. Chapters 00–14 are released with beginner-first teaching, runnable examples, expected output, prediction prompts, coding exercises, hints, reference solutions and mastery checks. This includes NumPy numerical arrays and the pandas workflow from file loading through joins and time-based analysis. Chapters 15–20 are visibly marked as planned.
+- Python for Data Analytics (Programme 1): a 21-chapter path from beginner Python to analyst workflows. Chapters 00–16 are released with beginner-first teaching, runnable examples, expected output, prediction prompts, coding exercises, hints, reference solutions and mastery checks. The available sequence now includes NumPy, end-to-end pandas workflows, statistical inference, uncertainty and effect sizes, plus Matplotlib/Seaborn/Plotly visualisation and analytical communication. Chapters 17–20 are visibly marked as planned.
 - Python (separate course): 84 lessons across Basic (22), Intermediate (40) and Advanced (22), including OOP, descriptors, metaclasses, generators, decorators, testing, concurrency and production-oriented design.
 - NumPy: arrays and axes, importing libraries, indexing, vectorisation, broadcasting, aggregation and boolean masks.
 - pandas: DataFrames, creating and inspecting tables, reading files, selecting, filtering, sorting, missing values, groupby, merge and pivot tables.
@@ -45,14 +45,14 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 - The Python exercise editor uses CodeMirror with Python syntax highlighting and line numbers. A plain-text editor fallback remains available if the editor CDN cannot load.
 - Python code executes locally in the browser using Pyodide 314.0.7. No local Python installation or account is required; first use downloads the runtime and needs an internet connection.
-- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 currently has 15 interactive lessons with 89 named exercise checks; each uses its own lesson package and beginner-oriented exercise. NumPy and pandas are loaded automatically when a released lesson declares them. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
+- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 currently has 17 interactive lessons with 106 named exercise checks; each uses its own lesson package and beginner-oriented exercise. NumPy, pandas, SciPy and Matplotlib are loaded automatically for the relevant lessons; Seaborn and Plotly are installed when their visualisation lesson is opened. Matplotlib and Plotly outputs receive chart previews in the coding workspace. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
 - The Python interview gym contains 51 questions: Lowball screening, Core practical questions, Highball deep dives and Trap/gotcha questions. Each includes a model answer, interviewer rationale and a follow-up prompt.
 - Continuous integration syntax-checks the application and exercise bank, verifies stage boundaries and the lesson-to-exercise mapping, and executes every reference solution against its named tests.
 
 ## Other labs
 
 - SQL uses SQLite compiled to WebAssembly through sql.js. First use requires internet access to load the runtime.
-- Standalone NumPy and pandas reference labs remain available alongside the integrated Programme 1 Stage B lessons. The browser Python runtime loads declared NumPy/pandas packages for those lessons.
+- Standalone NumPy and pandas reference labs remain available alongside the integrated Programme 1 lessons. Statistics and visualisation lessons use the same browser Python runtime with declared packages and chart previews.
 - Excel is a guided formula trainer, not Microsoft Excel.
 - Power BI is a guided model/DAX/report simulator, not Power BI Desktop.
 - Statistics provides small descriptive calculators and interpretation practice.
@@ -94,7 +94,7 @@ Because this repository may be made public, GitHub's Terms of Service still allo
 Run these checks from the repository root before submitting curriculum changes:
 
 ```bash
-python3 -m pip install numpy pandas
+python3 -m pip install numpy pandas scipy matplotlib seaborn plotly
 python3 scripts/validate_programme1.py
 python3 scripts/verify_programme1_lessons.py
 python3 scripts/verify_python_exercises.py
