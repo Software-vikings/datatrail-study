@@ -95,7 +95,7 @@ jobs:
             if (!html.includes(marker)) throw new Error("Python lesson practice is missing " + marker);
           }
           if (!html.includes("esc(pythonTask.prompt)") || !html.includes("tutor_task_tests_json") || !html.includes("tutor_test_results")) throw new Error("Python lesson task is not wired to its real exercise prompt and tests");
-          if (!html.includes("analyticsTaskComplete") || !html.includes("analyticsDrafts") || !html.includes("tutor_test.get(\"expected\")")) throw new Error("Programme 1 needs isolated progress, saved drafts and expected/actual test feedback");
+          if (!html.includes("analyticsTaskComplete") || !html.includes("analyticsDrafts") || !html.includes('"expected" in tutor_test')) throw new Error("Programme 1 needs isolated progress, saved drafts and expected/actual test feedback");
           if (programmeLessons.some((lesson, i) => lesson.curriculumId !== programme.chapters[i].id || !lesson.exercise || lesson.exercise.tests.length < 2)) throw new Error("Programme 1 lesson packages do not match their curriculum chapters");
           if (!html.includes("Run your code and pass all the checks before continuing.")) throw new Error("Python lessons must require a passing task before continuing");
           console.log("Validated", programmeLessons.length, "Programme 1 lessons,", lessons.length, "legacy Python lessons,", tasks.length, "legacy exercises,", tasks.reduce((n, x) => n + x.tests.length, 0), "legacy named tests, interview sets, runnable examples and interactive lesson grading.");
