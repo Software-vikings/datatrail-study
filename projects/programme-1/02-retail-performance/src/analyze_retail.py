@@ -22,6 +22,8 @@ def analyze(input_csv: Path, output_dir: Path) -> dict:
     input_csv, output_dir = Path(input_csv), Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     frame = pd.read_csv(input_csv)
+    if frame.empty:
+        raise ValueError("Input contains no order lines")
     missing = REQUIRED - set(frame.columns)
     if missing:
         raise ValueError(f"Missing columns: {sorted(missing)}")
