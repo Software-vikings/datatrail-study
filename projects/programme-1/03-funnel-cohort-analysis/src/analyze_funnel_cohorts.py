@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Analyse distinct-customer funnel conversion and signup-cohort retention."""
+"""Analyse an ordered distinct-customer funnel and signup-cohort retention."""
 
 from __future__ import annotations
 
@@ -15,14 +15,74 @@ KNOWN_EVENTS = {"visit", "signup", "trial_start", "purchase", "page_view"}
 FUNNEL = ["visit", "signup", "trial_start", "purchase"]
 
 
+def build_sequential_funnel(events: pd.DataFrame) -> pd.DataFrame:
+    """Count customers who reach each stage at or after the preceding stage.
+
+    For repeated events, the earliest event that occurs after the qualifying
+    previous stage is used. This prevents an out-of-order event from being
+    treated as conversion while still allowing a later valid event to qualify.
+    """
+    counts = {stage: 0 for stage in FUNNEL}
+    identified = events.dropna(subset=["customer_id"])
+    for _, customer_events in identified.groupby("customer_id", sort=False):
+        by_stage = {
+            stage: sorted(
+                customer_events.loc[
+                    customer_events["event_type"] == stage, "event_timestamp"
+                ].tolist()
+            )
+            for stage in FUNNEL
+        }
+        visit_times = by_stage["visit"]
+        if not visit_times:
+            continue
+
+        counts["visit"] += 1
+        previous_time = visit_times[0]
+        for stage in FUNNEL[1:]:
+            qualifying = next(
+                (timestamp for timestamp in by_stage[stage] if timestamp >= previous_time),
+                None,
+            )
+            if qualifying is None:
+                break
+            counts[stage] += 1
+            previous_time = qualifying
+
+    rows = []
+    previous_count = None
+    visitor_count = counts["visit"]
+    for stage in FUNNEL:
+        count = counts[stage]
+        rows.append({
+            "stage": stage,
+            "unique_customers": count,
+            "conversion_from_previous": (
+                None if previous_count in (None, 0) else count / previous_count
+            ),
+            "conversion_from_visits": count / visitor_count if visitor_count else 0,
+        })
+        previous_count = count
+    return pd.DataFrame(rows)
+
+
 def analyze_events(input_csv: Path, output_dir: Path) -> dict:
     input_csv, output_dir = Path(input_csv), Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    events = pd.read_csv(input_csv, dtype={"event_id": "string", "customer_id": "string"})
+    events = pd.read_csv(
+        input_csv,
+        dtype={"event_id": "string", "customer_id": "string", "event_type": "string"},
+    )
     required = {"event_id", "customer_id", "event_type", "event_timestamp"}
     missing = required - set(events.columns)
     if missing:
         raise ValueError(f"Missing columns: {sorted(missing)}")
+
+    for column in ("event_id", "customer_id"):
+        events[column] = events[column].astype("string").str.strip()
+        if events[column].isna().any() or events[column].eq("").any():
+            raise ValueError(f"Missing or blank {column} values found")
+    events["event_type"] = events["event_type"].astype("string").str.strip().str.lower()
     if events["event_id"].duplicated().any():
         raise ValueError("event_id must be unique")
     events["event_timestamp"] = pd.to_datetime(events["event_timestamp"], errors="coerce")
@@ -31,22 +91,10 @@ def analyze_events(input_csv: Path, output_dir: Path) -> dict:
     if not events["event_type"].isin(KNOWN_EVENTS).all():
         raise ValueError("Unknown event_type")
 
-    funnel_sets = {
-        event_type: set(events.loc[events["event_type"] == event_type, "customer_id"].dropna())
-        for event_type in FUNNEL
-    }
-    counts = [len(funnel_sets[event_type]) for event_type in FUNNEL]
-    funnel_rows = []
-    previous = None
-    for event_type, count in zip(FUNNEL, counts):
-        conversion = None if previous is None or previous == 0 else count / previous
-        overall = count / counts[0] if counts[0] else 0
-        funnel_rows.append({
-            "stage": event_type, "unique_customers": count,
-            "conversion_from_previous": conversion, "conversion_from_visits": overall,
-        })
-        previous = count
-    funnel = pd.DataFrame(funnel_rows)
+    # Ordered funnel: visit → signup → trial_start → purchase. A stage only
+    # counts when its event occurs at or after the customer's qualifying
+    # previous stage. Signup cohorts below remain based on first observed signup.
+    funnel = build_sequential_funnel(events)
     funnel.to_csv(output_dir / "funnel_metrics.csv", index=False)
 
     signups = events.loc[events["event_type"] == "signup"].groupby("customer_id")["event_timestamp"].min()
@@ -85,12 +133,13 @@ def analyze_events(input_csv: Path, output_dir: Path) -> dict:
 
     definitions = (
         "# Metric definitions\n\n"
-        "- Funnel population: distinct customer IDs observed at each event stage in the input window.\n"
-        "- Stage conversion: unique customers at this stage divided by unique customers at the immediately previous stage.\n"
-        "- Visit conversion: stage customers divided by distinct visitors.\n"
-        "- Signup cohort: month of each customer's first observed signup event.\n"
+        "- Funnel order: visit → signup → trial_start → purchase. Each event must occur at or after the qualifying previous stage for the same customer.\n"
+        "- Funnel population: distinct customer IDs that reach each ordered event stage during the supplied event window.\n"
+        "- Stage conversion: customers reaching this stage divided by customers reaching the immediately previous stage.\n"
+        "- Visit conversion: customers reaching the stage divided by distinct visitors.\n"
+        "- Signup cohort: month of each customer's first observed signup event, whether or not that signup was part of a qualifying ordered funnel.\n"
         "- Active customer: at least one recorded event on or after first signup in the activity month.\n"
-        "- Retention: active unique customers divided by the original cohort size.\n\n"
+        "- Retention: active unique customers divided by the original signup cohort size.\n\n"
         "These measures describe recorded events; they do not prove causation, satisfaction or paid renewal.\n"
     )
     (output_dir / "metric_definitions.md").write_text(definitions, encoding="utf-8")
