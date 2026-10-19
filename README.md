@@ -59,7 +59,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 ## Progress and privacy
 
-Progress is stored in this browser using localStorage and is not synced to a server. Use **My progress → Export progress JSON** to create a backup before switching browsers or devices. Programme 1 uses its own chapter completion and draft keys, separate from the existing 84-lesson Python track, so the new chapters do not overwrite that track’s saved work. The one-time migration behaviour for older DataTrail releases remains unchanged.
+Progress is stored in this browser using localStorage and is not synced to a server. Use **My progress → Export progress JSON** to create a backup before switching browsers or devices; the export includes the Programme 1 project-studio milestones as well as lesson, legacy project and other progress. Import restores the separate Programme 1 project milestone data when it is present and remains compatible with older backups that predate the project studio. **Reset progress** clears both the main progress store and the separate Programme 1 project-progress store after confirmation. Programme 1 uses its own chapter completion and draft keys, separate from the existing 84-lesson Python track, so the new chapters do not overwrite that track’s saved work. The one-time migration behaviour for older DataTrail releases remains unchanged.
 
 No sign-in, paid API key or backend is required.
 
