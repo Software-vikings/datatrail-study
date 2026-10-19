@@ -7,6 +7,7 @@ Every released Programme 1 chapter must be a complete, teachable unit. A chapter
 Each lesson in `assets/python-data-analytics-lessons.js` maps to one chapter in `assets/python-data-analytics.js` through `curriculumId`. It must include:
 
 - A stable lesson ID matching `curriculumId`, a title, level, duration and prerequisite IDs.
+- An optional `packages` list for non-standard Python dependencies. The browser runner must load those packages before running the worked example and graded exercise; the reference verifier and CI must import the same dependencies.
 - A plain-English explanation, a familiar analogy and a technically accurate definition.
 - A small, self-contained Python example and its exact expected output.
 - A prediction prompt and explanation where useful.
@@ -31,7 +32,7 @@ Each lesson in `assets/python-data-analytics-lessons.js` maps to one chapter in 
 
 ## Data model and tests
 
-The lesson file is a JSON-compatible JavaScript assignment:
+The lesson file is a JSON-compatible JavaScript assignment. Lessons that use a runtime package declare it explicitly, for example `"packages": ["numpy", "pandas"]`; the learner does not need to open a separate lab before running the lesson:
 
 ```js
 window.DataTrailPythonAnalyticsLessons = [
@@ -71,9 +72,10 @@ Tests execute with the learner's namespace. The harness also provides `__output_
 
 - [ ] Manifest chapter exists, has correct prerequisites and is marked available only after completion.
 - [ ] Lesson object exists and links to the correct manifest chapter.
-- [ ] All required lesson fields are present.
+- [ ] All required lesson fields are present, including exact runtime packages where needed.
 - [ ] Every example runs and its displayed expected output is correct.
 - [ ] Starter code is genuinely incomplete but runnable or intentionally explainable.
+- [ ] Required packages load in the browser runner and are importable in the CI verifier.
 - [ ] Reference solution passes every named test.
 - [ ] Incorrect attempts produce understandable feedback.
 - [ ] Chapter locking, lesson completion and saved drafts behave as documented.
