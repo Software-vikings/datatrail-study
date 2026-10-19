@@ -43,6 +43,8 @@ jobs:
           node --check assets/python-data-analytics.js
           node --check assets/python-data-analytics-lessons.js
           node --check assets/programme1-readiness.js
+          node --check scripts/validate_pages_release.js
+          node scripts/validate_pages_release.js
       - name: Validate Programme 1 curriculum and semantic lesson alignment
         run: python3 scripts/validate_programme1.py
       - name: Execute released Programme 1 lesson solutions
