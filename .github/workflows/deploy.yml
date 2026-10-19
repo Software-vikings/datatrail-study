@@ -46,8 +46,8 @@ jobs:
           const tasks = global.window.DataTrailPythonExercises;
           const programme = global.window.DataTrailPythonAnalytics;
           const programmeLessons = global.window.DataTrailPythonAnalyticsLessons;
-          if (!programme || programme.status !== "in-progress" || !Array.isArray(programmeLessons) || programmeLessons.length !== 2) throw new Error("Programme 1 must have its first two interactive chapters available");
-          if (programme.chapters.filter(x => x.status === "available").map(x => x.id).join(",") !== "P1-C00,P1-C01") throw new Error("Programme 1 available chapter states are incorrect");
+          if (!programme || programme.status !== "in-progress" || !Array.isArray(programmeLessons) || programmeLessons.length !== 9) throw new Error("Programme 1 must have its first two interactive chapters available");
+          if (programme.chapters.filter(x => x.status === "available").map(x => x.id).join(",") !== "P1-C00,P1-C01,P1-C02,P1-C03,P1-C04,P1-C05,P1-C06,P1-C07,P1-C08") throw new Error("Programme 1 available chapter states are incorrect");
           if (!Array.isArray(tasks) || tasks.length !== 84) throw new Error("Expected 84 Python exercises");
           for (const [index, task] of tasks.entries()) {
             if (!task.title || !task.prompt || !task.starter || !task.solution || !Array.isArray(task.tests) || task.tests.length < 2) {
