@@ -8,7 +8,7 @@ Also read: `docs/PROGRAMME_1_LESSON_AUTHORING.md` and `docs/PROGRAMME_1_DEVELOPM
 
 ## Actual completed state
 
-Programme 1 is fully implemented on the feature branch `programme-1/phase-7-analyst-projects-interview-readiness`, with final documented head:
+Programme 1 is fully implemented on the feature branch `programme-1/phase-7-analyst-projects-interview-readiness`, with last fully verified implementation checkpoint before the release-readiness documentation refresh:
 
 `91c06bb0ffda7f9b680f4a6369b36f0893fc117a`
 
