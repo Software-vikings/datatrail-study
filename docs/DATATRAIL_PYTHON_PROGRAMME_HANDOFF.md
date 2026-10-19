@@ -365,3 +365,12 @@ After Phase 6 CI succeeds, continue to Phase 7 as a separate stacked PR based on
 - No PR was merged and no deployment was performed.
 
 **Next:** Phase 7 is a separate stacked PR based on this Phase 6 branch. Implement C20, all four portfolio project repositories and the 100-question Programme 1 interview bank. Update the exact release/deployment gate to C00–C20 only after Phase 7 is independently verified.
+
+
+## 2026-10-19 — Phase 7 implementation update
+
+The Phase 7 continuation branch includes the final C20 capstone lesson, four executable portfolio projects, the project verifier and the 100-question Programme 1 interview bank. The learner interface links the C20 lesson to the project studio and adds a Programme 1 interview filter while preserving the legacy 51-question Python interview gym and older project prompts.
+
+Manifest v1.6.0 releases C00–C20 (21 chapters). The curriculum validator enforces all 21 lesson packages, four portfolio projects, unique interview question IDs and exact 20/35/25/20 tier allocation. Feature CI and the independent GitHub Pages deployment gate also execute the portfolio verifier. The deployment workflow remains limited to the main branch/manual dispatch; no deployment is performed from this feature branch.
+
+Current branch: `programme-1/phase-7-analyst-projects-interview-readiness`, stacked on Phase 6. Keep PR #7 separate and unmerged unless explicit authorisation is given.

@@ -203,3 +203,30 @@ python3 scripts/verify_python_exercises.py
 - Dependency installation, JavaScript/Python syntax, curriculum/lesson alignment and both exercise suites passed.
 - The Phase 6 branch remains stacked on Phase 5. PR #6 is open and unmerged; nothing was deployed.
 
+
+
+## 2026-10-19 — Phase 7 implementation: Analyst projects and interview readiness (P1-C20)
+
+### Delivered
+1. Released P1-C20, **Analyst projects and interview readiness**, with a beginner-first worked example, prediction, knowledge check, editable starter, hint, reference solution and 12 named checks. Its readiness evaluator checks common analytical evidence and project-specific deliverables for all four projects.
+2. Added four runnable portfolio projects: Sales Data Cleaning and Quality Audit; Retail Performance Analysis; Customer Funnel and Cohort Analysis; Automated Reporting Pipeline. Each includes source data or deterministic fixtures, Python workflows and a standalone README.
+3. Added `scripts/verify_programme1_projects.py`, which executes the projects in isolated temporary directories and validates metrics, output files, reconciliations and the generated workbook.
+4. Added 100 Programme 1 interview questions with model answers, interviewer rationales and follow-ups: Lowball 20, Core 35, Highball 25 and Trap 20.
+5. Integrated the project milestone studio with its own saved-progress key and added the Programme 1 interview filter without replacing the older project prompts or legacy 51-question Python interview gym.
+6. Advanced the manifest to v1.6.0; P1-C00–P1-C20 are available. Updated the release validator, feature-branch CI and independent Pages deployment gate to require 21 chapters, four project implementations and the exact interview allocation.
+
+### Full Phase 7 validation commands
+```bash
+python3 -m pip install numpy pandas scipy matplotlib seaborn plotly openpyxl
+node --check assets/python-data-analytics.js
+node --check assets/python-data-analytics-lessons.js
+node --check assets/programme1-readiness.js
+python3 -m py_compile scripts/validate_programme1.py scripts/verify_programme1_lessons.py scripts/verify_python_exercises.py scripts/verify_programme1_projects.py
+python3 scripts/validate_programme1.py
+python3 scripts/verify_programme1_lessons.py
+python3 scripts/verify_programme1_projects.py
+python3 scripts/verify_python_exercises.py
+```
+
+### Verification status
+Phase 7 remains unverified until fresh GitHub Actions checks pass on the final branch head. No merge or deployment is performed by this implementation phase.

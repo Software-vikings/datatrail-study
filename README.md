@@ -2,7 +2,7 @@
 
 A browser-based data analytics learning studio for beginners progressing toward analyst-level work. The existing Python course contains 84 lessons, 84 executable coding exercises and 205 named test cases, with explicit Basic, Intermediate and Advanced boundaries and a dedicated Python interview gym with 51 questions. Programme 1, Python for Data Analytics, is the new beginner-to-analyst curriculum being released separately in verified chapters. SQL and the other subject tracks remain in the site; their teaching redesign is staged separately.
 
-Programme 1 — **Python for Data Analytics** — is a separate 21-chapter beginner-to-analyst curriculum defined in `assets/python-data-analytics.js`. Its Phase 6 feature branch releases 20 interactive chapters (P1-C00–P1-C19) with 143 named coding checks. The sequence covers core Python, NumPy/pandas, statistics/visualisation, deterministic API collection, SQLite/pandas database integration and openpyxl workbook automation. Only P1-C20 — Analyst projects and interview readiness — remains planned for Phase 7. The separate 84-lesson Python course remains available, with its 205 named checks preserved.
+Programme 1 — **Python for Data Analytics** — is a separate 21-chapter beginner-to-analyst curriculum defined in `assets/python-data-analytics.js`. Its Phase 6 feature branch releases 21 interactive chapters (P1-C00–P1-C19) with 143 named coding checks. The sequence covers core Python, NumPy/pandas, statistics/visualisation, deterministic API collection, SQLite/pandas database integration and openpyxl workbook automation. Only P1-C20 — Analyst projects and interview readiness — remains planned for Phase 7. The separate 84-lesson Python course remains available, with its 205 named checks preserved.
 
 ## Publish the study site
 
@@ -45,7 +45,7 @@ Python is divided into three explicitly marked stages. **Basic (22 lessons)** co
 
 - The Python exercise editor uses CodeMirror with Python syntax highlighting and line numbers. A plain-text editor fallback remains available if the editor CDN cannot load.
 - Python code executes locally in the browser using Pyodide 314.0.7. No local Python installation or account is required; first use downloads the runtime and needs an internet connection.
-- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 currently has 20 interactive lessons with 143 named exercise checks; each uses its own lesson package and beginner-oriented exercise. NumPy, pandas, SciPy and Matplotlib are loaded automatically for the relevant lessons; Seaborn and Plotly are installed when their visualisation lesson is opened. Matplotlib and Plotly outputs receive chart previews in the coding workspace. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
+- Each of the 84 exercises in the separate Python course has a starter, hint, model solution and named test cases. Programme 1 currently has 21 interactive lessons with 155 named exercise checks; each uses its own lesson package and beginner-oriented exercise. NumPy, pandas, SciPy and Matplotlib are loaded automatically for the relevant lessons; Seaborn and Plotly are installed when their visualisation lesson is opened. Matplotlib and Plotly outputs receive chart previews in the coding workspace. Learners can run code separately from checking correctness; released Programme 1 examples show expected output alongside the actual browser-Python result. Failed checks are named, and tests can show expected versus actual values. Chapter progression requires the coding checks and knowledge check to pass.
 - The Python interview gym contains 51 questions: Lowball screening, Core practical questions, Highball deep dives and Trap/gotcha questions. Each includes a model answer, interviewer rationale and a follow-up prompt.
 - Continuous integration syntax-checks the application and exercise bank, verifies stage boundaries and the lesson-to-exercise mapping, and executes every reference solution against its named tests.
 
@@ -103,3 +103,17 @@ python3 scripts/verify_python_exercises.py
 ```
 
 The first check validates chapter order, release states, prerequisites, references, projects, interview targets, topic coverage and the existing lesson-to-exercise mapping. The second executes all released Programme 1 lesson solutions and named tests in isolated temporary working directories. The third executes all 84 reference solutions in the separate Python course. The `Validate DataTrail Programme 1` GitHub Actions workflow runs these checks on Programme 1 feature branches and stacked pull requests; it does not deploy feature branches to GitHub Pages.
+
+
+## Programme 1 portfolio and analyst interview readiness
+
+The completed Programme 1 curriculum includes four executable analyst portfolio projects under `projects/programme-1/`. Each project contains synthetic input data or deterministic fixtures, a runnable Python workflow and a README with its business question, metrics, methodology, deliverables and limitations.
+
+Verify all four projects from the repository root:
+
+```bash
+python3 -m pip install pandas matplotlib openpyxl
+python3 scripts/verify_programme1_projects.py
+```
+
+The Programme 1 interview bank contains **100 questions**: Lowball 20, Core 35, Highball 25 and Trap 20. Each includes a model answer, interviewer rationale and follow-up. The separate 51-question Python interview gym remains distinct.
