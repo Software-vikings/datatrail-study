@@ -99,6 +99,17 @@ def verify_project_2(base: Path) -> None:
         assert "finite" in str(exc)
     else:
         raise AssertionError("Project 2 must reject non-finite monetary values")
+    overflow_retail = pd.read_csv(folder / "data" / "retail_orders.csv")
+    overflow_retail.loc[0, "quantity"] = 1e308
+    overflow_retail.loc[0, "unit_price"] = 1e308
+    overflow_path = base / "project-2-overflow.csv"
+    overflow_retail.to_csv(overflow_path, index=False)
+    try:
+        module.analyze(overflow_path, base / "project-2-overflow")
+    except ValueError as exc:
+        assert "calculated gross/net revenue" in str(exc)
+    else:
+        raise AssertionError("Project 2 must reject overflowed calculated revenue")
     empty_retail = base / "project-2-empty.csv"
     pd.DataFrame(columns=pd.read_csv(folder / "data" / "retail_orders.csv").columns).to_csv(empty_retail, index=False)
     try:
