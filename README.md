@@ -1,6 +1,6 @@
 # DataTrail — Learn by doing
 
-A browser-based data analytics learning studio for beginners progressing toward analyst-level work. The Python curriculum is now a staged 84-lesson programme with 84 executable coding exercises and 205 named test cases. It has explicit Basic, Intermediate and Advanced boundaries, followed by a dedicated Python interview gym with 51 questions across Lowball, Core, Highball and Trap sets. SQL and the other subject tracks remain in the site; their teaching redesign is staged separately.
+A browser-based data analytics learning studio for beginners progressing toward analyst-level work. The existing Python course contains 84 lessons, 84 executable coding exercises and 205 named test cases, with explicit Basic, Intermediate and Advanced boundaries and a dedicated Python interview gym with 51 questions. Programme 1, Python for Data Analytics, is the new beginner-to-analyst curriculum being released separately in verified chapters. SQL and the other subject tracks remain in the site; their teaching redesign is staged separately.
 
 Programme 1 — **Python for Data Analytics** — is being built and released in verified phases. Its versioned 21-chapter curriculum lives in `assets/python-data-analytics.js`; the first two interactive chapters (Getting started with Python; First instructions and calculations) are available in the feature release, while the remaining 19 chapters stay marked as planned. The separate 84-lesson Python course remains available alongside Programme 1.
 
@@ -99,4 +99,4 @@ python3 scripts/verify_programme1_lessons.py
 python3 scripts/verify_python_exercises.py
 ```
 
-The first check validates chapter order, prerequisites, reference links, project definitions, interview targets and the lesson-to-exercise semantic guards. The second executes every Python reference solution against its named checks. The `Validate DataTrail Programme 1` GitHub Actions workflow runs these checks on Programme 1 feature branches and pull requests; it does not deploy feature branches to GitHub Pages.
+The first check validates chapter order, release states, prerequisites, references, projects, interview targets and the existing lesson-to-exercise mapping. The second executes the released Programme 1 lesson solutions and named tests. The third executes all 84 reference solutions in the separate Python course. The `Validate DataTrail Programme 1` GitHub Actions workflow runs these checks on Programme 1 feature branches and stacked pull requests; it does not deploy feature branches to GitHub Pages.
