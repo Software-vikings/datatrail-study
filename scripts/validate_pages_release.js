@@ -19,7 +19,7 @@ if (JSON.stringify(tierCounts) !== JSON.stringify({Lowball:20,Core:35,Highball:2
 if (!html.includes('src="assets/programme1-readiness.js"')) throw new Error("Programme 1 readiness asset is not loaded");
 if (!html.includes("programme1ProjectProgress:p1ProjectProgress") || !html.includes("p1ProjectProgress=normalizeP1ProjectProgress(importedProjectProgress)") || !html.includes("localStorage.removeItem(P1_PROJECT_PROGRESS_KEY)")) throw new Error("Programme 1 project progress must be included in progress backup import/export and reset.");
 const normalizerStart = html.indexOf("function normalizeP1ProjectProgress(value){");
-const normalizerEnd = html.indexOf("\\n}", normalizerStart);
+const normalizerEnd = html.indexOf(String.fromCharCode(10) + "}", normalizerStart);
 if (normalizerStart < 0 || normalizerEnd < 0) throw new Error("Programme 1 project progress sanitizer is missing.");
 const normalizerSource = html.slice(normalizerStart, normalizerEnd + 2);
 const normalizeP1ProjectProgress = vm.runInNewContext(normalizerSource + "; normalizeP1ProjectProgress", { window: { DataTrailProgramme1Readiness: readiness } });
