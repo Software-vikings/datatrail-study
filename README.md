@@ -67,6 +67,7 @@ No sign-in, paid API key or backend is required.
 
 - [Programme 1 development log](docs/PROGRAMME_1_DEVELOPMENT_LOG.md) — delivered phases, current availability and verification commands.
 - [Programme 1 lesson authoring standard](docs/PROGRAMME_1_LESSON_AUTHORING.md) — required lesson structure, teaching rules, test model and release checklist.
+- [Programme 1 manual release QA checklist](docs/PROGRAMME_1_RELEASE_QA_CHECKLIST.md) — human browser/device smoke tests and explicit release sign-off gates.
 - [Programme 1 engineering handoff](docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md) — verified completed curriculum, technical architecture, final CI evidence, stacked PR chain and remaining release-readiness checks.
 - [New-chat continuation prompt](docs/CHATGPT_NEW_CHAT_PROMPT.md) — ready-to-paste instructions for release-readiness review from the completed 21-chapter state.
 
