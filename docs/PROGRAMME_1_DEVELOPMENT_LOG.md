@@ -4,14 +4,16 @@ This log records the implemented state of Programme 1 and the checks run for eac
 
 ## Current release state
 
-- Curriculum: 21 chapters across five stages, defined in `assets/python-data-analytics.js`.
-- Available interactive chapters: 17 of 21 (P1-C00 through P1-C16).
-- Available coding exercises: 17, with 106 named automated checks.
-- Planned chapters: 4 (P1-C17 through P1-C20).
-- Existing Python course: its separate 84-lesson track remains available and is not replaced by Programme 1.
-- Progress: Programme 1 chapter completion and drafts use separate localStorage keys. Existing Python progress and drafts continue using their original keys.
-- Deployment: development occurs on feature branches and stacked pull requests. Nothing is published to the live site until the required pull requests are merged to `main`.
-
+- Curriculum: all 21 chapters (P1-C00 through P1-C20) are implemented and released in the Phase 7 feature branch; manifest version 1.6.0.
+- Available interactive chapters: **21 of 21**.
+- Available coding exercises: **21**, with **155 named automated checks**.
+- Portfolio: **four runnable projects** with synthetic data/deterministic fixtures and isolated project verification.
+- Interview readiness: **100 Programme 1 questions** — Lowball 20, Core 35, Highball 25 and Trap 20.
+- Existing Python course: the separate **84-lesson** track, **84 reference solutions** and **205 named test cases** remain preserved. Its separate 51-question interview gym is not merged into Programme 1.
+- Progress: Programme 1 chapter completion/drafts and project-studio progress use separate keys; legacy Python progress is not reset or reused.
+- Branch/release state: the final Phase 7 feature branch is `programme-1/phase-7-analyst-projects-interview-readiness`, head `91c06bb0ffda7f9b680f4a6369b36f0893fc117a` at the last verified checkpoint. PRs #1–#7 remain a stacked sequence, open and unmerged.
+- Deployment: no GitHub Pages deployment has been performed for this feature stack. Do not claim the current production site contains these changes until the PRs merge in order and the Pages workflow succeeds.
+- Remaining release tasks: independent code review and manual browser/device QA, followed by explicit owner approval for merge/deploy. GitHub's previous Codex review attempt was blocked by exhausted review quota; no submitted review records or inline threads were present at the checkpoint.
 ## 2026-10-19 — Phase 2: First beginner learning slice
 
 ### Delivered
@@ -241,3 +243,13 @@ Final verified feature head: `2b82e58b92661639898d8f8e6e4be653bfb734b3`.
 - The Pages workflow now calls the same shared `scripts/validate_pages_release.js` gate that feature CI executes. The Pages workflow also runs the lesson verifier, project verifier and legacy suite before publishing.
 - PR #7 remains stacked on Phase 6. No PR was merged and no GitHub Pages deployment was triggered.
 
+
+
+## 2026-10-19 — Final documentation checkpoint
+
+After refreshing the engineering handoff and new-chat continuation prompt, the documentation-updated Phase 7 head `91c06bb0ffda7f9b680f4a6369b36f0893fc117a` passed fresh GitHub Actions validation:
+
+- [Push validation #132](https://github.com/Software-vikings/datatrail-study/actions/runs/39202959904) — success.
+- [Pull-request validation #133](https://github.com/Software-vikings/datatrail-study/actions/runs/39202963594) — success.
+
+Both runs passed the shared Pages release gate, Programme 1 curriculum/semantic validation, all 21 lesson packages and 155 named checks, all four portfolio project verifications, and the legacy Python suite (84 reference solutions / 205 named checks). These are feature-branch validation runs; they do not publish the website.
