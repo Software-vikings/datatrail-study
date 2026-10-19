@@ -44,20 +44,23 @@ def verify_project_1(base: Path) -> None:
         {"transaction_id": "T-MISSING-CUSTOMER", "order_date": "2026-03-01", "customer_id": None, "city": "Chennai", "product": "Keyboard", "quantity": 1, "unit_price": 100},
         {"transaction_id": "T-MISSING-PRODUCT", "order_date": "2026-03-02", "customer_id": "C999", "city": "Chennai", "product": None, "quantity": 1, "unit_price": 100},
         {"transaction_id": "T-INFINITE-PRICE", "order_date": "2026-03-03", "customer_id": "C998", "city": "Chennai", "product": "Mouse", "quantity": 1, "unit_price": float("inf")},
+        {"transaction_id": "T-OVERFLOW-REVENUE", "order_date": "2026-03-04", "customer_id": "C997", "city": "Chennai", "product": "Monitor", "quantity": 1e308, "unit_price": 1e308},
     ])
     probe_input = base / "project-1-missing-fields.csv"
     pd.concat([source, extra], ignore_index=True).to_csv(probe_input, index=False)
     probe_result = module.run(probe_input, base / "project-1-probe")
-    assert probe_result["quality"]["raw_rows"] == 18
+    assert probe_result["quality"]["raw_rows"] == 19
     assert probe_result["quality"]["accepted_rows"] == 8
-    assert probe_result["quality"]["rejected_rows"] == 10
+    assert probe_result["quality"]["rejected_rows"] == 11
     assert probe_result["quality"]["invalid_unit_prices"] == 2
+    assert probe_result["quality"]["non_finite_revenue_rows"] == 1
     assert probe_result["quality"]["missing_customer_ids"] == 1
     assert probe_result["quality"]["missing_products"] == 1
     probe_decisions = pd.read_csv(base / "project-1-probe" / "decision_log.csv").set_index("transaction_id")
     assert "missing_customer_id" in probe_decisions.loc["T-MISSING-CUSTOMER", "reason"]
     assert "missing_product" in probe_decisions.loc["T-MISSING-PRODUCT", "reason"]
     assert "invalid_unit_price" in probe_decisions.loc["T-INFINITE-PRICE", "reason"]
+    assert "non_finite_revenue" in probe_decisions.loc["T-OVERFLOW-REVENUE", "reason"]
     empty_sales = base / "project-1-empty.csv"
     source.head(0).to_csv(empty_sales, index=False)
     try:
