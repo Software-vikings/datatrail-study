@@ -43,18 +43,29 @@ def verify_project_1(base: Path) -> None:
     extra = pd.DataFrame([
         {"transaction_id": "T-MISSING-CUSTOMER", "order_date": "2026-03-01", "customer_id": None, "city": "Chennai", "product": "Keyboard", "quantity": 1, "unit_price": 100},
         {"transaction_id": "T-MISSING-PRODUCT", "order_date": "2026-03-02", "customer_id": "C999", "city": "Chennai", "product": None, "quantity": 1, "unit_price": 100},
+        {"transaction_id": "T-INFINITE-PRICE", "order_date": "2026-03-03", "customer_id": "C998", "city": "Chennai", "product": "Mouse", "quantity": 1, "unit_price": float("inf")},
     ])
     probe_input = base / "project-1-missing-fields.csv"
     pd.concat([source, extra], ignore_index=True).to_csv(probe_input, index=False)
     probe_result = module.run(probe_input, base / "project-1-probe")
-    assert probe_result["quality"]["raw_rows"] == 17
+    assert probe_result["quality"]["raw_rows"] == 18
     assert probe_result["quality"]["accepted_rows"] == 8
-    assert probe_result["quality"]["rejected_rows"] == 9
+    assert probe_result["quality"]["rejected_rows"] == 10
+    assert probe_result["quality"]["invalid_unit_prices"] == 2
     assert probe_result["quality"]["missing_customer_ids"] == 1
     assert probe_result["quality"]["missing_products"] == 1
     probe_decisions = pd.read_csv(base / "project-1-probe" / "decision_log.csv").set_index("transaction_id")
     assert "missing_customer_id" in probe_decisions.loc["T-MISSING-CUSTOMER", "reason"]
     assert "missing_product" in probe_decisions.loc["T-MISSING-PRODUCT", "reason"]
+    assert "invalid_unit_price" in probe_decisions.loc["T-INFINITE-PRICE", "reason"]
+    empty_sales = base / "project-1-empty.csv"
+    source.head(0).to_csv(empty_sales, index=False)
+    try:
+        module.run(empty_sales, base / "project-1-empty-output")
+    except ValueError as exc:
+        assert "no sales records" in str(exc)
+    else:
+        raise AssertionError("Project 1 must reject an empty input extract")
     print("[PASS] Project 1: cleaning, duplicate/invalid-row audit, decision log and monthly reconciliation")
 
 
