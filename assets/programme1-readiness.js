@@ -61,7 +61,7 @@ window.DataTrailProgramme1Readiness = {
     {
       "id": "funnel-cohort",
       "title": "Customer Funnel and Cohort Analysis",
-      "summary": "Define distinct-user funnel denominators and calculate signup-cohort activity retention.",
+      "summary": "Calculate a sequential distinct-customer funnel and signup-cohort activity retention with explicit event-order rules.",
       "folder": "projects/programme-1/03-funnel-cohort-analysis",
       "skills": [
         "event data",
