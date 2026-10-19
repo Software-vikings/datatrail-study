@@ -2132,5 +2132,135 @@ window.DataTrailPythonAnalyticsLessons = [
         }
       ]
     }
+  },
+  {
+    "id": "p1-c20",
+    "curriculumId": "P1-C20",
+    "prerequisites": [
+      "p1-c19"
+    ],
+    "title": "Analyst projects and interview readiness",
+    "level": "Capstone",
+    "mins": 120,
+    "plain": "Knowing Python syntax is not the same as being ready to work as an analyst. An analyst must take an unfamiliar business question, inspect the source data, define measures, build a repeatable method, check the result and explain what the evidence can and cannot support. This capstone brings the four portfolio projects together and prepares you to explain your decisions in interviews.",
+    "definition": "A portfolio project is a reproducible body of work that demonstrates problem framing, data quality, analytical method, communication and professional judgement. Readiness is not measured by the number of tools used; it is demonstrated by correct metrics, traceable decisions, validated outputs and the ability to defend assumptions. An interview question bank is structured practice across screening, core applied work, advanced reasoning and common analytical traps.",
+    "analogy": "Think of the four projects as four client assignments and the interview as a review meeting. You are not being judged on whether you can recite every tool command. You are showing that you can understand the brief, inspect the evidence, explain the steps, catch mistakes and recommend an appropriate next action. Your portfolio is the work folder; your explanation is the meeting.",
+    "setupGuide": "The capstone uses the four executable project folders under projects/programme-1. Run the project verifier after installing pandas, Matplotlib and openpyxl. The 100-question Programme 1 interview bank is available from the Project Studio and Interview Gym. The existing separate 51-question Python gym remains unchanged.",
+    "example": "PROJECT_REQUIREMENTS = {\n    \"sales-quality\": {\"cleaned_sales.csv\", \"rejected_sales.csv\", \"decision_log.csv\", \"monthly_reconciliation.csv\", \"data_quality_report.json\"},\n    \"retail-performance\": {\"monthly_performance.csv\", \"region_performance.csv\", \"category_performance.csv\", \"customer_performance.csv\", \"three PNG charts\", \"insights.md\"},\n    \"funnel-cohort\": {\"funnel_metrics.csv\", \"cohort_activity.csv\", \"cohort_retention.csv\", \"cohort_retention_heatmap.png\", \"metric_definitions.md\"},\n    \"automated-reporting\": {\"source_snapshot.json\", \"report_database.sqlite\", \"paid_order_extract.csv\", \"monthly_paid_summary.csv\", \"monthly_report.xlsx\", \"run.log\"}\n}\nCOMMON_REQUIREMENTS = {\n    \"business_question\", \"metric_definitions\", \"methodology\",\n    \"limitations\", \"recommendation\", \"reproducible_steps\"\n}\nQUESTION_ALLOCATION = {\"Lowball\": 20, \"Core\": 35, \"Highball\": 25, \"Trap\": 20}\n\ndef review_submission(project_id, submission):\n    if project_id not in PROJECT_REQUIREMENTS:\n        raise ValueError(f\"Unknown project: {project_id}\")\n    if not isinstance(submission, dict):\n        raise TypeError(\"A project submission must be a dictionary\")\n    missing_common = sorted(COMMON_REQUIREMENTS - set(submission))\n    supplied = set(submission.get(\"deliverables\", []))\n    missing_deliverables = sorted(PROJECT_REQUIREMENTS[project_id] - supplied)\n    completed = len(PROJECT_REQUIREMENTS[project_id]) - len(missing_deliverables)\n    required = len(PROJECT_REQUIREMENTS[project_id])\n    return {\n        \"project_id\": project_id,\n        \"ready\": not missing_common and not missing_deliverables,\n        \"missing_common\": missing_common,\n        \"missing_deliverables\": missing_deliverables,\n        \"completed_deliverables\": completed,\n        \"required_deliverables\": required\n    }\n\ncomplete_submission = {\n    \"business_question\": \"Which decision does the analysis support?\",\n    \"metric_definitions\": \"Numerator, denominator, grain and time period are documented.\",\n    \"methodology\": \"Validation and transformation steps are reproducible.\",\n    \"limitations\": \"Coverage gaps and evidence limits are explicit.\",\n    \"recommendation\": \"The action follows from the measured evidence.\",\n    \"reproducible_steps\": \"Environment, inputs and run commands are documented.\"\n}\nsubmissions = {\n    project_id: {**complete_submission, \"deliverables\": sorted(required)}\n    for project_id, required in PROJECT_REQUIREMENTS.items()\n}\nreviews = [review_submission(project_id, submission) for project_id, submission in submissions.items()]\nready_count = sum(review[\"ready\"] for review in reviews)\nmissing_count = sum(len(review[\"missing_common\"]) + len(review[\"missing_deliverables\"]) for review in reviews)\nprint(\"Projects reviewed:\", len(reviews))\nprint(\"Portfolio-ready:\", ready_count)\nprint(\"Missing deliverables:\", missing_count)\nprint(\"Interview target:\", sum(QUESTION_ALLOCATION.values()))\nprint(\"Question allocation: Lowball 20 | Core 35 | Highball 25 | Trap 20\")",
+    "expectedOutput": "Projects reviewed: 4\nPortfolio-ready: 4\nMissing deliverables: 0\nInterview target: 100\nQuestion allocation: Lowball 20 | Core 35 | Highball 25 | Trap 20",
+    "prediction": "A project has a correct chart and a polished workbook, but no documented metric definitions, source validation or limitations. Should it be marked portfolio-ready?",
+    "predictionAnswer": "No. Visual polish does not compensate for missing analytical evidence. The reviewer needs to know what each metric means, whether the inputs were validated, how the output can be reproduced and what the data cannot prove.",
+    "question": "Which combination best demonstrates analyst readiness?",
+    "options": [
+      "A large notebook with many Python libraries imported",
+      "A polished dashboard with no description of the source data",
+      "A reproducible workflow with validated metrics, reconciled outputs, limitations and a defensible recommendation"
+    ],
+    "answer": 2,
+    "why": "Analyst readiness is demonstrated through reasoning, correctness, reproducibility and communication. Tool use and visual polish help only when the analysis itself is defensible.",
+    "task": "Use the four portfolio project checklists to review a submission. Confirm that the common business and documentation evidence is present, each project's specific deliverables are present, the review cannot pass an incomplete project, and the Programme 1 interview allocation totals 100.",
+    "hint": "Use a dictionary keyed by the four project IDs. Compare the submission's common fields to COMMON_REQUIREMENTS and its deliverables to the corresponding PROJECT_REQUIREMENTS set. Return missing items in sorted order, count completed and required artifacts, reject unknown projects and verify the tier allocation.",
+    "solution": "PROJECT_REQUIREMENTS = {\n    \"sales-quality\": {\"cleaned_sales.csv\", \"rejected_sales.csv\", \"decision_log.csv\", \"monthly_reconciliation.csv\", \"data_quality_report.json\"},\n    \"retail-performance\": {\"monthly_performance.csv\", \"region_performance.csv\", \"category_performance.csv\", \"customer_performance.csv\", \"three PNG charts\", \"insights.md\"},\n    \"funnel-cohort\": {\"funnel_metrics.csv\", \"cohort_activity.csv\", \"cohort_retention.csv\", \"cohort_retention_heatmap.png\", \"metric_definitions.md\"},\n    \"automated-reporting\": {\"source_snapshot.json\", \"report_database.sqlite\", \"paid_order_extract.csv\", \"monthly_paid_summary.csv\", \"monthly_report.xlsx\", \"run.log\"}\n}\nCOMMON_REQUIREMENTS = {\n    \"business_question\", \"metric_definitions\", \"methodology\",\n    \"limitations\", \"recommendation\", \"reproducible_steps\"\n}\nQUESTION_ALLOCATION = {\"Lowball\": 20, \"Core\": 35, \"Highball\": 25, \"Trap\": 20}\n\ndef review_submission(project_id, submission):\n    if project_id not in PROJECT_REQUIREMENTS:\n        raise ValueError(f\"Unknown project: {project_id}\")\n    if not isinstance(submission, dict):\n        raise TypeError(\"A project submission must be a dictionary\")\n    missing_common = sorted(COMMON_REQUIREMENTS - set(submission))\n    supplied = set(submission.get(\"deliverables\", []))\n    missing_deliverables = sorted(PROJECT_REQUIREMENTS[project_id] - supplied)\n    completed = len(PROJECT_REQUIREMENTS[project_id]) - len(missing_deliverables)\n    required = len(PROJECT_REQUIREMENTS[project_id])\n    return {\n        \"project_id\": project_id,\n        \"ready\": not missing_common and not missing_deliverables,\n        \"missing_common\": missing_common,\n        \"missing_deliverables\": missing_deliverables,\n        \"completed_deliverables\": completed,\n        \"required_deliverables\": required\n    }\n\ncomplete_submission = {\n    \"business_question\": \"Which decision does the analysis support?\",\n    \"metric_definitions\": \"Numerator, denominator, grain and time period are documented.\",\n    \"methodology\": \"Validation and transformation steps are reproducible.\",\n    \"limitations\": \"Coverage gaps and evidence limits are explicit.\",\n    \"recommendation\": \"The action follows from the measured evidence.\",\n    \"reproducible_steps\": \"Environment, inputs and run commands are documented.\"\n}\nsubmissions = {\n    project_id: {**complete_submission, \"deliverables\": sorted(required)}\n    for project_id, required in PROJECT_REQUIREMENTS.items()\n}\nreviews = [review_submission(project_id, submission) for project_id, submission in submissions.items()]\nready_count = sum(review[\"ready\"] for review in reviews)\nmissing_count = sum(len(review[\"missing_common\"]) + len(review[\"missing_deliverables\"]) for review in reviews)\nprint(\"Projects reviewed:\", len(reviews))\nprint(\"Portfolio-ready:\", ready_count)\nprint(\"Missing deliverables:\", missing_count)\nprint(\"Interview target:\", sum(QUESTION_ALLOCATION.values()))\nprint(\"Question allocation: Lowball 20 | Core 35 | Highball 25 | Trap 20\")",
+    "exercise": {
+      "title": "Build a portfolio and interview readiness checker",
+      "prompt": "Complete review_submission() so it checks common evidence and project-specific artifacts for all four projects. It must return a structured readiness result, reject invalid inputs, count completed deliverables and verify the 100-question interview allocation.",
+      "setup": "",
+      "starter": "# Review a portfolio submission against explicit evidence requirements.\nPROJECT_REQUIREMENTS = {\n    \"sales-quality\": {\"cleaned_sales.csv\", \"rejected_sales.csv\", \"decision_log.csv\", \"monthly_reconciliation.csv\", \"data_quality_report.json\"},\n    \"retail-performance\": {\"monthly_performance.csv\", \"region_performance.csv\", \"category_performance.csv\", \"customer_performance.csv\", \"three PNG charts\", \"insights.md\"},\n    \"funnel-cohort\": {\"funnel_metrics.csv\", \"cohort_activity.csv\", \"cohort_retention.csv\", \"cohort_retention_heatmap.png\", \"metric_definitions.md\"},\n    \"automated-reporting\": {\"source_snapshot.json\", \"report_database.sqlite\", \"paid_order_extract.csv\", \"monthly_paid_summary.csv\", \"monthly_report.xlsx\", \"run.log\"}\n}\nCOMMON_REQUIREMENTS = {\"business_question\", \"metric_definitions\", \"methodology\", \"limitations\", \"recommendation\", \"reproducible_steps\"}\nQUESTION_ALLOCATION = {\"Lowball\": 20, \"Core\": 35, \"Highball\": 25, \"Trap\": 20}\n\ndef review_submission(project_id, submission):\n    # TODO: reject unknown projects and invalid submission types.\n    # TODO: list missing common narrative evidence and project-specific deliverables.\n    # TODO: return a structured readiness result; do not pass a partial project.\n    return {\"project_id\": project_id, \"ready\": False, \"missing_common\": [], \"missing_deliverables\": [], \"completed_deliverables\": 0, \"required_deliverables\": 0}\n\ncomplete_submission = {\n    \"business_question\": \"Which decision does the analysis support?\",\n    \"metric_definitions\": \"Numerator, denominator, grain and time period are documented.\",\n    \"methodology\": \"Validation and transformation steps are reproducible.\",\n    \"limitations\": \"Coverage gaps and evidence limits are explicit.\",\n    \"recommendation\": \"The action follows from the measured evidence.\",\n    \"reproducible_steps\": \"Environment, inputs and run commands are documented.\"\n}\nsubmissions = {\n    project_id: {**complete_submission, \"deliverables\": sorted(required)}\n    for project_id, required in PROJECT_REQUIREMENTS.items()\n}\nreviews = [review_submission(project_id, submission) for project_id, submission in submissions.items()]\nready_count = sum(review[\"ready\"] for review in reviews)\nmissing_count = sum(len(review[\"missing_common\"]) + len(review[\"missing_deliverables\"]) for review in reviews)\nprint(\"Projects reviewed:\", len(reviews))\nprint(\"Portfolio-ready:\", ready_count)\nprint(\"Missing deliverables:\", missing_count)\nprint(\"Interview target:\", sum(QUESTION_ALLOCATION.values()))\nprint(\"Question allocation: Lowball 20 | Core 35 | Highball 25 | Trap 20\")",
+      "hint": "Compare sets rather than relying on list order. A project is ready only when there are no missing common fields and no missing deliverables. Return sorted missing lists to keep results deterministic. Validate project ID and submission type before checking evidence.",
+      "solution": "PROJECT_REQUIREMENTS = {\n    \"sales-quality\": {\"cleaned_sales.csv\", \"rejected_sales.csv\", \"decision_log.csv\", \"monthly_reconciliation.csv\", \"data_quality_report.json\"},\n    \"retail-performance\": {\"monthly_performance.csv\", \"region_performance.csv\", \"category_performance.csv\", \"customer_performance.csv\", \"three PNG charts\", \"insights.md\"},\n    \"funnel-cohort\": {\"funnel_metrics.csv\", \"cohort_activity.csv\", \"cohort_retention.csv\", \"cohort_retention_heatmap.png\", \"metric_definitions.md\"},\n    \"automated-reporting\": {\"source_snapshot.json\", \"report_database.sqlite\", \"paid_order_extract.csv\", \"monthly_paid_summary.csv\", \"monthly_report.xlsx\", \"run.log\"}\n}\nCOMMON_REQUIREMENTS = {\n    \"business_question\", \"metric_definitions\", \"methodology\",\n    \"limitations\", \"recommendation\", \"reproducible_steps\"\n}\nQUESTION_ALLOCATION = {\"Lowball\": 20, \"Core\": 35, \"Highball\": 25, \"Trap\": 20}\n\ndef review_submission(project_id, submission):\n    if project_id not in PROJECT_REQUIREMENTS:\n        raise ValueError(f\"Unknown project: {project_id}\")\n    if not isinstance(submission, dict):\n        raise TypeError(\"A project submission must be a dictionary\")\n    missing_common = sorted(COMMON_REQUIREMENTS - set(submission))\n    supplied = set(submission.get(\"deliverables\", []))\n    missing_deliverables = sorted(PROJECT_REQUIREMENTS[project_id] - supplied)\n    completed = len(PROJECT_REQUIREMENTS[project_id]) - len(missing_deliverables)\n    required = len(PROJECT_REQUIREMENTS[project_id])\n    return {\n        \"project_id\": project_id,\n        \"ready\": not missing_common and not missing_deliverables,\n        \"missing_common\": missing_common,\n        \"missing_deliverables\": missing_deliverables,\n        \"completed_deliverables\": completed,\n        \"required_deliverables\": required\n    }\n\ncomplete_submission = {\n    \"business_question\": \"Which decision does the analysis support?\",\n    \"metric_definitions\": \"Numerator, denominator, grain and time period are documented.\",\n    \"methodology\": \"Validation and transformation steps are reproducible.\",\n    \"limitations\": \"Coverage gaps and evidence limits are explicit.\",\n    \"recommendation\": \"The action follows from the measured evidence.\",\n    \"reproducible_steps\": \"Environment, inputs and run commands are documented.\"\n}\nsubmissions = {\n    project_id: {**complete_submission, \"deliverables\": sorted(required)}\n    for project_id, required in PROJECT_REQUIREMENTS.items()\n}\nreviews = [review_submission(project_id, submission) for project_id, submission in submissions.items()]\nready_count = sum(review[\"ready\"] for review in reviews)\nmissing_count = sum(len(review[\"missing_common\"]) + len(review[\"missing_deliverables\"]) for review in reviews)\nprint(\"Projects reviewed:\", len(reviews))\nprint(\"Portfolio-ready:\", ready_count)\nprint(\"Missing deliverables:\", missing_count)\nprint(\"Interview target:\", sum(QUESTION_ALLOCATION.values()))\nprint(\"Question allocation: Lowball 20 | Core 35 | Highball 25 | Trap 20\")",
+      "tests": [
+        {
+          "name": "Defines four distinct portfolio project checklists",
+          "code": "assert set(PROJECT_REQUIREMENTS) == {\"sales-quality\", \"retail-performance\", \"funnel-cohort\", \"automated-reporting\"}",
+          "expected": 4,
+          "actual": "len(PROJECT_REQUIREMENTS)",
+          "failureMessage": "The final programme must review each of its four named portfolio projects."
+        },
+        {
+          "name": "Requires business framing and reproducible documentation",
+          "code": "assert COMMON_REQUIREMENTS == {\"business_question\", \"metric_definitions\", \"methodology\", \"limitations\", \"recommendation\", \"reproducible_steps\"}",
+          "expected": 6,
+          "actual": "len(COMMON_REQUIREMENTS)",
+          "failureMessage": "A portfolio submission needs a decision question, metric definitions, method, limitations, recommendation and reproducible run steps."
+        },
+        {
+          "name": "Marks a complete submission as portfolio-ready",
+          "code": "assert all(review_submission(project_id, {**complete_submission, \"deliverables\": list(required)})[\"ready\"] for project_id, required in PROJECT_REQUIREMENTS.items())",
+          "expected": true,
+          "actual": "all four ready flags",
+          "failureMessage": "A submission is ready only when its common narrative evidence and all project-specific artifacts are present."
+        },
+        {
+          "name": "Identifies missing common evidence",
+          "code": "review = review_submission(\"sales-quality\", {\"deliverables\": list(PROJECT_REQUIREMENTS[\"sales-quality\"])})\nassert review[\"ready\"] is False and set(review[\"missing_common\"]) == COMMON_REQUIREMENTS",
+          "expected": 6,
+          "actual": "len(review[\"missing_common\"])",
+          "failureMessage": "Do not treat artifacts alone as a portfolio story. The required business and reproducibility context must also be present."
+        },
+        {
+          "name": "Identifies missing project-specific deliverables",
+          "code": "submission = {**complete_submission, \"deliverables\": [\"cleaned_sales.csv\", \"decision_log.csv\"]}\nreview = review_submission(\"sales-quality\", submission)\nassert review[\"missing_deliverables\"] == [\"data_quality_report.json\", \"monthly_reconciliation.csv\", \"rejected_sales.csv\"]",
+          "expected": [
+            "data_quality_report.json",
+            "monthly_reconciliation.csv",
+            "rejected_sales.csv"
+          ],
+          "actual": "review[\"missing_deliverables\"]",
+          "failureMessage": "The audit project must retain rejected records, reconciliation and its quality summary, not just a cleaned output."
+        },
+        {
+          "name": "Calculates delivered-versus-required project artifact counts",
+          "code": "review = review_submission(\"retail-performance\", {**complete_submission, \"deliverables\": [\"monthly_performance.csv\", \"insights.md\"]})\nassert review[\"completed_deliverables\"] == 2 and review[\"required_deliverables\"] == 6",
+          "expected": [
+            2,
+            6
+          ],
+          "actual": "[review[\"completed_deliverables\"], review[\"required_deliverables\"]]",
+          "failureMessage": "The rubric should show concrete completion counts for the selected project."
+        },
+        {
+          "name": "Rejects unknown project identifiers",
+          "code": "try:\n    review_submission(\"mystery-project\", complete_submission)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"Unknown project must not pass\")",
+          "failureMessage": "Only the four Programme 1 project definitions should be accepted by the readiness evaluator."
+        },
+        {
+          "name": "Rejects invalid submission structures",
+          "code": "try:\n    review_submission(\"sales-quality\", [\"not\", \"a\", \"mapping\"])\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError(\"A list is not a valid submission mapping\")",
+          "failureMessage": "Require a structured mapping of evidence fields before evaluating readiness."
+        },
+        {
+          "name": "Uses the exact 100-question tier allocation",
+          "code": "assert QUESTION_ALLOCATION == {\"Lowball\": 20, \"Core\": 35, \"Highball\": 25, \"Trap\": 20} and sum(QUESTION_ALLOCATION.values()) == 100",
+          "expected": 100,
+          "actual": "sum(QUESTION_ALLOCATION.values())",
+          "failureMessage": "The Programme 1 bank must contain exactly 100 questions, split 20/35/25/20 across its four named tiers."
+        },
+        {
+          "name": "Returns missing requirements in a stable sorted order",
+          "code": "review = review_submission(\"funnel-cohort\", {**complete_submission, \"deliverables\": []})\nassert review[\"missing_deliverables\"] == sorted(review[\"missing_deliverables\"]) and review[\"missing_common\"] == []",
+          "expected": "sorted deliverable list",
+          "actual": "review[\"missing_deliverables\"]",
+          "failureMessage": "Stable output makes the readiness report reproducible and easy to compare between revisions."
+        },
+        {
+          "name": "Keeps partial delivery from passing the readiness gate",
+          "code": "review = review_submission(\"automated-reporting\", {**complete_submission, \"deliverables\": [\"monthly_report.xlsx\", \"run.log\"]})\nassert review[\"ready\"] is False and review[\"completed_deliverables\"] == 2 and review[\"required_deliverables\"] == 6",
+          "expected": [
+            false,
+            2,
+            6
+          ],
+          "actual": "[review[\"ready\"], review[\"completed_deliverables\"], review[\"required_deliverables\"]]",
+          "failureMessage": "A polished workbook alone is not a complete reporting pipeline: source snapshot, extract, summary and database are also required."
+        },
+        {
+          "name": "Produces the documented readiness summary",
+          "code": "assert __output__.splitlines() == [\n    \"Projects reviewed: 4\",\n    \"Portfolio-ready: 4\",\n    \"Missing deliverables: 0\",\n    \"Interview target: 100\",\n    \"Question allocation: Lowball 20 | Core 35 | Highball 25 | Trap 20\"\n]",
+          "expected": "4 projects, 4 ready, 0 missing, 100 questions",
+          "actual": "__output__.strip()",
+          "failureMessage": "The worked example must produce a deterministic portfolio and interview readiness summary."
+        }
+      ]
+    }
   }
 ];
