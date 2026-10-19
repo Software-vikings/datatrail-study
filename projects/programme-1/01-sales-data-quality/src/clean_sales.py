@@ -20,7 +20,7 @@ def run(input_csv: Path, output_dir: Path) -> dict:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    source = pd.read_csv(input_csv, dtype={"transaction_id": "string", "customer_id": "string"})
+    source = pd.read_csv(input_csv, dtype={"transaction_id": "string", "customer_id": "string", "city": "string", "product": "string"})
     missing_columns = REQUIRED_COLUMNS - set(source.columns)
     if missing_columns:
         raise ValueError(f"Missing required columns: {sorted(missing_columns)}")
@@ -28,6 +28,7 @@ def run(input_csv: Path, output_dir: Path) -> dict:
     frame = source.copy()
     frame["_source_row"] = range(2, len(frame) + 2)
     frame["transaction_id"] = frame["transaction_id"].astype("string").str.strip()
+    frame["customer_id"] = frame["customer_id"].astype("string").str.strip()
     frame["city"] = frame["city"].astype("string").str.strip().str.title()
     frame["product"] = frame["product"].astype("string").str.strip().str.title()
     frame["order_date"] = pd.to_datetime(frame["order_date"], errors="coerce")
@@ -41,8 +42,12 @@ def run(input_csv: Path, output_dir: Path) -> dict:
             reason_map[index].append("duplicate_transaction_id")
         if pd.isna(frame.loc[index, "order_date"]):
             reason_map[index].append("invalid_order_date")
+        if pd.isna(frame.loc[index, "customer_id"]) or not str(frame.loc[index, "customer_id"]).strip():
+            reason_map[index].append("missing_customer_id")
         if pd.isna(frame.loc[index, "city"]) or not str(frame.loc[index, "city"]).strip():
             reason_map[index].append("missing_city")
+        if pd.isna(frame.loc[index, "product"]) or not str(frame.loc[index, "product"]).strip():
+            reason_map[index].append("missing_product")
         quantity = frame.loc[index, "quantity"]
         if pd.isna(quantity) or quantity <= 0:
             reason_map[index].append("invalid_quantity")
@@ -80,7 +85,9 @@ def run(input_csv: Path, output_dir: Path) -> dict:
         "rejected_rows": int(len(rejected)),
         "duplicate_transaction_ids": int(duplicate.sum()),
         "invalid_dates": int(frame["order_date"].isna().sum()),
+        "missing_customer_ids": int(frame["customer_id"].isna().sum() + frame["customer_id"].eq("").sum()),
         "missing_cities": int(frame["city"].isna().sum() + frame["city"].eq("").sum()),
+        "missing_products": int(frame["product"].isna().sum() + frame["product"].eq("").sum()),
         "invalid_quantities": int((frame["quantity"].isna() | (frame["quantity"] <= 0)).sum()),
         "invalid_unit_prices": int((frame["unit_price"].isna() | (frame["unit_price"] < 0)).sum()),
         "accepted_revenue": round(float(accepted["revenue"].sum()), 2),
