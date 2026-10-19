@@ -36,6 +36,7 @@ jobs:
           PY
           node --check /tmp/datatrail-app.js
           node --check assets/python-exercises.js
+          node --check assets/python-data-analytics.js
           node - <<'NODE'
           global.window = {};
           require("./assets/python-exercises.js");
@@ -90,33 +91,10 @@ jobs:
           if (!html.includes("Run your code and pass all the checks before continuing.")) throw new Error("Python lessons must require a passing task before continuing");
           console.log("Validated", lessons.length, "Python lessons across Basic/Intermediate/Advanced, ", tasks.length, "exercises,", tasks.reduce((n, x) => n + x.tests.length, 0), "named tests, interview sets, runnable examples and interactive lesson grading.");
           NODE
+      - name: Validate Programme 1 curriculum and lesson alignment
+        run: python3 scripts/validate_programme1.py
       - name: Verify Python exercise reference solutions
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import contextlib
-          import io
-          import json
-
-          source = Path("assets/python-exercises.js").read_text(encoding="utf-8")
-          prefix = "window.DataTrailPythonExercises = "
-          if not source.startswith(prefix):
-              raise SystemExit("Python exercise bank has an unexpected format")
-          tasks = json.loads(source[len(prefix):].strip().removesuffix(";"))
-          for task_index, task in enumerate(tasks, start=1):
-              namespace = {"__name__": "__main__"}
-              captured = io.StringIO()
-              with contextlib.redirect_stdout(captured):
-                  if task["setup"].strip():
-                      exec(compile(task["setup"], "<setup>", "exec"), namespace)
-                  exec(compile(task["solution"], "<reference solution>", "exec"), namespace)
-              namespace["__output__"] = captured.getvalue()
-              namespace["__source__"] = task["solution"]
-              for test in task["tests"]:
-                  exec(compile(test["code"], "<" + test["name"] + ">", "exec"), namespace)
-              print(f"Exercise {task_index:02d}: {task['title']} — {len(task['tests'])} tests passed")
-          print(f"Verified {len(tasks)} reference solutions and all named test cases.")
-          PY
+        run: python3 scripts/verify_python_exercises.py
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
