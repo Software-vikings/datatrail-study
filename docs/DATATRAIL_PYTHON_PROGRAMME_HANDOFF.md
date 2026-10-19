@@ -6,7 +6,8 @@
 **Last fully verified initial Phase 7 implementation baseline:** `91c06bb0ffda7f9b680f4a6369b36f0893fc117a`  
 **Progress backup hardening commit:** `041f93df0000de1058d0b1792177f8e9579d9b41`  
 **Progress sanitizer / regression-test commit:** `7df406556807e731163897e102e8438ab54cdb7e`  
-**Latest successful source-audit PR validation (code/test head):** `cfc34de3d5ef04c62707771eb166781525bec53c` — [run #265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350) — success.  
+**Source-audit PR validation (code/test head):** [run #265](https://github.com/Software-vikings/datatrail-study/actions/runs/39209310350) — success.  
+**Latest documentation-updated head:** `e067107b62846d400078c976645d6bfea8b453e5` — [push run #276](https://github.com/Software-vikings/datatrail-study/actions/runs/39209512107) and [PR run #277](https://github.com/Software-vikings/datatrail-study/actions/runs/39209518453) — both success.  
 **Phase 6 base branch/head:** `programme-1/phase-6-analyst-workflows-readiness` / `34aa0303f0292b288bd748ac18a79a1b41aeb102`  
 **Current release truth:** Programme 1 implementation is complete: 21/21 interactive chapters, 162 named coding checks, four runnable portfolio projects and 100 interview questions. The feature stack is not merged into `main`; GitHub Pages has not been deployed.
 
@@ -200,4 +201,4 @@ Once those checks are satisfied and approval is given, merge PRs in dependency o
 - `docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md` — this current engineering/release handoff.
 - `docs/CHATGPT_NEW_CHAT_PROMPT.md` — prompt to continue from the actual completed state.
 
-Always query GitHub again at the beginning of a future session. This checkpoint is dated and must not override live repository state.
+At the latest check, PRs #1–#7 were still open, unmerged and mergeable in the intended dependency chain. No submitted reviews or inline review threads were present on the seven PRs. Always query GitHub again at the beginning of a future session. This checkpoint is dated and must not override live repository state.
