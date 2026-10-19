@@ -39,3 +39,5 @@ python3 scripts/verify_python_exercises.py
 \`\`\`
 
 The GitHub Actions validation workflow runs these checks on the feature branch and its pull request. A successful CI run is required before a phase is reported as verified.
+
+**Phase 2 CI result:** GitHub Actions run [#25](https://github.com/Software-vikings/datatrail-study/actions/runs/39190627418) completed successfully. JavaScript and Python syntax checks passed; the manifest validator passed; both released Programme 1 lessons passed all 6 named checks; all 84 legacy Python reference solutions passed all 205 named checks. This verifies source syntax, curriculum consistency and reference exercise behaviour. It is not a substitute for a manual browser/device review.
