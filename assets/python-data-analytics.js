@@ -920,7 +920,7 @@ window.DataTrailPythonAnalytics = {
       ]
     },
     {
-      "id": "Traps",
+      "id": "Trap",
       "targetQuestions": 20,
       "focus": [
         "mutability",
