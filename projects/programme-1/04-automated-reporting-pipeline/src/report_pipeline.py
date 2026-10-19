@@ -107,6 +107,23 @@ def run_pipeline(api_fixture: Path, monthly_folder: Path, output_dir: Path) -> d
     if len({row["order_id"] for row in all_rows}) != len(all_rows):
         raise ValueError("Order IDs must be unique across all sources")
 
+    # Preflight the report aggregates before replacing the last successful DB
+    # output. Inputs are non-negative, so fsum also exposes total overflow.
+    paid_amounts_by_month: dict[str, list[float]] = {}
+    paid_amounts = []
+    for row in all_rows:
+        if row["status"] == "paid":
+            paid_amount = row["amount"]
+            paid_amounts.append(paid_amount)
+            paid_amounts_by_month.setdefault(row["month"], []).append(paid_amount)
+    try:
+        preflight_total = math.fsum(paid_amounts)
+        preflight_monthly = [math.fsum(values) for values in paid_amounts_by_month.values()]
+    except OverflowError as exc:
+        raise ValueError("Paid revenue aggregation overflowed; previous report outputs were preserved") from exc
+    if not math.isfinite(preflight_total) or any(not math.isfinite(value) for value in preflight_monthly):
+        raise ValueError("Paid revenue aggregation overflowed; previous report outputs were preserved")
+
     db_path = output_dir / "report_database.sqlite"
     connection = sqlite3.connect(db_path)
     try:
