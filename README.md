@@ -6,17 +6,16 @@ Programme 1 — **Python for Data Analytics** — is a separate 21-chapter begin
 
 ## Publish the study site
 
-The website files are ready on the `main` branch. To publish:
+The GitHub Pages deployment workflow publishes from `main` (or by an authorised manual dispatch). **Programme 1's 21-chapter implementation is currently held in the stacked feature pull requests #1–#7, not yet merged into `main`.** The production site therefore must not be assumed to contain this new curriculum yet.
 
-1. Open **Settings → Pages** in this repository.
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-3. Open the **Actions** tab and check the **Deploy DataTrail to GitHub Pages** workflow.
-4. Once its deployment succeeds, use the URL shown in the workflow summary. For a public project site it will normally be:
+After the full PR chain has been reviewed and merged in order (#1 → #2 → #3 → #4 → #5 → #6 → #7), and the repository owner has authorised publication:
 
-   `https://software-vikings.github.io/datatrail-study/`
+1. Open **Settings → Pages** and confirm **Source** is set to **GitHub Actions**.
+2. Open the **Actions** tab and select **Deploy DataTrail to GitHub Pages**.
+3. Run the workflow only after the final merged `main` branch passes the release gate.
+4. Confirm the deployment workflow succeeds, then use the site URL shown in its workflow summary.
 
-GitHub Pages is available for public repositories on GitHub Free. Publishing from a private repository requires an eligible paid plan. A Pages site is public on the internet unless it is privately published through an eligible enterprise plan.
-
+The expected project-site URL is `https://software-vikings.github.io/datatrail-study/`, but a URL existing does not prove that the latest feature stack has been deployed. Verify the deployment run before treating it as live.
 ## How DataTrail teaches
 
 Every lesson follows the same five-stage learning loop:
@@ -67,8 +66,8 @@ No sign-in, paid API key or backend is required.
 
 - [Programme 1 development log](docs/PROGRAMME_1_DEVELOPMENT_LOG.md) — delivered phases, current availability and verification commands.
 - [Programme 1 lesson authoring standard](docs/PROGRAMME_1_LESSON_AUTHORING.md) — required lesson structure, teaching rules, test model and release checklist.
-- [Programme 1 engineering handoff](docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md) — full curriculum status, technical architecture, branch/PR chain, CI requirements and exact next implementation scope.
-- [New-chat continuation prompt](docs/CHATGPT_NEW_CHAT_PROMPT.md) — ready-to-paste instructions to continue implementation in a fresh ChatGPT conversation.
+- [Programme 1 engineering handoff](docs/DATATRAIL_PYTHON_PROGRAMME_HANDOFF.md) — verified completed curriculum, technical architecture, final CI evidence, stacked PR chain and remaining release-readiness checks.
+- [New-chat continuation prompt](docs/CHATGPT_NEW_CHAT_PROMPT.md) — ready-to-paste instructions for release-readiness review from the completed 21-chapter state.
 
 ## Run locally
 
